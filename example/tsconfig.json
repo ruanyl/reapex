@@ -7,11 +7,10 @@
     "preserveConstEnums": true,
     "sourceMap": true,
     "jsx": "react",
-    "target": "es5",
-    "lib": ["ES2015", "DOM", "ES5", "ScriptHost"]
+    "target": "es5"
   },
   "include": [
-    "src/**/*"
+    "./**/*"
   ],
   "exclude": [
     "**/*.spec.ts"

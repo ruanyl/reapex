@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'development') {
   middlewares = [...middlewares, logger]
 }
 
-export const configureStore = (reducers: any, sagas: any, preloadedState: any = undefined) => {
+export const configureStore = (reducers: any, sagas: any, preloadedState: any = undefined): any => {
   const store = createStore(
     reducers,
     preloadedState,
@@ -22,5 +22,3 @@ export const configureStore = (reducers: any, sagas: any, preloadedState: any = 
   // store.dispatch({ type: ActionTypes.APP.MOUNT })
   return store
 }
-
-export default configureStore
