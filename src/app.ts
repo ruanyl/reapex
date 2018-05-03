@@ -1,4 +1,4 @@
-import { T } from 'ramda'
+import { contains } from 'ramda'
 import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, Dictionary, StateObject } from 'immutable-state-creator'
@@ -37,22 +37,47 @@ export class App {
   constructor(props: any = {}) {
     this.rootReducers = {
       ...props.externalReducers,
-      __root: T,
+      __root: () => true,
     }
   }
 
   model<T extends Dictionary>(config: Model<T>) {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
-    this.effectCreators.push(config.effects)
     if (config.reducers) {
-      const modelReducers = config.reducers(stateClass)
-      this.rootReducers[config.name] = createReducer(stateClass.create(), modelReducers)
+      const reducers = config.reducers(stateClass)
+      const namedReducers: Dictionary = {}
+      Object.keys(reducers).forEach(key => {
+        namedReducers[`${config.name}/${key}`] = reducers[key];
+      })
+      this.rootReducers[config.name] = createReducer(stateClass.create(), namedReducers)
+    }
+
+    if (config.effects) {
+      const effectsCreator = (states: any) => {
+        const effects = config.effects(states)
+        const namedEffects: Dictionary = {}
+        Object.keys(effects).forEach(type => {
+          const paths = type.split('/');
+          if (paths.length > 1 && this.hasModel(paths[0])) {
+            namedEffects[type] = effects[type]
+          } else {
+            namedEffects[`${config.name}/${type}`] = effects[type]
+          }
+        })
+        return namedEffects
+      }
+      this.effectCreators.push(effectsCreator)
     }
   }
 
   use(stateClassesSelector: any) {
     return stateClassesSelector(this.states)
+  }
+
+  hasModel(name: string): boolean {
+    return contains(name, Object.keys(this.states))
+    // return Object.keys(this.states).includes(name)
   }
 
   createRootSagas() {

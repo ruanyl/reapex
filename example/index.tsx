@@ -14,8 +14,8 @@ app.model<{total: number}>({
     total: 0,
   },
   reducers: Counter => ({
-    'increase': Counter.total.increase,
-    'decrease': Counter.total.decrease,
+    increase: Counter.total.increase,
+    decrease: Counter.total.decrease,
   }),
   effects: ({ Counter }: any) => ({
     'increase': function* increaseEffect() {
@@ -41,8 +41,8 @@ const CounterContainer = app.use(({ Counter }: any) => {
   })
 
   const mapDispatchToProps = (dispatch: any) => ({
-    increase: () => dispatch({ type: 'increase' }),
-    decrease: () => dispatch({ type: 'decrease' }),
+    increase: () => dispatch({ type: 'Counter/increase' }),
+    decrease: () => dispatch({ type: 'Counter/decrease' }),
   })
 
   return connect(
