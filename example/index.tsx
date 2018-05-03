@@ -18,7 +18,7 @@ app.model<{total: number}>({
     decrease: Counter.total.decrease,
   }),
   effects: ({ Counter }: any) => ({
-    'increase': function* increaseEffect() {
+    *increase() {
       const total = yield select(Counter.total.getter)
       console.log('total is: ', total)
     }
