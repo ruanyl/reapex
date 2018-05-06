@@ -12,7 +12,7 @@ if (process.env.NODE_ENV === 'development') {
   middlewares = [...middlewares, logger]
 }
 
-export const configureStore = (reducers: any, sagas: any, preloadedState: any = undefined): any => {
+export const configureStore = (reducers: any, sagas: any, preloadedState: any = undefined) => {
   const store = createStore(
     reducers,
     preloadedState,

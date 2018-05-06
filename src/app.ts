@@ -3,8 +3,11 @@ import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, Dictionary, StateObject } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
+import { Map } from 'immutable'
+import { Store } from 'redux'
 
 import { configureStore } from './store'
+import { Registry, registryReducer, register, registerAll } from './registry'
 
 export interface Model<T> {
   name: string;
@@ -30,13 +33,16 @@ function* safeFork(saga: any): any {
 
 export class App {
   rootReducers: any
-
   states: any = {}
   effectCreators: any[] = []
+  registries: Map<string, React.ComponentType<any>> = Map()
+  Layout: React.ComponentType<any>
+  store: Store
 
   constructor(props: any = {}) {
     this.rootReducers = {
       ...props.externalReducers,
+      [Registry.name]: registryReducer,
       __root: () => true,
     }
   }
@@ -75,6 +81,17 @@ export class App {
     return stateClassesSelector(this.states)
   }
 
+  register(name: string, component: React.ComponentType<any>) {
+    if (this.store) {
+      this.store.dispatch(register(name, component))
+    }
+    this.registries = this.registries.set(name, component)
+  }
+
+  layout(Layout: React.ComponentType<any>) {
+    this.Layout = Layout
+  }
+
   hasModel(name: string): boolean {
     return contains(name, Object.keys(this.states))
     // return Object.keys(this.states).includes(name)
@@ -90,6 +107,9 @@ export class App {
   createStore() {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
+    this.store = store
+    // initialize the component registry
+    this.store.dispatch(registerAll(this.registries))
     return store
   }
 }
