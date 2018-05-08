@@ -17,7 +17,13 @@ app.model<{total: number}>({
     decrease: Counter.total.decrease,
   }),
   effects: ({ Counter }: any) => ({
+    // by default is the current namespace, which is `Counter`
     *increase() {
+      const total = yield select(Counter.total.getter)
+      console.log('total is: ', total)
+    },
+    // specify a namespace
+    'Counter/decrease': function* decrease() {
       const total = yield select(Counter.total.getter)
       console.log('total is: ', total)
     }
