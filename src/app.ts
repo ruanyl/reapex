@@ -6,6 +6,7 @@ import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
 import { Store } from 'redux'
 
+import { createActions } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll } from './registry'
 
@@ -32,9 +33,10 @@ function* safeFork(saga: any): any {
 }
 
 export class App {
-  rootReducers: any
+  rootReducers: Dictionary
   states: any = {}
   effectCreators: any[] = []
+  actionCreators: Dictionary = {}
   registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Store
@@ -50,12 +52,22 @@ export class App {
   model<T extends Dictionary>(config: Model<T>) {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
+    const createActionsForCurrentName = createActions(config.name)
     if (config.reducers) {
       const reducers = config.reducers(stateClass)
+      // reducer map which key is prepend with namespace
       const namedReducers: Dictionary = {}
       Object.keys(reducers).forEach(key => {
-        namedReducers[`${config.name}/${key}`] = reducers[key];
+        const paths = key.split('/');
+        // key doesn't have a namespace, then append the current namespace
+        if (paths.length === 1) {
+          namedReducers[`${config.name}/${key}`] = reducers[key];
+        } else {
+          namedReducers[key] = reducers[key];
+        }
       })
+      const actionCreators = createActionsForCurrentName(namedReducers)
+      this.actionCreators[config.name] = actionCreators
       this.rootReducers[config.name] = createReducer(stateClass.create(), namedReducers)
     }
 
@@ -78,7 +90,7 @@ export class App {
   }
 
   use(stateClassesSelector: any) {
-    return stateClassesSelector(this.states)
+    return stateClassesSelector(this.states, this.actionCreators)
   }
 
   register(name: string, component: React.ComponentType<any>) {
@@ -108,6 +120,7 @@ export class App {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
     this.store = store
+    console.log(this.actionCreators)
     // initialize the component registry
     this.store.dispatch(registerAll(this.registries))
     return store

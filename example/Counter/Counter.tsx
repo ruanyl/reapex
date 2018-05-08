@@ -34,15 +34,15 @@ const CounterComponent: React.SFC<{total: number, increase: Function, decrease: 
   )
 }
 
-const CounterContainer = app.use(({ Counter }: any) => {
+const CounterContainer = app.use(({ Counter }: any, { Counter: CounterActions }: any) => {
   const mapStateToProps = createStructuredSelector({
     total: Counter.total.getter,
   })
 
-  const mapDispatchToProps = (dispatch: any) => ({
-    increase: () => dispatch({ type: 'Counter/increase' }),
-    decrease: () => dispatch({ type: 'Counter/decrease' }),
-  })
+  const mapDispatchToProps = {
+    increase: CounterActions.increase,
+    decrease: CounterActions.decrease,
+  }
 
   return connect(
     mapStateToProps,
