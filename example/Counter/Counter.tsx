@@ -12,7 +12,7 @@ app.model<{total: number}>({
   fields: {
     total: 0,
   },
-  reducers: Counter => ({
+  mutations: Counter => ({
     increase: Counter.total.increase,
     decrease: Counter.total.decrease,
   }),

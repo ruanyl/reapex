@@ -13,7 +13,7 @@ import { Registry, registryReducer, register, registerAll } from './registry'
 export interface Model<T> {
   name: string;
   fields: T;
-  reducers?: (State: StateObject<T>) => any;
+  mutations?: (State: StateObject<T>) => any;
   effects?: any;
 }
 
@@ -53,22 +53,22 @@ export class App {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
     const createActionsForCurrentName = createActions(config.name)
-    if (config.reducers) {
-      const reducers = config.reducers(stateClass)
+    if (config.mutations) {
+      const mutations = config.mutations(stateClass)
       // reducer map which key is prepend with namespace
-      const namedReducers: Dictionary = {}
-      Object.keys(reducers).forEach(key => {
+      const namedMutations: Dictionary = {}
+      Object.keys(mutations).forEach(key => {
         const paths = key.split('/');
         // key doesn't have a namespace, then append the current namespace
         if (paths.length === 1) {
-          namedReducers[`${config.name}/${key}`] = reducers[key];
+          namedMutations[`${config.name}/${key}`] = mutations[key];
         } else {
-          namedReducers[key] = reducers[key];
+          namedMutations[key] = mutations[key];
         }
       })
-      const actionCreators = createActionsForCurrentName(namedReducers)
+      const actionCreators = createActionsForCurrentName(namedMutations)
       this.actionCreators[config.name] = actionCreators
-      this.rootReducers[config.name] = createReducer(stateClass.create(), namedReducers)
+      this.rootReducers[config.name] = createReducer(stateClass.create(), namedMutations)
     }
 
     if (config.effects) {
