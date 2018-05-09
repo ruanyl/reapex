@@ -1,14 +1,9 @@
-import { Reducer } from 'redux'
-import { Dictionary } from 'immutable-state-creator'
-import { pickBy, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
-
-interface ReducerMap {
-  [key: string]: Reducer;
-}
+import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
 
 type Modifier = (key: string) => string
 
 const hasPrefix = (prefix: string) => (val: any, key: string) => key.indexOf(prefix) === 0
+const isPureName = (val: any, key: string) => key.split('/').length === 1
 
 const dropPrefix = (prefix: string) => (str: string, separator: string = '/') => {
   const arr = str.split(separator)
@@ -20,6 +15,11 @@ const dropPrefix = (prefix: string) => (str: string, separator: string = '/') =>
 
 const modifyObjKeys = (modifier: Modifier) => converge(zipObj, [compose(map(modifier), keys), values])
 
-export const createAction = (val: any, key: string) => (payload: any) => ({ type: key, payload })
+export const createAction = (name: string) => (val: any, key: string) => (payload?: any) => ({ type: `${name}/${key}`, payload })
 
-export const createActions = (name: string) => compose(modifyObjKeys(dropPrefix(name)), mapObjIndexed(createAction), pickBy(hasPrefix(name)))
+export const createActions =
+  (name: string) => compose(
+    mapObjIndexed(createAction(name)),
+    modifyObjKeys(dropPrefix(name)),
+    pickBy(either(isPureName, hasPrefix(name)))
+  )
