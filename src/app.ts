@@ -39,7 +39,7 @@ export class App {
   actionCreators: Dictionary = {}
   registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
-  store: Store
+  store: Store<Map<string, any>>
 
   constructor(props: any = {}) {
     this.rootReducers = {
@@ -52,9 +52,15 @@ export class App {
   model<T extends Dictionary>(config: Model<T>) {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
-    const createActionsForCurrentName = createActions(config.name)
+
     if (config.mutations) {
       const mutations = config.mutations(stateClass)
+
+      // create action creators
+      const createActionsForCurrentName = createActions(config.name)
+      const actionCreators = createActionsForCurrentName(mutations)
+      this.actionCreators[config.name] = actionCreators
+
       // reducer map which key is prepend with namespace
       const namedMutations: Dictionary = {}
       Object.keys(mutations).forEach(key => {
@@ -66,8 +72,6 @@ export class App {
           namedMutations[key] = mutations[key];
         }
       })
-      const actionCreators = createActionsForCurrentName(namedMutations)
-      this.actionCreators[config.name] = actionCreators
       this.rootReducers[config.name] = createReducer(stateClass.create(), namedMutations)
     }
 
@@ -120,7 +124,6 @@ export class App {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
     this.store = store
-    console.log(this.actionCreators)
     // initialize the component registry
     this.store.dispatch(registerAll(this.registries))
     return store
