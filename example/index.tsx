@@ -1,3 +1,4 @@
+import './Counter/Nav'
 import './Counter/Counter'
 import './Counter/Hello'
 
