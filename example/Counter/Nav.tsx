@@ -19,7 +19,7 @@ app.model<{items: List<string>}>({
 const NavComponent: React.SFC<{ items: List<string> }> = props => {
   return (
     <div>
-      {props.items.map(item => <a href={`/${item}`}>{item}</a>)}
+      {props.items.map(item => <a key={item} href={`/${item}`}>{item}</a>)}
     </div>
   )
 }

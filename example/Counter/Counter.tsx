@@ -33,6 +33,7 @@ app.model<{total: number}>({
 const CounterComponent: React.SFC<{total: number, increase: Function, decrease: Function}> = props => {
   return (
     <>
+      <Registered name="nav" />
       <button onClick={() => props.decrease()}>-</button>
       {props.total}
       <button onClick={() => props.increase()}>+</button>
