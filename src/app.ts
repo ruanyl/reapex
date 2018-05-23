@@ -113,14 +113,14 @@ export class App {
     // return Object.keys(this.states).includes(name)
   }
 
-  createRootSagas() {
+  createRootSagas(): any {
     const sagas = this.effectCreators.map((ec: any) => ec(this.states)).map(createSaga).map(safeFork)
     return function* () {
       yield all(sagas)
     }
   }
 
-  createStore() {
+  createStore(): Store {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
     this.store = store
