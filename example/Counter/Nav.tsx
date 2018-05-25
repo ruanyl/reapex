@@ -3,13 +3,14 @@ import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 import { List } from 'immutable'
 import { payloadReducer } from 'reducer-tools'
+import { Link } from 'react-router-dom'
 
 import app from '../app'
 
 app.model<{items: List<string>}>({
   name: 'Nav',
   fields: {
-    items: List(['Home', 'About']),
+    items: List(['home', 'hello', 'about']),
   },
   mutations: Nav => ({
     push: payloadReducer(Nav.items.push)
@@ -19,7 +20,7 @@ app.model<{items: List<string>}>({
 const NavComponent: React.SFC<{ items: List<string> }> = props => {
   return (
     <div>
-      {props.items.map(item => <a key={item} href={`/${item}`}>{item}</a>)}
+      {props.items.map(item => <Link key={item} to={`/${item}`}>{item}</Link>)}
     </div>
   )
 }

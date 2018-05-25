@@ -4,8 +4,11 @@ import { connect } from 'react-redux'
 
 import { Registry } from './registry'
 
+type ChildrenFunction = (Connected: React.ComponentType, props?: any) => any
+
 export interface RegisteredProps {
   name: string;
+  children?: ChildrenFunction;
 }
 
 export interface RegisteredWrapperProps {
@@ -20,8 +23,11 @@ export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component,
   }
 }
 
-export const Registered: React.SFC<RegisteredProps> = ({ name, ...props }) => {
+export const Registered: React.SFC<RegisteredProps> = ({ name, children, ...props }) => {
   const mapStateToProps = createStructuredSelector<{}, RegisteredWrapperProps>({ component: Registry.mapping.get(name) })
   const Connected = connect<RegisteredWrapperProps, {}, any>(mapStateToProps)(RegisteredWrapper)
+  if (typeof children === 'function') {
+    return children(Connected, props)
+  }
   return <Connected {...props} />
 }
