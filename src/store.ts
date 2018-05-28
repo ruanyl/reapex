@@ -1,8 +1,8 @@
-import createSagaMiddleware from 'redux-saga'
 import { createStore, applyMiddleware, Reducer, Store, AnyAction } from 'redux'
 import { createLogger } from 'redux-logger'
 
-const sagaMiddleware = createSagaMiddleware()
+import sagaMiddleware from './createSagaMiddleware'
+
 let middlewares: any[] = [sagaMiddleware]
 
 if (process.env.NODE_ENV === 'development') {
