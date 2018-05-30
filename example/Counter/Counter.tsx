@@ -16,7 +16,7 @@ app.model<{total: number}>({
     increase: Counter.total.increase,
     decrease: Counter.total.decrease,
   }),
-  effects: ({ Counter }: any) => ({
+  effects: ({ Counter }) => ({
     // by default is the current namespace, which is `Counter`
     *increase() {
       const total = yield select(Counter.total.getter)
@@ -41,7 +41,7 @@ const CounterComponent: React.SFC<{total: number, increase: Function, decrease: 
   )
 }
 
-const CounterContainer = app.use(({ Counter }: any, { Counter: CounterActions }: any) => {
+const CounterContainer = app.use(({ Counter }, { Counter: CounterActions }) => {
   const mapStateToProps = createStructuredSelector({
     total: Counter.total.getter,
   })

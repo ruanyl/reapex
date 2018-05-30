@@ -14,8 +14,10 @@ export interface Model<T> {
   name: string;
   fields: T;
   mutations?: (State: StateObject<T>) => any;
-  effects?: any;
+  effects?: (states: Dictionary) => Dictionary;
 }
+
+export type ConnectCreator = (states: Dictionary, actionCreators: Dictionary) => React.ComponentClass<any>
 
 const createSaga = (modelSagas: any) => function* watcher() {
   // TODO: needs to have the flexibility to choose takeEvery, takeLatest...
@@ -34,7 +36,7 @@ function* safeFork(saga: any): any {
 
 export class App {
   rootReducers: Dictionary
-  states: any = {}
+  states: Dictionary = {}
   effectCreators: any[] = []
   actionCreators: Dictionary = {}
   registries: Map<string, React.ComponentType<any>> = Map()
@@ -76,7 +78,7 @@ export class App {
     }
 
     if (config.effects) {
-      const effectsCreator = (states: any) => {
+      const effectsCreator = (states: Dictionary) => {
         const effects = config.effects(states)
         const namedEffects: Dictionary = {}
         Object.keys(effects).forEach(type => {
@@ -93,7 +95,7 @@ export class App {
     }
   }
 
-  use(stateClassesSelector: any) {
+  use(stateClassesSelector: ConnectCreator) {
     return stateClassesSelector(this.states, this.actionCreators)
   }
 
