@@ -5,8 +5,10 @@ import { Action, Reducer } from 'redux'
 import { createState, StateObject } from 'immutable-state-creator'
 import { createReducer, transformReducer, payloadReducer } from 'reducer-tools'
 
+export type DeferredComponent<T = any> = () => React.ComponentType<T>
+
 export interface Fields {
-  mapping: Map<string, React.ComponentType<any>>;
+  mapping: Map<string, DeferredComponent>;
 }
 
 export interface RegistryPayload {
@@ -18,8 +20,8 @@ export interface RegisterAction extends Action<string> {
   payload: RegistryPayload;
 }
 
-export const register = (name: string, component: React.ComponentType<any>) => ({ type: '@@registry/register', payload: {name, component} })
-export const registerAll = (mapping: Map<string, React.ComponentType<any>>) => ({ type: '@@registry/registerAll', payload: mapping })
+export const register = (name: string, component: DeferredComponent) => ({ type: '@@registry/register', payload: {name, component} })
+export const registerAll = (mapping: Map<string, DeferredComponent>) => ({ type: '@@registry/registerAll', payload: mapping })
 
 export const Registry: StateObject<Fields> = createState<Fields>({
   name: '@@registry',

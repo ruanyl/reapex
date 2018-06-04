@@ -8,7 +8,7 @@ import { Store } from 'redux'
 
 import { createActions } from './createActions'
 import { configureStore } from './store'
-import { Registry, registryReducer, register, registerAll } from './registry'
+import { Registry, registryReducer, register, registerAll, DeferredComponent } from './registry'
 
 export interface Model<T> {
   name: string;
@@ -39,7 +39,7 @@ export class App {
   states: Dictionary = {}
   effectCreators: any[] = []
   actionCreators: Dictionary = {}
-  registries: Map<string, React.ComponentType<any>> = Map()
+  registries: Map<string, () => React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Store<Map<string, any>>
 
@@ -77,7 +77,7 @@ export class App {
       this.rootReducers[config.name] = createReducer(stateClass.create(), namedMutations)
     }
 
-    if (config.effects) {
+    if (typeof config.effects === 'function') {
       const effectsCreator = (states: Dictionary) => {
         const effects = config.effects(states)
         const namedEffects: Dictionary = {}
@@ -96,14 +96,15 @@ export class App {
   }
 
   use(stateClassesSelector: ConnectCreator) {
-    return stateClassesSelector(this.states, this.actionCreators)
+    // deferred the initialize step util states are done
+    return () => stateClassesSelector(this.states, this.actionCreators)
   }
 
-  register(name: string, component: React.ComponentType<any>) {
+  register(name: string, deferredComponent: DeferredComponent) {
     if (this.store) {
-      this.store.dispatch(register(name, component))
+      this.store.dispatch(register(name, deferredComponent))
     }
-    this.registries = this.registries.set(name, component)
+    this.registries = this.registries.set(name, deferredComponent)
   }
 
   layout(Layout: React.ComponentType<any>) {

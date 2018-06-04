@@ -3,9 +3,26 @@ import { render } from 'react-dom'
 import { select } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
+import { Dictionary } from 'immutable-state-creator'
 
 import { App, renderApp, Registered } from '../../src'
 import app from '../app'
+
+const DeferredCounter = app.use((states, actions) => {
+  const mapStateToProps = createStructuredSelector({
+    total: states.Counter.total.getter,
+  })
+
+  const mapDispatchToProps = {
+    increase: actions.Counter.increase,
+    decrease: actions.Counter.decrease,
+  }
+
+  return connect(
+    mapStateToProps,
+    mapDispatchToProps
+  )(CounterComponent as any)
+})
 
 app.model<{total: number}>({
   name: 'Counter',
@@ -41,20 +58,4 @@ const CounterComponent: React.SFC<{total: number, increase: Function, decrease: 
   )
 }
 
-const CounterContainer = app.use(({ Counter }, { Counter: CounterActions }) => {
-  const mapStateToProps = createStructuredSelector({
-    total: Counter.total.getter,
-  })
-
-  const mapDispatchToProps = {
-    increase: CounterActions.increase,
-    decrease: CounterActions.decrease,
-  }
-
-  return connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )(CounterComponent as any)
-})
-
-app.register('counter', CounterContainer)
+app.register('counter', DeferredCounter)
