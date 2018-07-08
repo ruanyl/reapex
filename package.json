@@ -1,7 +1,7 @@
 {
   "name": "reapex",
   "version": "0.1.0",
-  "description": "typescript react starter",
+  "description": "A framework to build React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
@@ -63,8 +63,8 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/ruanyl/react-boilerplate-ts.git"
+    "url": "https://github.com/ruanyl/reapex.git"
   },
-  "homepage": "https://github.com/ruanyl/react-boilerplate-ts",
-  "bugs": "https://github.com/ruanyl/react-boilerplate-ts/issues"
+  "homepage": "https://github.com/ruanyl/reapex",
+  "bugs": "https://github.com/ruanyl/reapex/issues"
 }
