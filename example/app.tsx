@@ -11,7 +11,7 @@ app.layout(() => (
     <div>
       <Registered name="counter" />
       <Registered name="hello">
-      { Hello => <Route path="/hello" component={Hello} /> }
+      { (Hello: any) => <Route path="/hello" component={Hello} /> }
       </Registered>
     </div>
   </BrowserRouter>
