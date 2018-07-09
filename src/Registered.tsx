@@ -1,10 +1,10 @@
-import * as React from 'react'
+import React from 'react'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 
 import { Registry, DeferredComponent } from './registry'
 
-type ChildrenFunction = (Connected: React.ComponentType, props?: any) => any
+export type ChildrenFunction = (Connected: React.ComponentType, props?: any) => any
 
 export interface RegisteredProps {
   name: string;

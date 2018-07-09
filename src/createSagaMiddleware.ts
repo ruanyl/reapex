@@ -1,6 +1,5 @@
-import createSagaMiddleware from 'redux-saga'
+import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware: SagaMiddleware<any> = createSagaMiddleware()
 
-export const runSaga = sagaMiddleware.run
 export default sagaMiddleware

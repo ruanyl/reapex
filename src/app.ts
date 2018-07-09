@@ -1,3 +1,4 @@
+import React from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -79,7 +80,7 @@ export class App {
 
     if (typeof config.effects === 'function') {
       const effectsCreator = (states: Dictionary) => {
-        const effects = config.effects(states)
+        const effects = config.effects!(states)
         const namedEffects: Dictionary = {}
         Object.keys(effects).forEach(type => {
           const paths = type.split('/');
