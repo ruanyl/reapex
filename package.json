@@ -37,7 +37,6 @@
     "@types/react-redux": "~5.0.19",
     "@types/react-router": "~4.0.25",
     "@types/react-router-dom": "~4.2.6",
-    "@types/redux-immutable": "~3.0.38",
     "@types/redux-logger": "~3.0.6",
     "immutable-state-creator": "~0.2.2",
     "ramda": "~0.25.0",

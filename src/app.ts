@@ -5,7 +5,7 @@ import { combineReducers } from 'redux-immutable'
 import { createState, Dictionary, StateObject } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
-import { Store } from 'redux'
+import * as Redux from 'redux'
 
 import { createActions } from './createActions'
 import { configureStore } from './store'
@@ -36,13 +36,13 @@ function* safeFork(saga: any): any {
 }
 
 export class App {
-  rootReducers: Dictionary
+  rootReducers: Redux.ReducersMapObject
   states: Dictionary = {}
   effectCreators: any[] = []
   actionCreators: Dictionary = {}
   registries: Map<string, () => React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
-  store: Store<Map<string, any>>
+  store: Redux.Store<Map<string, any>>
 
   constructor(props: any = {}) {
     this.rootReducers = {
@@ -76,6 +76,9 @@ export class App {
         }
       })
       this.rootReducers[config.name] = createReducer(stateClass.create(), namedMutations)
+      if (this.store) {
+        this.store.replaceReducer(combineReducers(this.rootReducers))
+      }
     }
 
     if (typeof config.effects === 'function') {
@@ -124,7 +127,7 @@ export class App {
     }
   }
 
-  createStore(): Store {
+  createStore(): Redux.Store {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
     this.store = store
