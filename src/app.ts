@@ -20,6 +20,8 @@ export interface Model<T> {
 
 export type ConnectCreator = (states: Dictionary, actionCreators: Dictionary) => React.ComponentClass<any>
 
+export type Plug = (app: App) => any
+
 const createSaga = (modelSagas: any) => function* watcher() {
   // TODO: needs to have the flexibility to choose takeEvery, takeLatest...
   yield all(Object.keys(modelSagas).map(action => takeEvery(action, modelSagas[action])))
@@ -102,6 +104,10 @@ export class App {
   use(stateClassesSelector: ConnectCreator) {
     // deferred the initialize step util states are done
     return () => stateClassesSelector(this.states, this.actionCreators)
+  }
+
+  plug(plug: Plug) {
+    plug(this)
   }
 
   register(name: string, deferredComponent: DeferredComponent) {
