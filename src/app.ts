@@ -2,7 +2,7 @@ import React from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
-import { createState, Dictionary, StateObject } from 'immutable-state-creator'
+import { createState, StateObject } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
 import * as Redux from 'redux'
@@ -15,10 +15,10 @@ export interface Model<T> {
   name: string;
   fields: T;
   mutations?: (State: StateObject<T>) => any;
-  effects?: (states: Dictionary) => Dictionary;
+  effects?: (states: Record<string, any>) => Record<string, any>;
 }
 
-export type ConnectCreator = (states: Dictionary, actionCreators: Dictionary) => React.ComponentClass<any>
+export type ConnectCreator = (states: Record<string, any>, actionCreators: Record<string, any>) => React.ComponentClass<any>
 
 export type Plug = (app: App) => any
 
@@ -39,9 +39,9 @@ function* safeFork(saga: any): any {
 
 export class App {
   rootReducers: Redux.ReducersMapObject
-  states: Dictionary = {}
+  states: Record<string, any> = {}
   effectCreators: any[] = []
-  actionCreators: Dictionary = {}
+  actionCreators: Record<string, any> = {}
   registries: Map<string, () => React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
@@ -54,7 +54,7 @@ export class App {
     }
   }
 
-  model<T extends Dictionary>(config: Model<T>) {
+  model<T extends Record<string, any>>(config: Model<T>) {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
 
@@ -67,7 +67,7 @@ export class App {
       this.actionCreators[config.name] = actionCreators
 
       // reducer map which key is prepend with namespace
-      const namedMutations: Dictionary = {}
+      const namedMutations: Record<string, any> = {}
       Object.keys(mutations).forEach(key => {
         const paths = key.split('/');
         // key doesn't have a namespace, then append the current namespace
@@ -84,9 +84,9 @@ export class App {
     }
 
     if (typeof config.effects === 'function') {
-      const effectsCreator = (states: Dictionary) => {
+      const effectsCreator = (states: Record<string, any>) => {
         const effects = config.effects!(states)
-        const namedEffects: Dictionary = {}
+        const namedEffects: Record<string, any> = {}
         Object.keys(effects).forEach(type => {
           const paths = type.split('/');
           if (paths.length > 1 && this.hasModel(paths[0])) {
