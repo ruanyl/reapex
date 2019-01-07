@@ -58,7 +58,7 @@ export class App {
     const stateClass = createState<T>({ name: config.name, fields: config.fields })
     this.states[config.name] = stateClass
 
-    if (config.mutations) {
+    if (typeof config.mutations === 'function') {
       const mutations = config.mutations(stateClass)
 
       // create action creators
