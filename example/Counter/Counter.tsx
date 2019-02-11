@@ -1,16 +1,16 @@
 import * as React from 'react'
-import { render } from 'react-dom'
+import { StateObject, LocalState } from 'immutable-state-creator'
 import { select } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
-import { Dictionary } from 'immutable-state-creator'
+import {pipe, inc, dec, curry} from 'ramda'
 
-import { App, renderApp, Registered } from '../../src'
+import { Registered } from '../../src'
 import app from '../app'
 
 const DeferredCounter = app.use((states, actions) => {
   const mapStateToProps = createStructuredSelector({
-    total: states.Counter.total.getter,
+    total: states.Counter.get('total'),
   })
 
   const mapDispatchToProps = {
@@ -24,24 +24,34 @@ const DeferredCounter = app.use((states, actions) => {
   )(CounterComponent as any)
 })
 
-app.model<{total: number}>({
+interface Fields {
+  total: number
+}
+
+app.model<Fields>({
   name: 'Counter',
   fields: {
     total: 0,
   },
   mutations: Counter => ({
-    increase: Counter.total.increase,
-    decrease: Counter.total.decrease,
+    increase: (s: LocalState<Fields>) => {
+      const total = Counter.get('total')(s)
+      return Counter.set('total', total + 1)(s)
+    },
+    decrease: (s: LocalState<Fields>) => {
+      const total = Counter.get('total')(s)
+      return Counter.set('total', total - 1)(s)
+    },
   }),
-  effects: ({ Counter }) => ({
+  effects: ({ Counter }: {Counter: StateObject<Fields, keyof Fields>}) => ({
     // by default is the current namespace, which is `Counter`
     *increase() {
-      const total = yield select(Counter.total.getter)
+      const total = yield select(Counter.get('total'))
       console.log('total is: ', total)
     },
     // specify a namespace
     'Counter/decrease': function* decrease() {
-      const total = yield select(Counter.total.getter)
+      const total = yield select(Counter.get('total'))
       console.log('total is: ', total)
     }
   })

@@ -6,15 +6,26 @@ import { payloadReducer } from 'reducer-tools'
 import { Link } from 'react-router-dom'
 
 import app from '../app'
+import { LocalState, StateObject } from 'immutable-state-creator';
 
-app.model<{items: List<string>}>({
+interface Fields {
+  items: List<string>
+}
+
+app.model<Fields>({
   name: 'Nav',
   fields: {
     items: List(['home', 'hello', 'about']),
   },
-  mutations: Nav => ({
-    push: payloadReducer(Nav.items.push)
-  })
+  mutations: Nav => {
+    const push = (item: string) => (s: LocalState<Fields>) => {
+      const items = Nav.get('items')(s)
+      return Nav.set('items', items.push(item))
+    }
+    return {
+      push: payloadReducer(push)
+    }
+  }
 })
 
 const NavComponent: React.SFC<{ items: List<string> }> = props => {
@@ -25,8 +36,8 @@ const NavComponent: React.SFC<{ items: List<string> }> = props => {
   )
 }
 
-const NavContainer = app.use(({Nav: NavState}: any, {Nav: NavActions}: any) => {
-  const mapStateToProps = createStructuredSelector({ items: NavState.items.getter })
+const NavContainer = app.use(({Nav: NavState}: {Nav: StateObject<Fields, keyof Fields>}) => {
+  const mapStateToProps = createStructuredSelector({ items: NavState.get('items') })
   return connect(
     mapStateToProps,
     {}

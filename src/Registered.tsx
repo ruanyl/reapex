@@ -2,7 +2,7 @@ import React from 'react'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 
-import { Registry, DeferredComponent } from './registry'
+import { DeferredComponent, registrySelector } from './registry'
 
 export type ChildrenFunction = (Connected: React.ComponentType, props?: any) => any
 
@@ -12,7 +12,7 @@ export interface RegisteredProps {
 }
 
 export interface RegisteredWrapperProps {
-  component: DeferredComponent;
+  component?: DeferredComponent;
 }
 
 export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component, ...props}) => {
@@ -24,7 +24,7 @@ export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component,
 }
 
 export const Registered: React.SFC<RegisteredProps> = ({ name, children, ...props }) => {
-  const mapStateToProps = createStructuredSelector<{}, RegisteredWrapperProps>({ component: Registry.mapping.get(name) })
+  const mapStateToProps = createStructuredSelector<{}, RegisteredWrapperProps>({ component: registrySelector(name) })
   const Connected = connect<RegisteredWrapperProps, {}, any>(mapStateToProps)(RegisteredWrapper)
   if (typeof children === 'function') {
     return children(Connected, props)

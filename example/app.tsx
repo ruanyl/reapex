@@ -2,7 +2,7 @@ import * as React from 'react'
 import {BrowserRouter} from 'react-router-dom';
 import { Route } from 'react-router-dom'
 
-import { App, Registered, renderApp } from '../src'
+import { App, Registered } from '../src'
 
 const app = new App()
 

@@ -15,7 +15,7 @@ const dropPrefix = (prefix: string) => (str: string, separator: string = '/') =>
 
 const modifyObjKeys = (modifier: Modifier) => converge(zipObj, [compose(map(modifier), keys), values])
 
-export const createAction = (name: string) => (val: any, key: string) => (payload?: any) => ({ type: `${name}/${key}`, payload })
+export const createAction = (name: string) => (val: any, key: string) => <T = any>(payload?: T) => ({ type: `${name}/${key}`, payload })
 
 export const createActions =
   (name: string) => compose(

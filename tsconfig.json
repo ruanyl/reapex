@@ -9,7 +9,7 @@
     "sourceMap": true,
     "jsx": "react",
     "target": "es5",
-    "lib": ["ES2015","ES2016", "ESNEXT", "DOM", "ES5", "ScriptHost"],
+    "lib": ["es2015","es2016", "esnext", "dom", "es5", "scripthost"],
     "noUnusedLocals": true
   },
   "include": [

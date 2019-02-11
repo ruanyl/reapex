@@ -11,16 +11,26 @@ import { createActions } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll, DeferredComponent } from './registry'
 
-export interface Model<T> {
+export interface Model<T extends Record<string, any>> {
   name: string;
   fields: T;
-  mutations?: (State: StateObject<T>) => any;
-  effects?: (states: Record<string, any>) => Record<string, any>;
+  mutations?: (state: StateObject<T, keyof T>) => any;
+  effects?: (states: StateMap) => Record<string, () => IterableIterator<any>>;
 }
 
-export type ConnectCreator = (states: Record<string, any>, actionCreators: Record<string, any>) => React.ComponentClass<any>
+export type StateMap = Record<string, StateObject<Record<any, any>, keyof Record<string, any>>>
+
+export type ActionCreators = Record<string, ReturnType<ReturnType<typeof createActions>>>
+
+export type ConnectCreator = (states: StateMap, actionCreators: ActionCreators) => React.ComponentClass<any>
 
 export type Plug = (app: App, name?: string) => any
+
+export interface NamedEffects {
+  [key: string]: () => IterableIterator<any>
+}
+
+export type EffectCreator = (states: Record<string, any>) => NamedEffects
 
 const createSaga = (modelSagas: any) => function* watcher() {
   // TODO: needs to have the flexibility to choose takeEvery, takeLatest...
@@ -39,9 +49,9 @@ function* safeFork(saga: any): any {
 
 export class App {
   rootReducers: Redux.ReducersMapObject
-  states: Record<string, any> = {}
-  effectCreators: any[] = []
-  actionCreators: Record<string, any> = {}
+  states: StateMap = {}
+  effectCreators: EffectCreator[] = []
+  actionCreators: ActionCreators = {}
   registries: Map<string, () => React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
@@ -49,13 +59,13 @@ export class App {
   constructor(props: any = {}) {
     this.rootReducers = {
       ...props.externalReducers,
-      [Registry.name]: registryReducer,
+      [Registry.namespace]: registryReducer,
       __root: () => true,
     }
   }
 
   model<T extends Record<string, any>>(config: Model<T>) {
-    const stateClass = createState<T>({ name: config.name, fields: config.fields })
+    const stateClass = createState<T, keyof T>(config.name, config.fields)
     this.states[config.name] = stateClass
 
     if (typeof config.mutations === 'function') {
@@ -86,7 +96,7 @@ export class App {
     if (typeof config.effects === 'function') {
       const effectsCreator = (states: Record<string, any>) => {
         const effects = config.effects!(states)
-        const namedEffects: Record<string, any> = {}
+        const namedEffects: NamedEffects = {}
         Object.keys(effects).forEach(type => {
           const paths = type.split('/');
           if (paths.length > 1 && this.hasModel(paths[0])) {
@@ -121,19 +131,19 @@ export class App {
     this.Layout = Layout
   }
 
-  hasModel(name: string): boolean {
+  hasModel(name: string) {
     return contains(name, Object.keys(this.states))
     // return Object.keys(this.states).includes(name)
   }
 
-  createRootSagas(): any {
+  createRootSagas() {
     const sagas = this.effectCreators.map((ec: any) => ec(this.states)).map(createSaga).map(safeFork)
     return function* () {
       yield all(sagas)
     }
   }
 
-  createStore(): Redux.Store {
+  createStore() {
     const rootSagas = this.createRootSagas()
     const store = configureStore(combineReducers(this.rootReducers), rootSagas)
     this.store = store
