@@ -3,7 +3,6 @@ import { StateObject, LocalState } from 'immutable-state-creator'
 import { select } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
-import {pipe, inc, dec, curry} from 'ramda'
 
 import { Registered } from '../../src'
 import app from '../app'
@@ -34,11 +33,11 @@ app.model<Fields>({
     total: 0,
   },
   mutations: Counter => ({
-    increase: (s: LocalState<Fields>) => {
+    increase: s => {
       const total = Counter.get('total')(s)
       return Counter.set('total', total + 1)(s)
     },
-    decrease: (s: LocalState<Fields>) => {
+    decrease: s => {
       const total = Counter.get('total')(s)
       return Counter.set('total', total - 1)(s)
     },

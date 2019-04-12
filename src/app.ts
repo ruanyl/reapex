@@ -2,7 +2,7 @@ import React from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
-import { createState, StateObject } from 'immutable-state-creator'
+import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
 import * as Redux from 'redux'
@@ -11,18 +11,22 @@ import { createActions } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll, DeferredComponent } from './registry'
 
+export interface Mutator<T> {
+  [key: string]: (localstate: LocalState<T>) => LocalState<T>
+}
+
 export interface Model<T extends Record<string, any>> {
   name: string;
   fields: T;
-  mutations?: (state: StateObject<T, keyof T>) => any;
-  effects?: (states: StateMap) => Record<string, () => IterableIterator<any>>;
+  mutations?: (state: StateObject<T>) => Mutator<T>;
+  effects?: (states: StateMap<T>) => Record<string, () => IterableIterator<any>>;
 }
 
-export type StateMap = Record<string, StateObject<Record<any, any>, keyof Record<string, any>>>
+export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 
 export type ActionCreators = Record<string, ReturnType<ReturnType<typeof createActions>>>
 
-export type ConnectCreator = (states: StateMap, actionCreators: ActionCreators) => React.ComponentClass<any>
+export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => React.ComponentClass<any>
 
 export type Plug = (app: App, name?: string) => any
 
@@ -49,7 +53,7 @@ function* safeFork(saga: any): any {
 
 export class App {
   rootReducers: Redux.ReducersMapObject
-  states: StateMap = {}
+  states: StateMap<Record<string, any>> = {}
   effectCreators: EffectCreator[] = []
   actionCreators: ActionCreators = {}
   registries: Map<string, () => React.ComponentType<any>> = Map()
@@ -65,7 +69,7 @@ export class App {
   }
 
   model<T extends Record<string, any>>(config: Model<T>) {
-    const stateClass = createState<T, keyof T>(config.name, config.fields)
+    const stateClass = createState(config.name, config.fields)
     this.states[config.name] = stateClass
 
     if (typeof config.mutations === 'function') {
