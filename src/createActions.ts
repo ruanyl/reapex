@@ -2,8 +2,8 @@ import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map
 
 type Modifier = (key: string) => string
 
-const hasPrefix = (prefix: string) => (val: any, key: string) => key.indexOf(prefix) === 0
-const isPureName = (val: any, key: string) => key.split('/').length === 1
+const hasPrefix = (prefix: string) => (_: any, key: string) => key.indexOf(prefix) === 0
+const isPureName = (_: any, key: string) => key.split('/').length === 1
 
 const dropPrefix = (prefix: string) => (str: string, separator: string = '/') => {
   const arr = str.split(separator)
@@ -15,7 +15,7 @@ const dropPrefix = (prefix: string) => (str: string, separator: string = '/') =>
 
 const modifyObjKeys = (modifier: Modifier) => converge(zipObj, [compose(map(modifier), keys), values])
 
-export const createAction = (name: string) => (val: any, key: string) => <T = any>(payload?: T) => ({ type: `${name}/${key}`, payload })
+export const createAction = (name: string) => (_: any, key: string) => <T = any>(payload?: T) => ({ type: `${name}/${key}`, payload })
 
 export const createActions =
   (name: string) => compose(

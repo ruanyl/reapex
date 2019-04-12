@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 import { Registered } from '../../src'
 import app from '../app'
 
-const DeferredCounter = app.use((states, actions) => {
+const CounterConnected = app.use((states, actions) => {
   const mapStateToProps = createStructuredSelector({
     total: states.Counter.get('total'),
   })
@@ -67,4 +67,4 @@ const CounterComponent: React.SFC<{total: number, increase: Function, decrease: 
   )
 }
 
-app.register('counter', DeferredCounter)
+app.register('counter', CounterConnected)
