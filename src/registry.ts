@@ -22,7 +22,7 @@ export interface RegisterAction extends Action<string> {
 export const register = (name: string, component: DeferredComponent) => ({ type: '@@registry/register', payload: {name, component} })
 export const registerAll = (mapping: Map<string, DeferredComponent>) => ({ type: '@@registry/registerAll', payload: mapping })
 
-export const Registry = createState<Fields, keyof Fields>('@@registry', { mapping: Map() })
+export const Registry = createState<Fields>('@@registry', { mapping: Map() })
 
 const registerReducer = (payload: RegistryPayload) => (s: LocalState<Fields>) => {
   const mapping = Registry.get('mapping')(s)

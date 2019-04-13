@@ -12,11 +12,9 @@ interface Fields {
   items: List<string>
 }
 
-app.model<Fields>({
-  name: 'Nav',
-  fields: {
-    items: List(['home', 'hello', 'about']),
-  },
+const initialState = { items: List(['home', 'hello', 'about']) }
+
+app.model('Nav', initialState, {
   mutations: Nav => {
     const push = (item: string) => (s: LocalState<Fields>) => {
       const items = Nav.get('items')(s)
