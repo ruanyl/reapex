@@ -2,7 +2,7 @@ import * as React from 'react'
 import { Map } from 'immutable'
 import { Action, Reducer } from 'redux'
 import { createState, LocalState } from 'immutable-state-creator'
-import { createReducer, payloadReducer } from 'reducer-tools'
+import { createReducer } from 'reducer-tools'
 
 export type DeferredComponent<T = any> = () => React.ComponentType<T>
 
@@ -35,8 +35,8 @@ const registerAllReducer = (payload: Fields['mapping']) => (s: LocalState<Fields
 }
 
 export const registryReducer: Reducer = createReducer(Registry.create(), {
-  '@@registry/register': payloadReducer(registerReducer),
-  '@@registry/registerAll': payloadReducer(registerAllReducer),
+  '@@registry/register': (s: any, a: any) => registerReducer(a.payload)(s),
+  '@@registry/registerAll': (s: any, a: any) => registerAllReducer(a.payload)(s),
 })
 
 export const registrySelector = (name: string) => (s: LocalState<Fields>) => {

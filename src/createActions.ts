@@ -1,6 +1,7 @@
 import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
 import { typedKeyMirror } from 'reducer-tools';
-import { MutatorMap } from './app';
+import { Mutator } from './app';
+// import { MutatorMap } from './app';
 
 type Modifier = (key: string) => string
 
@@ -31,13 +32,13 @@ interface Action<T, P> {
   payload: P
 }
 
-export type ActionMap<T extends MutatorMap<Record<string, any>>> = {
-  [K in keyof T]: <P extends Parameters<T[K]>>(...payload: P) => Action<K, P>
+type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {
+  [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
 }
 
-export const typedActionCreators = <T extends MutatorMap<Record<string, any>>>(namespace: string, mutators: T) => {
+export const typedActionCreators = <T extends Record<string, any>, P extends Record<string, Mutator<T>>>(namespace: string, mutators: P) => {
   const actionTypes = typedKeyMirror(mutators, namespace, '/')
-  const actionCreatorMap: ActionMap<T> = {} as ActionMap<T>;
+  const actionCreatorMap: ActionCreatorMap<T, P> = {} as ActionCreatorMap<T, P>
 
   Object.keys(mutators).forEach(k => {
     const mutator = mutators[k]

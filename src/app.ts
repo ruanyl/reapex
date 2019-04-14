@@ -7,17 +7,11 @@ import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
 import * as Redux from 'redux'
 
-import { typedActionCreators, ActionMap } from './createActions'
+import { typedActionCreators } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll, DeferredComponent } from './registry'
 
-export type MutatorMap<T> = Record<string, Mutator<T>>
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
-
-export interface Config<T extends Record<string, any>> {
-  mutations: <P extends Record<string, Mutator<T>>>(state: StateObject<T>) => P extends Record<string, Mutator<T>> ? { [K in keyof P]: P[K] } : never;
-  effects?: (states: StateMap<T>) => Record<string, () => IterableIterator<any>>;
-}
 
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 
@@ -66,21 +60,20 @@ export class App {
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
-    const stateClass = createState(name, initialState)
+    const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
 
-    // const mutationFunc = <M extends Record<string, (...payload: any[]) => (localState: LocalState<T>) => any>>(mutations: (state: StateObject<T>) => { [K in keyof M]: M[K] }) => {
-    const mutationFunc = <M extends Record<string, any>>(mutations: (state: StateObject<T>) => { [K in keyof M]: M[K] }) => {
+    const mutationFunc = <P extends Record<string, Mutator<T>>>(mutations: (state: StateObject<T>) => P) => {
       const mutationMap = mutations(stateClass)
 
       // create action creators
-      const actionCreators = typedActionCreators<ReturnType<typeof mutations>>(namespace, mutations as any)
+      const actionCreators = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Redux.Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](a.payload)(s);
+        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](a.payload)(s)
       })
 
       this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
@@ -90,12 +83,12 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = (effects: (states: StateMap<T>) => Record<string, () => IterableIterator<any>>) => {
-      const effectsCreator = (states: Record<string, any>) => {
+    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, () => IterableIterator<any>>) => {
+      const effectsCreator = (states: P) => {
         const effectMap = effects!(states)
         const namedEffects: NamedEffects = {}
         Object.keys(effectMap).forEach(type => {
-          const paths = type.split('/');
+          const paths = type.split('/')
           if (paths.length > 1 && this.hasModel(paths[0])) {
             namedEffects[type] = effectMap[type]
           } else {
@@ -112,11 +105,6 @@ export class App {
       mutations: mutationFunc,
       effects: effectFunc,
     }
-  }
-
-  use(stateClassesSelector: ConnectCreator) {
-    // deferred the initialize step util states are done
-    return () => stateClassesSelector(this.states, this.actionCreators)
   }
 
   plug(plug: Plug, name?: string) {
