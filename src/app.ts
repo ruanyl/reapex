@@ -73,7 +73,7 @@ export class App {
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Redux.Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](...a.payload)(s)
       })
 
       this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
