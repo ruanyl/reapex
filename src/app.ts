@@ -1,11 +1,11 @@
 import React, { ComponentType } from 'react'
+import Redux from 'redux'
 import { contains } from 'ramda'
-import { takeEvery, call, all } from 'redux-saga/effects'
+import { takeEvery, call, all, spawn } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
-import * as Redux from 'redux'
 
 import { typedActionCreators } from './createActions'
 import { configureStore } from './store'
@@ -33,13 +33,16 @@ const createSaga = (modelSagas: any) => function* watcher() {
 }
 
 function* safeFork(saga: any): any {
-  try {
-    yield call(saga)
-  } catch (err) {
-    console.error(`Uncaught error in ${saga.name}`)
-    console.error(err)
-    yield call(safeFork, saga)
-  }
+  yield spawn(function* () {
+    while (true) {
+      try {
+        yield call(saga)
+        break
+      } catch (e) {
+        console.error(e)
+      }
+    }
+  })
 }
 
 export class App {
