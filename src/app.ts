@@ -10,6 +10,7 @@ import { Map } from 'immutable'
 import { typedActionCreators } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll } from './registry'
+import sagaMiddleware from './createSagaMiddleware';
 
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 
@@ -99,6 +100,14 @@ export class App {
           }
         })
         return namedEffects
+      }
+      // dynamically register saga
+      if (this.store) {
+        const states = this.states
+        sagaMiddleware.run(function* () {
+          const saga = createSaga(effectsCreator(states as P))
+          yield call(safeFork, saga)
+        })
       }
       this.effectCreators.push(effectsCreator)
     }
