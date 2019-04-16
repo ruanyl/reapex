@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { ComponentType } from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -9,7 +9,7 @@ import * as Redux from 'redux'
 
 import { typedActionCreators } from './createActions'
 import { configureStore } from './store'
-import { Registry, registryReducer, register, registerAll, DeferredComponent } from './registry'
+import { Registry, registryReducer, register, registerAll } from './registry'
 
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 
@@ -47,7 +47,7 @@ export class App {
   states: StateMap<Record<string, any>> = {}
   effectCreators: EffectCreator[] = []
   actionCreators: ActionCreators = {}
-  registries: Map<string, () => React.ComponentType<any>> = Map()
+  registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
 
@@ -111,11 +111,11 @@ export class App {
     plug(this, name)
   }
 
-  register(name: string, deferredComponent: DeferredComponent) {
+  register<T extends {}>(name: string, component: ComponentType<T>) {
     if (this.store) {
-      this.store.dispatch(register(name, deferredComponent))
+      this.store.dispatch(register(name, component))
     }
-    this.registries = this.registries.set(name, deferredComponent)
+    this.registries = this.registries.set(name, component)
   }
 
   layout(Layout: React.ComponentType<any>) {

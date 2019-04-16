@@ -4,23 +4,21 @@ import { Action, Reducer } from 'redux'
 import { createState, LocalState } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 
-export type DeferredComponent<T = any> = () => React.ComponentType<T>
-
 export interface Fields {
-  mapping: Map<string, DeferredComponent>;
+  mapping: Map<string, React.ComponentType<any>>;
 }
 
 export interface RegistryPayload {
   name: string;
-  component: () => React.ComponentType<any>;
+  component: React.ComponentType<any>;
 }
 
 export interface RegisterAction extends Action<string> {
   payload: RegistryPayload;
 }
 
-export const register = (name: string, component: DeferredComponent) => ({ type: '@@registry/register', payload: {name, component} })
-export const registerAll = (mapping: Map<string, DeferredComponent>) => ({ type: '@@registry/registerAll', payload: mapping })
+export const register = (name: string, component: React.ComponentType<any>) => ({ type: '@@registry/register', payload: {name, component} })
+export const registerAll = (mapping: Map<string, React.ComponentType<any>>) => ({ type: '@@registry/registerAll', payload: mapping })
 
 export const Registry = createState<Fields>('@@registry', { mapping: Map() })
 
