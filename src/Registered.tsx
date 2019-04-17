@@ -7,20 +7,23 @@ import { registrySelector } from './registry'
 export type ChildrenFunction = (Connected: React.ComponentType, props?: any) => any
 
 export interface RegisteredProps {
-  name: string;
-  children?: ChildrenFunction;
+  name: string
+  lazy?: () => Promise<any>
+  children?: ChildrenFunction
 }
 
 export interface RegisteredWrapperProps {
   component?: ComponentType<any>;
+  lazy?: () => Promise<any>
 }
 
-export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component, ...props}) => {
+export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component, lazy, ...props}) => {
   if (component) {
     return React.createElement(component, props)
-  } else {
-    return null
+  } else if (lazy) {
+    lazy().then(() => {})
   }
+  return null
 }
 
 export const Registered: React.SFC<RegisteredProps> = ({ name, children, ...props }) => {

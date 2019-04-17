@@ -38,12 +38,13 @@ module.exports = [
     dependencies: ['vendor'],
     devtool: 'inline-source-map',
     entry: {
-      app: ['./example/index.tsx', ...componentEntries]
+      app: ['./example/index.tsx']
     },
     output: {
       path: path.join(__dirname, 'dist'),
-      filename: '[name].[hash].js',
+      filename: '[name].bundle.js',
       publicPath: '/',
+      chunkFilename: '[name].bundle.js',
     },
     resolve: {
       extensions: [".ts", ".tsx", ".js"]
