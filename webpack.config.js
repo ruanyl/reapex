@@ -1,16 +1,16 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const glob = require('glob')
+// const glob = require('glob')
 const packages = require('./package.json')
 const manifest = path.resolve(__dirname, "dist/manifest.json")
 
-let componentEntries = []
-const registeredComponents = ['Counter', 'Hello', 'Nav'].forEach(comp => {
-  const filename = glob.sync(`./example/**/${comp}.tsx`)
-  console.log(filename)
-  componentEntries = componentEntries.concat(filename)
-})
+// let componentEntries = []
+// const registeredComponents = ['Counter', 'Hello', 'Nav'].forEach(comp => {
+//   const filename = glob.sync(`./example/**/${comp}.tsx`)
+//   console.log(filename)
+//   componentEntries = componentEntries.concat(filename)
+// })
 
 /* eslint-disable max-len */
 module.exports = [

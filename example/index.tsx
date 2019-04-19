@@ -8,8 +8,8 @@ import { renderApp, Registered } from '../src'
 app.layout(() => (
   <BrowserRouter>
     <div>
-      <Registered name="counter" lazy={() => import(/* webpackChunkName: "counter" */ './Counter/Counter')} />
-      <Route path="/hello" component={() => <Registered name="hello" lazy={() => import(/* webpackChunkName: "hello" */ './Counter/Hello')} />} />
+      <Registered name="counter" lazy={() => import('./Counter/Counter')} />
+      <Route path="/hello" component={() => <Registered name="hello" lazy={() => import('./Counter/Hello')} />} />
     </div>
   </BrowserRouter>
 ))
