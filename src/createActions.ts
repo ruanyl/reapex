@@ -27,12 +27,12 @@ export const createActions =
     pickBy(either(isPureName, hasPrefix(name)))
   )
 
-interface Action<T, P> {
+export interface Action<T, P> {
   type: T,
   payload: P
 }
 
-type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {
+export type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {
   [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
 }
 

@@ -28,6 +28,11 @@ export interface NamedEffects {
 
 export type EffectCreator = (states: Record<string, any>) => NamedEffects
 
+export interface AppConfig {
+  mode?: 'production' | 'development',
+  externalReducers?: Redux.ReducersMapObject,
+}
+
 const createSaga = (modelSagas: any) => function* watcher() {
   // TODO: needs to have the flexibility to choose takeEvery, takeLatest...
   yield all(Object.keys(modelSagas).map(action => takeEvery(action, modelSagas[action])))
@@ -54,13 +59,15 @@ export class App {
   registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
+  mode: 'production' | 'development'
 
-  constructor(props: any = {}) {
+  constructor(props: AppConfig = {}) {
     this.rootReducers = {
       ...props.externalReducers,
       [Registry.namespace]: registryReducer,
       __root: () => true,
     }
+    this.mode = props.mode || 'production'
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
@@ -148,7 +155,7 @@ export class App {
 
   createStore() {
     const rootSagas = this.createRootSagas()
-    const store = configureStore(combineReducers(this.rootReducers), rootSagas)
+    const store = configureStore(combineReducers(this.rootReducers), rootSagas, this.mode)
     this.store = store
     // initialize the component registry
     this.store.dispatch(registerAll(this.registries))
