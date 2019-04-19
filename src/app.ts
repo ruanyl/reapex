@@ -56,7 +56,7 @@ export class App {
   states: StateMap<Record<string, any>> = {}
   effectCreators: EffectCreator[] = []
   actionCreators: ActionCreators = {}
-  registries: Map<string, React.ComponentType<any>> = Map()
+  registries: Map<string, () => React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
   mode: 'production' | 'development'
@@ -130,7 +130,7 @@ export class App {
     plug(this, name)
   }
 
-  register<T extends {}>(name: string, component: ComponentType<T>) {
+  register<T extends {}>(name: string, component: () => ComponentType<T>) {
     if (this.store) {
       this.store.dispatch(register(name, component))
     }

@@ -13,13 +13,13 @@ export interface RegisteredProps {
 }
 
 export interface RegisteredWrapperProps {
-  component?: ComponentType<any>;
+  component?: () => ComponentType<any>;
   lazy?: () => Promise<any>
 }
 
 export const RegisteredWrapper: React.SFC<RegisteredWrapperProps> = ({component, lazy, ...props}) => {
   if (component) {
-    return React.createElement(component, props)
+    return React.createElement(component(), props)
   } else if (lazy) {
     lazy().then(() => {})
   }

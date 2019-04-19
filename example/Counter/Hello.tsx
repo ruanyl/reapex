@@ -3,4 +3,4 @@ import app from '../app'
 
 const Hello: React.SFC<{}> = () => <div>Hello World</div>
 
-app.register('hello', Hello)
+app.register('hello', () => Hello)
