@@ -5,20 +5,20 @@ import { createState, LocalState } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
 
 export interface Fields {
-  mapping: Map<string, () => React.ComponentType<any>>;
+  mapping: Map<string, React.ComponentType<any>>;
 }
 
 export interface RegistryPayload {
   name: string;
-  component: () => React.ComponentType<any>;
+  component: React.ComponentType<any>;
 }
 
 export interface RegisterAction extends Action<string> {
   payload: RegistryPayload;
 }
 
-export const register = (name: string, component: () => React.ComponentType<any>) => ({ type: '@@registry/register', payload: {name, component} })
-export const registerAll = (mapping: Map<string, () => React.ComponentType<any>>) => ({ type: '@@registry/registerAll', payload: mapping })
+export const register = (name: string, component: React.ComponentType<any>) => ({ type: '@@registry/register', payload: {name, component} })
+export const registerAll = (mapping: Map<string, React.ComponentType<any>>) => ({ type: '@@registry/registerAll', payload: mapping })
 
 export const Registry = createState<Fields>('@@registry', { mapping: Map() })
 

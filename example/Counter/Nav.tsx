@@ -34,4 +34,4 @@ const NavComponent: React.SFC<NavComponentProps> = props => {
 }
 
 
-app.register('nav', () => connect(mapStateToProps, null)(NavComponent))
+app.register('nav', connect(mapStateToProps, null)(NavComponent))

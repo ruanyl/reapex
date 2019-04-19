@@ -55,4 +55,4 @@ const CounterComponent: React.SFC<CounterComponentProps> = props => {
   )
 }
 
-app.register('counter', () => connect(mapStateToProps, mapDispatchToProps)(CounterComponent))
+app.register('counter', connect(mapStateToProps, mapDispatchToProps)(CounterComponent))
