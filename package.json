@@ -1,6 +1,6 @@
 {
   "name": "reapex",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "A framework to build React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -8,7 +8,8 @@
     "build": "./node_modules/.bin/tsc --outDir lib --declaration",
     "test": "npm run test-only",
     "test-only": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "ajv": "~6.6.2",

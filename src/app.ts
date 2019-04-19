@@ -126,7 +126,7 @@ export class App {
     }
   }
 
-  plug(plug: Plug, name?: string) {
+  plugin(plug: Plug, name?: string) {
     plug(this, name)
   }
 
