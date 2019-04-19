@@ -127,7 +127,7 @@ export class App {
   }
 
   plugin(plug: Plug, name?: string) {
-    return plug(this, name)
+    plug(this, name)
   }
 
   register<T extends {}>(name: string, component: ComponentType<T>) {
