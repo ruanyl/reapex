@@ -1,7 +1,7 @@
 import React, { ComponentType } from 'react'
-import Redux from 'redux'
+import Redux, { Action } from 'redux'
 import { contains } from 'ramda'
-import { takeEvery, call, all, spawn } from 'redux-saga/effects'
+import { takeEvery, call, all, spawn, takeLatest, throttle } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer } from 'reducer-tools'
@@ -13,17 +13,24 @@ import { Registry, registryReducer, register, registerAll } from './registry'
 import sagaMiddleware from './createSagaMiddleware';
 
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
-
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
-
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
-
 export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => React.ComponentClass<any>
-
 export type Plug = (app: App, name?: string) => any
 
+export type Watcher = () => any
+export type Saga = <A extends Action>(action: A) => any
+export type SagaConfig = SagaConfig1 | SagaConfig2
+export interface SagaConfig1 {
+  type: 'takeEvery' | 'takeLatest' | 'watcher' | null
+  ms?: number
+}
+export interface SagaConfig2 {
+  type: 'throttle' | 'debounce'
+  ms: number
+}
 export interface NamedEffects {
-  [key: string]: () => IterableIterator<any>
+  [key: string]: Saga | [Saga, SagaConfig, ...any[]] | Watcher
 }
 
 export type EffectCreator = (states: Record<string, any>) => NamedEffects
@@ -33,9 +40,27 @@ export interface AppConfig {
   externalReducers?: Redux.ReducersMapObject,
 }
 
-const createSaga = (modelSagas: any) => function* watcher() {
-  // TODO: needs to have the flexibility to choose takeEvery, takeLatest...
-  yield all(Object.keys(modelSagas).map(action => takeEvery(action, modelSagas[action])))
+const createSaga = (modelSagas: NamedEffects) => function* watcher() {
+  yield all(Object.keys(modelSagas).map(actionType => {
+    const saga = modelSagas[actionType]
+    if (Array.isArray(saga)) {
+      const [sagaFunc, sagaConfig] = saga
+      if (sagaConfig.type === 'takeEvery') {
+        return takeEvery(actionType, sagaFunc)
+      }
+      if (sagaConfig.type === 'takeLatest') {
+        return takeLatest(actionType, sagaFunc)
+      }
+      if (sagaConfig.type === 'throttle') {
+        return throttle(sagaConfig.ms, sagaConfig.type, sagaFunc)
+      }
+      if (sagaConfig.type === 'watcher') {
+        return call(sagaFunc as Watcher)
+      }
+    } else {
+      return takeEvery(actionType, saga)
+    }
+  }))
 }
 
 function* safeFork(saga: any): any {
@@ -94,7 +119,7 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, () => IterableIterator<any>>) => {
+    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, Saga | [Saga, SagaConfig, ...any[]]>) => {
       const effectsCreator = (states: P) => {
         const effectMap = effects!(states)
         const namedEffects: NamedEffects = {}

@@ -29,7 +29,7 @@ export const createActions =
 
 export interface Action<T, P> {
   type: T,
-  payload: P
+  payload?: P
 }
 
 export type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {

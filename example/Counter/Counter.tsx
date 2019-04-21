@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { select } from 'redux-saga/effects'
+import { select, take } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 
@@ -26,11 +26,20 @@ counter.effects<{Counter: typeof counter.state}>(({ Counter }) => ({
     const total = yield select(Counter.get('total'))
     console.log('total is: ', total)
   },
+
   // specify a namespace
-  'Counter/decrease': function* decrease() {
+  'Counter/decrease': [function* decrease(action: ReturnType<typeof mutations.decrease>) {
+    console.log(action.type)
     const total = yield select(Counter.get('total'))
     console.log('total is: ', total)
-  }
+  }, { type: 'takeEvery' }],
+
+  'thisIsWatcher': [function* watch() {
+    while (true) {
+      yield take('Counter/increase')
+      console.log('xxxxxxx')
+    }
+  }, { type: 'watcher' }]
 }))
 
 const mapStateToProps = createStructuredSelector({
