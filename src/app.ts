@@ -18,8 +18,8 @@ export type ActionCreators = Record<string, ReturnType<typeof typedActionCreator
 export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => React.ComponentClass<any>
 export type Plug = (app: App, name?: string) => any
 
-export type Watcher = () => any
-export type Saga = <A extends Action>(action: A) => any
+export type Watcher = (...args: any[]) => Iterator<any>
+export type Saga = <A extends Action>(action: A) => Iterator<any>
 export type SagaConfig = SagaConfig1 | SagaConfig2
 export interface SagaConfig1 {
   type: 'takeEvery' | 'takeLatest' | 'watcher' | null
@@ -36,8 +36,9 @@ export interface NamedEffects {
 export type EffectCreator = (states: Record<string, any>) => NamedEffects
 
 export interface AppConfig {
-  mode?: 'production' | 'development',
-  externalReducers?: Redux.ReducersMapObject,
+  mode?: 'production' | 'development'
+  externalReducers?: Redux.ReducersMapObject
+  externalEffects?: Watcher[]
 }
 
 const createSaga = (modelSagas: NamedEffects) => function* watcher() {
@@ -81,18 +82,21 @@ export class App {
   states: StateMap<Record<string, any>> = {}
   effectCreators: EffectCreator[] = []
   actionCreators: ActionCreators = {}
+  externalEffects: Watcher[]
   registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
   mode: 'production' | 'development'
 
   constructor(props: AppConfig = {}) {
+    // TODO: external effects
     this.rootReducers = {
       ...props.externalReducers,
       [Registry.namespace]: registryReducer,
       __root: () => true,
     }
     this.mode = props.mode || 'production'
+    this.externalEffects = props.externalEffects || [] as Watcher[]
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
@@ -173,8 +177,9 @@ export class App {
 
   createRootSagas() {
     const sagas = this.effectCreators.map((ec: any) => ec(this.states)).map(createSaga).map(safeFork)
+    const that = this
     return function* () {
-      yield all(sagas)
+      yield all([...sagas, ...that.externalEffects.map(effect => call(effect))])
     }
   }
 
