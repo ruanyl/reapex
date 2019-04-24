@@ -19,10 +19,13 @@ export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreat
 export type Plug = (app: App, name?: string) => any
 
 export type Watcher = (...args: any[]) => Iterator<any>
+export interface WatcherConfig {
+  type: 'watcher'
+}
 export type Saga = <A extends Action>(action: A) => Iterator<any>
 export type SagaConfig = SagaConfig1 | SagaConfig2
 export interface SagaConfig1 {
-  type: 'takeEvery' | 'takeLatest' | 'watcher' | null
+  type: 'takeEvery' | 'takeLatest' | null
   ms?: number
 }
 export interface SagaConfig2 {
@@ -30,7 +33,7 @@ export interface SagaConfig2 {
   ms: number
 }
 export interface NamedEffects {
-  [key: string]: Saga | [Saga, SagaConfig, ...any[]] | Watcher
+  [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig] | Watcher
 }
 
 export type EffectCreator = (states: Record<string, any>) => NamedEffects
@@ -64,7 +67,7 @@ const createSaga = (modelSagas: NamedEffects) => function* watcher() {
   }))
 }
 
-function* safeFork(saga: any): any {
+function* safeFork(saga: () => IterableIterator<any>) {
   yield spawn(function* () {
     while (true) {
       try {
@@ -123,7 +126,7 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, Saga | [Saga, SagaConfig, ...any[]]>) => {
+    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]>) => {
       const effectsCreator = (states: P) => {
         const effectMap = effects!(states)
         const namedEffects: NamedEffects = {}
@@ -172,7 +175,6 @@ export class App {
 
   hasModel(name: string) {
     return contains(name, Object.keys(this.states))
-    // return Object.keys(this.states).includes(name)
   }
 
   createRootSagas() {
