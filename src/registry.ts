@@ -29,7 +29,7 @@ const registerReducer = (payload: RegistryPayload) => (s: LocalState<Fields>) =>
 
 const registerAllReducer = (payload: Fields['mapping']) => (s: LocalState<Fields>) => {
   const mapping = Registry.get('mapping')(s)
-  return Registry.set('mapping', mapping.concat(payload))(s)
+  return Registry.set('mapping', mapping.merge(payload))(s)
 }
 
 export const registryReducer: Reducer = createReducer(Registry.create(), {

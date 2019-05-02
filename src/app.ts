@@ -1,10 +1,10 @@
 import React, { ComponentType } from 'react'
-import Redux, { Action, Middleware } from 'redux'
+import Redux, { Action, Middleware, Reducer } from 'redux'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
-import { createReducer } from 'reducer-tools'
+import { createReducer, AnyAction } from 'reducer-tools'
 import { Map } from 'immutable'
 
 import { typedActionCreators } from './createActions'
@@ -82,6 +82,7 @@ function* safeFork(saga: () => IterableIterator<any>) {
 }
 
 export class App {
+  mergedReducers: Reducer[] = []
   rootReducers: Redux.ReducersMapObject
   states: StateMap<Record<string, any>> = {}
   effectCreators: EffectCreator[] = []
@@ -188,9 +189,21 @@ export class App {
     }
   }
 
+  mergeReducers(reducers: Reducer[]) {
+    this.mergedReducers = reducers
+  }
+
   createStore() {
     const rootSagas = this.createRootSagas()
-    const store = configureStore(combineReducers(this.rootReducers), [...this.externalMiddlewares, sagaMiddleware], this.mode)
+    const rootReducer = combineReducers(this.rootReducers)
+    const reducer = (state: any, action: AnyAction) => {
+      let s = rootReducer(state, action)
+      this.mergedReducers.forEach(r => {
+        s = r(s, action)
+      })
+      return s
+    }
+    const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode)
     sagaMiddleware.run(rootSagas)
     this.store = store
     // initialize the component registry
