@@ -1,11 +1,7 @@
-import { createStore, applyMiddleware, Reducer, Store, AnyAction } from 'redux'
+import { createStore, applyMiddleware, Reducer, Store, AnyAction, Middleware } from 'redux'
 import { createLogger } from 'redux-logger'
 
-import sagaMiddleware from './createSagaMiddleware'
-
-let middlewares: any[] = [sagaMiddleware]
-
-export const configureStore = (reducers: Reducer, sagas: any, mode: 'production' | 'development'): Store<any, AnyAction> => {
+export const configureStore = (reducers: Reducer, middlewares: Middleware[], mode: 'production' | 'development'): Store<any, AnyAction> => {
 
   if (mode === 'development') {
     const logger = createLogger({
@@ -18,7 +14,6 @@ export const configureStore = (reducers: Reducer, sagas: any, mode: 'production'
     reducers,
     applyMiddleware(...middlewares)
   )
-  sagaMiddleware.run(sagas)
   // store.dispatch({ type: ActionTypes.APP.MOUNT })
   return store
 }

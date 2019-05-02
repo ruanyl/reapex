@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react'
-import Redux, { Action } from 'redux'
+import Redux, { Action, Middleware } from 'redux'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -42,6 +42,7 @@ export interface AppConfig {
   mode?: 'production' | 'development'
   externalReducers?: Redux.ReducersMapObject
   externalEffects?: Watcher[]
+  externalMiddlewares?: Middleware[]
 }
 
 const createSaga = (modelSagas: NamedEffects) => function* watcher() {
@@ -86,6 +87,7 @@ export class App {
   effectCreators: EffectCreator[] = []
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
+  externalMiddlewares: Middleware[]
   registries: Map<string, React.ComponentType<any>> = Map()
   Layout: React.ComponentType<any>
   store: Redux.Store<Map<string, any>>
@@ -99,7 +101,8 @@ export class App {
       __root: () => true,
     }
     this.mode = props.mode || 'production'
-    this.externalEffects = props.externalEffects || [] as Watcher[]
+    this.externalEffects = props.externalEffects || []
+    this.externalMiddlewares = props.externalMiddlewares || []
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
@@ -187,7 +190,8 @@ export class App {
 
   createStore() {
     const rootSagas = this.createRootSagas()
-    const store = configureStore(combineReducers(this.rootReducers), rootSagas, this.mode)
+    const store = configureStore(combineReducers(this.rootReducers), [...this.externalMiddlewares, sagaMiddleware], this.mode)
+    sagaMiddleware.run(rootSagas)
     this.store = store
     // initialize the component registry
     this.store.dispatch(registerAll(this.registries))
