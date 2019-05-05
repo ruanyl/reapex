@@ -20,17 +20,17 @@ const mutations = counter.mutations(Counter => ({
   },
 }))
 
-counter.effects<{Counter: typeof counter.state}>(({ Counter }) => ({
+counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
-    const total = yield select(Counter.get('total'))
+    const total = yield select(counter.state.get('total'))
     console.log('total is: ', total)
   },
 
   // specify a namespace
   'decrease': [function* decrease(action: ReturnType<typeof mutations.decrease>) {
     console.log(action.type)
-    const total = yield select(Counter.get('total'))
+    const total = yield select(counter.state.get('total'))
     console.log('total is: ', total)
   }, { type: 'takeEvery', namespace: 'Counter' }],
 
@@ -40,7 +40,7 @@ counter.effects<{Counter: typeof counter.state}>(({ Counter }) => ({
       console.log('xxxxxxx')
     }
   }, { type: 'watcher' }]
-}))
+})
 
 const mapStateToProps = createStructuredSelector({
   total: counter.state.get('total'),

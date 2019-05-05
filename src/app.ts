@@ -38,8 +38,6 @@ export interface NamedEffects {
   [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig] | Watcher
 }
 
-export type EffectCreator = (states: Record<string, any>) => NamedEffects
-
 export interface AppConfig {
   mode?: 'production' | 'development'
   externalReducers?: Redux.ReducersMapObject
@@ -87,7 +85,7 @@ export class App {
   mergedReducers: Reducer[] = []
   rootReducers: Redux.ReducersMapObject
   states: StateMap<Record<string, any>> = {}
-  effectCreators: EffectCreator[] = []
+  effectsArray: NamedEffects[] = []
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
@@ -132,34 +130,30 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = <P extends StateMap<Record<string, any>>>(effects: (states: P) => Record<string, Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]>) => {
-      const effectsCreator = (states: P) => {
-        const effectMap = effects!(states)
-        const namedEffects: NamedEffects = {}
-        Object.keys(effectMap).forEach(type => {
-          const effect = effectMap[type]
-          if (Array.isArray(effect)) {
-            const [, config] = effect
-            if (config.namespace) {
-              namedEffects[`${config.namespace}/${type}`] = effect
-            } else {
-              namedEffects[`${namespace}/${type}`] = effect
-            }
+    const effectFunc = (effectMap: Record<string, Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]>) => {
+      const namedEffects: NamedEffects = {}
+      Object.keys(effectMap).forEach(type => {
+        const effect = effectMap[type]
+        if (Array.isArray(effect)) {
+          const [, config] = effect
+          if (config.namespace) {
+            namedEffects[`${config.namespace}/${type}`] = effect
           } else {
             namedEffects[`${namespace}/${type}`] = effect
           }
-        })
-        return namedEffects
-      }
+        } else {
+          namedEffects[`${namespace}/${type}`] = effect
+        }
+      })
+
       // dynamically register saga
       if (this.store) {
-        const states = this.states
         sagaMiddleware.run(function* () {
-          const saga = createSaga(effectsCreator(states as P))
+          const saga = createSaga(namedEffects)
           yield call(safeFork, saga)
         })
       } else {
-        this.effectCreators.push(effectsCreator)
+        this.effectsArray.push(namedEffects)
       }
     }
 
@@ -190,7 +184,7 @@ export class App {
   }
 
   createRootSagas() {
-    const sagas = this.effectCreators.map((ec: any) => ec(this.states)).map(createSaga).map(safeFork)
+    const sagas = this.effectsArray.map(createSaga).map(safeFork)
     const that = this
     return function* () {
       yield all([...sagas, ...that.externalEffects.map(effect => call(effect))])
