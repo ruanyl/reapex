@@ -21,16 +21,18 @@ export type Plug = (app: App, name?: string) => any
 export type Watcher = (...args: any[]) => Iterator<any>
 export interface WatcherConfig {
   type: 'watcher'
+  namespace?: string
 }
 export type Saga = <A extends Action>(action: A) => Iterator<any>
 export type SagaConfig = SagaConfig1 | SagaConfig2
 export interface SagaConfig1 {
   type: 'takeEvery' | 'takeLatest' | null
-  ms?: number
+  namespace?: string
 }
 export interface SagaConfig2 {
   type: 'throttle' | 'debounce'
   ms: number
+  namespace?: string
 }
 export interface NamedEffects {
   [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig] | Watcher
@@ -135,11 +137,16 @@ export class App {
         const effectMap = effects!(states)
         const namedEffects: NamedEffects = {}
         Object.keys(effectMap).forEach(type => {
-          const paths = type.split('/')
-          if (paths.length > 1 && this.hasModel(paths[0])) {
-            namedEffects[type] = effectMap[type]
+          const effect = effectMap[type]
+          if (Array.isArray(effect)) {
+            const [, config] = effect
+            if (config.namespace) {
+              namedEffects[`${config.namespace}/${type}`] = effect
+            } else {
+              namedEffects[`${namespace}/${type}`] = effect
+            }
           } else {
-            namedEffects[`${namespace}/${type}`] = effectMap[type]
+            namedEffects[`${namespace}/${type}`] = effect
           }
         })
         return namedEffects
@@ -151,8 +158,9 @@ export class App {
           const saga = createSaga(effectsCreator(states as P))
           yield call(safeFork, saga)
         })
+      } else {
+        this.effectCreators.push(effectsCreator)
       }
-      this.effectCreators.push(effectsCreator)
     }
 
     return {

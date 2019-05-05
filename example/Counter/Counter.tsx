@@ -28,11 +28,11 @@ counter.effects<{Counter: typeof counter.state}>(({ Counter }) => ({
   },
 
   // specify a namespace
-  'Counter/decrease': [function* decrease(action: ReturnType<typeof mutations.decrease>) {
+  'decrease': [function* decrease(action: ReturnType<typeof mutations.decrease>) {
     console.log(action.type)
     const total = yield select(Counter.get('total'))
     console.log('total is: ', total)
-  }, { type: 'takeEvery' }],
+  }, { type: 'takeEvery', namespace: 'Counter' }],
 
   'thisIsWatcher': [function* watch() {
     while (true) {
