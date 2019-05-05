@@ -110,8 +110,7 @@ export class App {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
 
-    const mutationFunc = <P extends Record<string, Mutator<T>>>(mutations: (state: StateObject<T>) => P) => {
-      const mutationMap = mutations(stateClass)
+    const mutationFunc = <P extends Record<string, Mutator<T>>>(mutationMap: P) => {
 
       // create action creators
       const actionCreators = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)

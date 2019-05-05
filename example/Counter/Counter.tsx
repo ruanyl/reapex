@@ -9,16 +9,16 @@ import { Registered } from '../../src/Registered';
 
 const counter = app.model('Counter', { total: 0 })
 
-const mutations = counter.mutations(Counter => ({
+const mutations = counter.mutations({
   increase: (t: number) => s => {
-    const total = Counter.get('total')(s)
-    return Counter.set('total', total + t)(s)
+    const total = counter.state.get('total')(s)
+    return counter.state.set('total', total + t)(s)
   },
   decrease: () => s => {
-    const total = Counter.get('total')(s)
-    return Counter.set('total', total - 1)(s)
+    const total = counter.state.get('total')(s)
+    return counter.state.set('total', total - 1)(s)
   },
-}))
+})
 
 counter.effects({
   // by default is the current namespace, which is `Counter`
