@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react'
-import Redux, { Action, Middleware, Reducer } from 'redux'
+import Redux, { Middleware, Reducer } from 'redux'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -7,7 +7,7 @@ import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer, AnyAction } from 'reducer-tools'
 import { Map } from 'immutable'
 
-import { typedActionCreators } from './createActions'
+import { typedActionCreators, Action } from './createActions'
 import { configureStore } from './store'
 import { Registry, registryReducer, register, registerAll } from './registry'
 import sagaMiddleware from './createSagaMiddleware';
@@ -17,25 +17,31 @@ export type StateMap<T extends Record<string, any>> = Record<string, StateObject
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
 export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => React.ComponentClass<any>
 export type Plug = (app: App, name?: string) => any
-
-export type Watcher = (...args: any[]) => Iterator<any>
-export interface WatcherConfig {
-  type: 'watcher'
-  namespace?: string
+export enum EffectType {
+  watcher = 'watcher',
+  takeEvery = 'takeEvery',
+  takeLatest = 'takeLatest',
+  throttle = 'throttle',
+  debounce = 'debounce',
 }
-export type Saga = <A extends Action>(action: A) => Iterator<any>
+export type Watcher = () => Iterator<any>
+export type WatcherConfig = {
+  type: EffectType.watcher
+}
+
+export type Saga = <A extends Action<any, any>>(action: A) => Iterator<any>
 export type SagaConfig = SagaConfig1 | SagaConfig2
 export interface SagaConfig1 {
-  type: 'takeEvery' | 'takeLatest' | null
+  type: EffectType.takeEvery | EffectType.takeLatest
   namespace?: string
 }
 export interface SagaConfig2 {
-  type: 'throttle' | 'debounce'
+  type: EffectType.throttle | EffectType.debounce
   ms: number
   namespace?: string
 }
 export interface NamedEffects {
-  [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig] | Watcher
+  [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]
 }
 
 export interface AppConfig {
@@ -50,16 +56,17 @@ const createSaga = (modelSagas: NamedEffects) => function* watcher() {
     const saga = modelSagas[actionType]
     if (Array.isArray(saga)) {
       const [sagaFunc, sagaConfig] = saga
-      if (sagaConfig.type === 'takeEvery') {
+      if (sagaConfig.type === EffectType.takeEvery) {
         return takeEvery(actionType, sagaFunc)
       }
-      if (sagaConfig.type === 'takeLatest') {
+      if (sagaConfig.type === EffectType.takeLatest) {
         return takeLatest(actionType, sagaFunc)
       }
-      if (sagaConfig.type === 'throttle') {
+      if (sagaConfig.type === EffectType.throttle) {
         return throttle(sagaConfig.ms, sagaConfig.type, sagaFunc)
       }
-      if (sagaConfig.type === 'watcher') {
+      if (sagaConfig.type === EffectType.watcher) {
+        sagaConfig
         return call(sagaFunc as Watcher)
       }
     } else {
@@ -135,7 +142,7 @@ export class App {
         const effect = effectMap[type]
         if (Array.isArray(effect)) {
           const [, config] = effect
-          if (config.namespace) {
+          if ('namespace' in config) {
             namedEffects[`${config.namespace}/${type}`] = effect
           } else {
             namedEffects[`${namespace}/${type}`] = effect
