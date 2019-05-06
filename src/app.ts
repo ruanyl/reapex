@@ -24,24 +24,35 @@ export enum EffectType {
   throttle = 'throttle',
   debounce = 'debounce',
 }
-export type Watcher = () => Iterator<any>
+export type Watcher = <T extends unknown[]>(...args: T) => Iterator<any>
 export type WatcherConfig = {
-  type: EffectType.watcher
+  watcher: Watcher
 }
 
 export type Saga = <A extends Action<any, any>>(action: A) => Iterator<any>
 export type SagaConfig = SagaConfig1 | SagaConfig2
-export interface SagaConfig1 {
-  type: EffectType.takeEvery | EffectType.takeLatest
+
+export type SagaConfig1 = {
+  takeEvery: Saga
   namespace?: string
 }
-export interface SagaConfig2 {
-  type: EffectType.throttle | EffectType.debounce
+export type SagaConfig2 = {
+  takeLatest: Saga
+  namespace?: string
+}
+export type SagaConfig3 = {
+  throttle: Saga
   ms: number
   namespace?: string
 }
+export type SagaConfig4 = {
+  debounce: Saga
+  ms: number
+  namespace?: string
+}
+
 export interface NamedEffects {
-  [key: string]: Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]
+  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig
 }
 
 export interface AppConfig {
@@ -53,24 +64,19 @@ export interface AppConfig {
 
 const createSaga = (modelSagas: NamedEffects) => function* watcher() {
   yield all(Object.keys(modelSagas).map(actionType => {
-    const saga = modelSagas[actionType]
-    if (Array.isArray(saga)) {
-      const [sagaFunc, sagaConfig] = saga
-      if (sagaConfig.type === EffectType.takeEvery) {
-        return takeEvery(actionType, sagaFunc)
-      }
-      if (sagaConfig.type === EffectType.takeLatest) {
-        return takeLatest(actionType, sagaFunc)
-      }
-      if (sagaConfig.type === EffectType.throttle) {
-        return throttle(sagaConfig.ms, sagaConfig.type, sagaFunc)
-      }
-      if (sagaConfig.type === EffectType.watcher) {
-        sagaConfig
-        return call(sagaFunc as Watcher)
-      }
+    const sagaConfig = modelSagas[actionType]
+    if ('takeEvery' in sagaConfig) {
+      return takeEvery(actionType, sagaConfig.takeEvery)
+    } else if ('takeLatest' in sagaConfig) {
+      return takeLatest(actionType, sagaConfig.takeLatest)
+    } else if ('throttle' in sagaConfig) {
+      return throttle(sagaConfig.ms, actionType, sagaConfig.throttle)
+    } else if ('watcher' in sagaConfig) {
+      return call(sagaConfig.watcher)
+    } else if ('debounce' in sagaConfig) {
+      console.error('To implement')
     } else {
-      return takeEvery(actionType, saga)
+      return takeEvery(actionType, sagaConfig)
     }
   }))
 }
@@ -136,19 +142,18 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = (effectMap: Record<string, Saga | [Saga, SagaConfig] | [Watcher, WatcherConfig]>) => {
+    const effectFunc = (effectMap: Record<string, Watcher | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig>) => {
       const namedEffects: NamedEffects = {}
       Object.keys(effectMap).forEach(type => {
-        const effect = effectMap[type]
-        if (Array.isArray(effect)) {
-          const [, config] = effect
-          if ('namespace' in config) {
-            namedEffects[`${config.namespace}/${type}`] = effect
-          } else {
-            namedEffects[`${namespace}/${type}`] = effect
-          }
+        const sagaConfig = effectMap[type]
+        if (typeof sagaConfig === 'function') {
+          namedEffects[`${namespace}/${type}`] = sagaConfig
         } else {
-          namedEffects[`${namespace}/${type}`] = effect
+          if ('namespace' in sagaConfig) {
+            namedEffects[`${sagaConfig.namespace}/${type}`] = sagaConfig
+          } else {
+            namedEffects[`${namespace}/${type}`] = sagaConfig
+          }
         }
       })
 

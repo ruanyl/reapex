@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 // import { Registered } from '../../src'
 import app from '../app'
 import { Registered } from '../../src/Registered';
-import { EffectType } from '../../src';
 
 const counter = app.model('Counter', { total: 0 })
 
@@ -29,18 +28,23 @@ counter.effects({
   },
 
   // specify a namespace
-  'decrease': [function* decrease(action: ReturnType<typeof mutations.decrease>) {
-    console.log(action.type)
-    const total = yield select(counter.state.get('total'))
-    console.log('total is: ', total)
-  }, { type: EffectType.takeEvery, namespace: 'Counter' }],
+  'decrease': {
+    *takeEvery(action: ReturnType<typeof mutations.decrease>) {
+      console.log(action.type)
+      const total = yield select(counter.state.get('total'))
+      console.log('total is: ', total)
+    },
+    namespace: 'Counter'
+  },
 
-  'thisIsWatcher': [function* watch() {
-    while (true) {
-      yield take('Counter/increase')
-      console.log('xxxxxxx')
-    }
-  }, { type: EffectType.watcher }]
+  'thisIsWatcher': {
+    *watcher() {
+      while (true) {
+        yield take('Counter/increase')
+        console.log('xxxxxxx')
+      }
+    },
+  }
 })
 
 const mapStateToProps = createStructuredSelector({
