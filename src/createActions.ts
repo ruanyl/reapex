@@ -1,6 +1,6 @@
 import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
 import { typedKeyMirror } from 'reducer-tools';
-import { Mutator } from './app';
+import { Mutator, TriggerMapInput, TriggerConfig1, TriggerConfig2 } from './app';
 // import { MutatorMap } from './app';
 
 type Modifier = (key: string) => string
@@ -43,6 +43,23 @@ export const typedActionCreators = <T extends Record<string, any>, P extends Rec
   Object.keys(mutators).forEach(k => {
     const mutator = mutators[k]
     actionCreatorMap[k] = ((...payload: Parameters<typeof mutator>) => ({
+      type: actionTypes[k],
+      payload
+    })) as any
+  })
+  return actionCreatorMap
+}
+
+export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
+  [K in keyof P]: P[K] extends TriggerConfig1 ? (...payload: Parameters<P[K]['takeEvery']>) => Action<K, Parameters<P[K]['takeEvery']>> :
+    P[K] extends TriggerConfig2 ? (...payload: Parameters<P[K]['takeLatest']>) => Action<K, Parameters<P[K]['takeLatest']>> : never
+}
+export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(namespace: string, triggerMap: P) => {
+  const actionTypes = typedKeyMirror(triggerMap, namespace, '/')
+  const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<P>
+
+  Object.keys(triggerMap).forEach(k => {
+    actionCreatorMap[k] = ((...payload: any[]) => ({
       type: actionTypes[k],
       payload
     })) as any

@@ -20,7 +20,7 @@ const mutations = counter.mutations({
   },
 })
 
-counter.effects({
+const effects = counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
     const total = yield select(counter.state.get('total'))
@@ -44,6 +44,13 @@ counter.effects({
       }
     },
   }
+}, {
+  'triggerAction': {
+    *takeEvery(n: number) {
+      const total = yield select(counter.state.get('total'))
+      console.log('triggerAction, total + N: ', total + n)
+    }
+  }
 })
 
 const mapStateToProps = createStructuredSelector({
@@ -53,6 +60,7 @@ const mapStateToProps = createStructuredSelector({
 const mapDispatchToProps = {
   increase: mutations.increase,
   decrease: mutations.decrease,
+  logger: effects.triggerAction,
 }
 
 type CounterComponentProps = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>
@@ -64,6 +72,7 @@ const CounterComponent: React.SFC<CounterComponentProps> = props => {
       <button onClick={() => props.decrease()}>-</button>
       {props.total}
       <button onClick={() => props.increase(1)}>+</button>
+      <button onClick={() => props.logger(100)}>+100</button>
     </>
   )
 }
