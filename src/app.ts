@@ -24,34 +24,29 @@ export enum EffectType {
   throttle = 'throttle',
   debounce = 'debounce',
 }
-export type Watcher = <T extends unknown[]>(...args: T) => Iterator<any>
+export type Watcher = (...args: unknown[]) => Iterator<any>
 export type WatcherConfig = {
   watcher: Watcher
 }
 
-export type Saga = <A extends Action<any, any>>(action: A) => Iterator<any>
-export type SagaConfig = SagaConfig1 | SagaConfig2
+export type Saga<T = any> = (action?: Action<T, any>) => Iterator<any>
 
 export type SagaConfig1 = {
   takeEvery: Saga
-  namespace?: string
 }
 export type SagaConfig2 = {
   takeLatest: Saga
-  namespace?: string
 }
 export type SagaConfig3 = {
   throttle: Saga
   ms: number
-  namespace?: string
 }
 export type SagaConfig4 = {
   debounce: Saga
   ms: number
-  namespace?: string
 }
 
-export interface NamedEffects {
+export interface EffectMap {
   [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig
 }
 
@@ -62,7 +57,7 @@ export interface AppConfig {
   externalMiddlewares?: Middleware[]
 }
 
-const createSaga = (modelSagas: NamedEffects) => function* watcher() {
+const createSaga = (modelSagas: EffectMap) => function* watcher() {
   yield all(Object.keys(modelSagas).map(actionType => {
     const sagaConfig = modelSagas[actionType]
     if ('takeEvery' in sagaConfig) {
@@ -98,7 +93,7 @@ export class App {
   mergedReducers: Reducer[] = []
   rootReducers: Redux.ReducersMapObject
   states: StateMap<Record<string, any>> = {}
-  effectsArray: NamedEffects[] = []
+  effectsArray: EffectMap[] = []
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
@@ -142,18 +137,17 @@ export class App {
       return actionCreators
     }
 
-    const effectFunc = (effectMap: Record<string, Watcher | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig>) => {
-      const namedEffects: NamedEffects = {}
-      Object.keys(effectMap).forEach(type => {
-        const sagaConfig = effectMap[type]
+    const effectFunc = (effectMap: EffectMap) => {
+      const namedEffects: EffectMap = {}
+      Object.keys(effectMap).forEach(key => {
+        const sagaConfig = effectMap[key]
+        const hasNamespace = key.includes('/')
+        const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
+
         if (typeof sagaConfig === 'function') {
-          namedEffects[`${namespace}/${type}`] = sagaConfig
+          namedEffects[`${namespaceKey}`] = sagaConfig
         } else {
-          if ('namespace' in sagaConfig) {
-            namedEffects[`${sagaConfig.namespace}/${type}`] = sagaConfig
-          } else {
-            namedEffects[`${namespace}/${type}`] = sagaConfig
-          }
+          namedEffects[`${namespaceKey}`] = sagaConfig
         }
       })
 
