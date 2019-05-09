@@ -11,12 +11,12 @@ const counter = app.model('Counter', { total: 0 })
 
 const mutations = counter.mutations({
   increase: (t: number) => s => {
-    const total = counter.state.get('total')(s)
-    return counter.state.set('total', total + t)(s)
+    const total = s.total
+    return s.set('total', total + t)
   },
   decrease: () => s => {
-    const total = counter.state.get('total')(s)
-    return counter.state.set('total', total - 1)(s)
+    const total = s.total
+    return s.set('total', total - 1)
   },
 })
 
