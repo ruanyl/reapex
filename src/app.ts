@@ -179,11 +179,11 @@ export class App {
 
       // TODO: check that keyof triggerMap should NOT in keyof effectMap
 
-      const effectAcrionCreators = typedActionCreatorsForEffects(namespace, triggerMap)
+      const effectAcrionCreators = typedActionCreatorsForEffects(`${namespace}/effects`, triggerMap)
 
       Object.keys(triggerMap).forEach(key => {
         const triggerConfig = triggerMap[key]
-        namedEffects[`${namespace}/${key}`] = { ...triggerConfig, trigger: true }
+        namedEffects[`${namespace}/effects/${key}`] = { ...triggerConfig, trigger: true }
       })
 
       // dynamically register saga
