@@ -9,14 +9,14 @@ import { Map } from 'immutable'
 
 import { typedActionCreators, Action, typedActionCreatorsForEffects } from './createActions'
 import { configureStore } from './store'
-import { Registry, registryReducer, register, registerAll } from './registry'
+import { Registry, registryReducer, register } from './registry'
 import sagaMiddleware from './createSagaMiddleware';
 
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
 export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => ComponentClass<any>
-export type Plug = (app: App, name?: string) => any
+export type Plug = (app: App, ...args: any[]) => any
 export enum EffectType {
   watcher = 'watcher',
   takeEvery = 'takeEvery',
@@ -123,7 +123,6 @@ export class App {
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
-  registries: Map<string, ComponentType<any>> = Map()
   store: Redux.Store<Map<string, any>>
   mode: 'production' | 'development'
 
@@ -204,15 +203,12 @@ export class App {
     }
   }
 
-  plugin(plug: Plug, name?: string) {
-    plug(this, name)
+  plugin(plug: Plug, ...args: any[]) {
+    return plug(this, ...args)
   }
 
   register<T extends {}>(name: string, component: ComponentType<T>) {
-    if (this.store) {
-      this.store.dispatch(register(name, component))
-    }
-    this.registries = this.registries.set(name, component)
+    this.store.dispatch(register(name, component))
   }
 
   hasModel(name: string) {
@@ -244,8 +240,6 @@ export class App {
     const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode)
     sagaMiddleware.run(rootSagas)
     this.store = store
-    // initialize the component registry
-    this.store.dispatch(registerAll(this.registries))
     return store
   }
 }
