@@ -203,7 +203,7 @@ export class App {
     }
   }
 
-  plugin(plug: Plug, ...args: any[]) {
+  plugin<T extends Plug>(plug: T, ...args: any[]): ReturnType<typeof plug> {
     return plug(this, ...args)
   }
 
