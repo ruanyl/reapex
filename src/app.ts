@@ -1,5 +1,5 @@
-import React, { ComponentType } from 'react'
 import Redux, { Middleware, Reducer } from 'redux'
+import { ComponentType, ComponentClass } from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle, apply } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -15,7 +15,7 @@ import sagaMiddleware from './createSagaMiddleware';
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
-export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => React.ComponentClass<any>
+export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => ComponentClass<any>
 export type Plug = (app: App, name?: string) => any
 export enum EffectType {
   watcher = 'watcher',
@@ -123,8 +123,7 @@ export class App {
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
-  registries: Map<string, React.ComponentType<any>> = Map()
-  Layout: React.ComponentType<any>
+  registries: Map<string, ComponentType<any>> = Map()
   store: Redux.Store<Map<string, any>>
   mode: 'production' | 'development'
 
@@ -214,10 +213,6 @@ export class App {
       this.store.dispatch(register(name, component))
     }
     this.registries = this.registries.set(name, component)
-  }
-
-  layout(Layout: React.ComponentType<any>) {
-    this.Layout = Layout
   }
 
   hasModel(name: string) {

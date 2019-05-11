@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { Map } from 'immutable'
 import { Action, Reducer } from 'redux'
 import { createState, LocalState } from 'immutable-state-creator'

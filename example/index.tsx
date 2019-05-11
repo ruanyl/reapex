@@ -1,17 +1,22 @@
 import * as React from 'react'
 import {BrowserRouter} from 'react-router-dom';
 import { Route } from 'react-router-dom'
+import { render } from 'react-dom';
+import { Provider } from 'react-redux';
 
 import app from './app'
-import { renderApp, Registered } from '../src'
+import { Registered } from '../src'
 
-app.layout(() => (
-  <BrowserRouter>
-    <div>
-      <Registered name="counter" lazy={() => import('./Counter/Counter')} />
-      <Route path="/hello" component={() => <Registered name="hello" lazy={() => import('./Counter/Hello')} />} />
-    </div>
-  </BrowserRouter>
-))
+const store = app.createStore()
 
-renderApp(app, document.getElementById('root'))
+render(
+  <Provider store={store}>
+    <BrowserRouter>
+      <div>
+        <Registered name="counter" lazy={() => import('./Counter/Counter')} />
+        <Route path="/hello" component={() => <Registered name="hello" lazy={() => import('./Counter/Hello')} />} />
+      </div>
+    </BrowserRouter>
+  </Provider>,
+  document.getElementById('root')
+)
