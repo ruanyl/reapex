@@ -1,20 +1,32 @@
-import * as React from 'react'
+import React from 'react'
 import {BrowserRouter} from 'react-router-dom';
 import { Route } from 'react-router-dom'
 import { render } from 'react-dom';
 import { Provider } from 'react-redux';
 
 import app from './app'
-import { Registered } from '../src'
+import { Counter } from './Counter/Counter'
+import { Nav } from './Counter/Nav';
 
 const store = app.createStore()
+
+const Hello = React.lazy(() => import('./Counter/Hello'))
+
+function WaitingComponent(Component: React.ComponentType<any>) {
+  return (props: any) => (
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <Component {...props} />
+    </React.Suspense>
+  );
+}
 
 render(
   <Provider store={store}>
     <BrowserRouter>
       <div>
-        <Registered name="counter" lazy={() => import('./Counter/Counter')} />
-        <Route path="/hello" component={() => <Registered name="hello" lazy={() => import('./Counter/Hello')} />} />
+        <Nav />
+        <Counter />
+        <Route path="/hello" component={WaitingComponent(Hello)} />
       </div>
     </BrowserRouter>
   </Provider>,

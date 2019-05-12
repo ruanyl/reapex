@@ -3,9 +3,7 @@ import { select, take } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 
-// import { Registered } from '../../src'
 import app from '../app'
-import { Registered } from '../../src/Registered';
 
 const counter = app.model('Counter', { total: 0 })
 
@@ -68,7 +66,6 @@ type CounterComponentProps = typeof mapDispatchToProps & ReturnType<typeof mapSt
 const CounterComponent: React.SFC<CounterComponentProps> = props => {
   return (
     <>
-      <Registered name="nav" lazy={() => import('./Nav')} />
       <button onClick={() => props.decrease()}>-</button>
       {props.total}
       <button onClick={() => props.increase(1)}>+</button>
@@ -77,4 +74,4 @@ const CounterComponent: React.SFC<CounterComponentProps> = props => {
   )
 }
 
-app.register('counter', connect(mapStateToProps, mapDispatchToProps)(CounterComponent))
+export const Counter = connect(mapStateToProps, mapDispatchToProps)(CounterComponent)

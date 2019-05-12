@@ -1,5 +1,4 @@
 import Redux, { Middleware, Reducer } from 'redux'
-import { ComponentType, ComponentClass } from 'react'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle, apply } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -9,13 +8,11 @@ import { Map } from 'immutable'
 
 import { typedActionCreators, Action, typedActionCreatorsForEffects } from './createActions'
 import { configureStore } from './store'
-import { Registry, registryReducer, register } from './registry'
 import sagaMiddleware from './createSagaMiddleware';
 
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
-export type ConnectCreator = (states: StateMap<any>, actionCreators: ActionCreators) => ComponentClass<any>
 export type Plug = (app: App, ...args: any[]) => any
 export enum EffectType {
   watcher = 'watcher',
@@ -130,7 +127,6 @@ export class App {
     // TODO: external effects
     this.rootReducers = {
       ...props.externalReducers,
-      [Registry.namespace]: registryReducer,
       __root: () => true,
     }
     this.mode = props.mode || 'production'
@@ -205,10 +201,6 @@ export class App {
 
   plugin<T extends Plug>(plug: T, ...args: any[]): ReturnType<typeof plug> {
     return plug(this, ...args)
-  }
-
-  register<T extends {}>(name: string, component: ComponentType<T>) {
-    this.store.dispatch(register(name, component))
   }
 
   hasModel(name: string) {
