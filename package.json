@@ -51,14 +51,15 @@
     "redux": "^4.0.0",
     "redux-immutable": "~4.0.0",
     "redux-logger": "~3.0.6",
-    "redux-saga": "~0.16.0"
+    "redux-saga": "~1.0.0"
   },
   "peerDependencies": {
     "react": ">= 16.3.0",
     "react-dom": ">= 16.3.0",
     "react-redux": "5.x",
     "redux": "4.x",
-    "reselect": ">= 3.0"
+    "reselect": ">= 3.0",
+    "redux-saga": ">= 1.0.0"
   },
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
   "license": "MIT",

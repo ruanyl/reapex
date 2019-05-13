@@ -1,6 +1,6 @@
 import Redux, { Middleware, Reducer } from 'redux'
 import { contains } from 'ramda'
-import { takeEvery, call, all, spawn, takeLatest, throttle, apply } from 'redux-saga/effects'
+import { takeEvery, call, all, spawn, takeLatest, throttle, apply, debounce } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer, AnyAction } from 'reducer-tools'
@@ -92,7 +92,7 @@ const createSaga = (modelSagas: EffectMap) => function* watcher() {
     } else if ('watcher' in sagaConfig) {
       return call(sagaConfig.watcher)
     } else if ('debounce' in sagaConfig) {
-      console.error('To implement')
+      return debounce(sagaConfig.ms, actionType, sagaConfig.debounce)
     } else {
       return takeEvery(actionType, sagaConfig)
     }
