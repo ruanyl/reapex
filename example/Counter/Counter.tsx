@@ -16,6 +16,10 @@ const mutations = counter.mutations({
     const total = s.total
     return s.set('total', total - 1)
   },
+}, {
+  'Nav/push': (item: string) => s => {
+    return s.set('total', 10000)
+  }
 })
 
 const effects = counter.effects({

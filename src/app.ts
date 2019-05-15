@@ -138,7 +138,7 @@ export class App {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
 
-    const mutationFunc = <P extends Record<string, Mutator<T>>>(mutationMap: P) => {
+    const mutationFunc = <P extends Record<string, Mutator<T>>, S extends Record<string, Mutator<T>>>(mutationMap: P, subscriptions?: S) => {
 
       // create action creators
       const actionCreators = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)
@@ -149,6 +149,12 @@ export class App {
       Object.keys(mutationMap).forEach(key => {
         namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](...a.payload)(s)
       })
+
+      if (subscriptions) {
+        Object.keys(subscriptions).forEach(key => {
+          namedMutations[key] = (s: LocalState<T>, a: Redux.AnyAction) => subscriptions[key](...a.payload)(s)
+        })
+      }
 
       this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
       if (this.store) {
