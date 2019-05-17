@@ -10,17 +10,18 @@ import { typedActionCreators, Action, typedActionCreatorsForEffects } from './cr
 import { configureStore } from './store'
 import sagaMiddleware from './createSagaMiddleware';
 
+export interface EffectsLoadedAction {
+  type: '@@GLOBAL/EFFECTS_LOADED',
+  payload: [string]
+}
+export interface MutationsLoadedAction {
+  type: '@@GLOBAL/MUTATIONS_LOADED',
+  payload: [string]
+}
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
 export type Plug = (app: App, ...args: any[]) => any
-export enum EffectType {
-  watcher = 'watcher',
-  takeEvery = 'takeEvery',
-  takeLatest = 'takeLatest',
-  throttle = 'throttle',
-  debounce = 'debounce',
-}
 export type Watcher = () => IterableIterator<any>
 export type WatcherConfig = {
   watcher: Watcher
@@ -159,6 +160,7 @@ export class App {
       this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
+        this.store.dispatch({ type: '@@GLOBAL/MUTATIONS_LOADED', payload: [namespace] })
       }
       return actionCreators
     }
@@ -192,6 +194,7 @@ export class App {
           const saga = createSaga(namedEffects)
           yield call(safeFork, saga)
         })
+        this.store.dispatch({ type: '@@GLOBAL/EFFECTS_LOADED', payload: [namespace] })
       } else {
         this.effectsArray.push(namedEffects)
       }
