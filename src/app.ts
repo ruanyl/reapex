@@ -21,12 +21,12 @@ export enum EffectType {
   throttle = 'throttle',
   debounce = 'debounce',
 }
-export type Watcher = () => Iterator<any>
+export type Watcher = () => IterableIterator<any>
 export type WatcherConfig = {
   watcher: Watcher
 }
 
-export type Saga<T = any> = (action?: Action<T, any>) => Iterator<any>
+export type Saga<T = any> = (action?: Action<T, any>) => IterableIterator<any>
 
 export type SagaConfig1 = {
   takeEvery: Saga
@@ -43,7 +43,7 @@ export type SagaConfig4 = {
   ms: number
 }
 
-export type Trigger = (...args: any[]) => Iterator<any>
+export type Trigger = (...args: any[]) => IterableIterator<any>
 export type TriggerConfig1 = {
   takeEvery: Trigger
 }
@@ -136,7 +136,7 @@ export class App {
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
     const stateClass = createState(namespace, initialState)
-    this.states[namespace] = stateClass
+    this.states[namespace] = stateClass as StateObject<Record<string, any>>
 
     const mutationFunc = <P extends Record<string, Mutator<T>>>(mutationMap: P) => {
 
@@ -152,7 +152,7 @@ export class App {
 
       this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
       if (this.store) {
-        this.store.replaceReducer(combineReducers(this.rootReducers))
+        this.store.replaceReducer(this.getReducer())
       }
       return actionCreators
     }
@@ -209,9 +209,8 @@ export class App {
 
   createRootSagas() {
     const sagas = this.effectsArray.map(createSaga).map(safeFork)
-    const that = this
     return function* () {
-      yield all([...sagas, ...that.externalEffects.map(effect => call(effect))])
+      yield all(sagas)
     }
   }
 
@@ -219,8 +218,7 @@ export class App {
     this.mergedReducers = reducers
   }
 
-  createStore() {
-    const rootSagas = this.createRootSagas()
+  getReducer() {
     const rootReducer = combineReducers(this.rootReducers)
     const reducer = (state: any, action: AnyAction) => {
       let s = rootReducer(state, action)
@@ -229,8 +227,17 @@ export class App {
       })
       return s
     }
+    return reducer
+  }
+
+  createStore() {
+    const rootSagas = this.createRootSagas()
+    const reducer = this.getReducer()
     const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode)
     sagaMiddleware.run(rootSagas)
+    this.externalEffects.forEach(effect => {
+      sagaMiddleware.run(effect)
+    })
     this.store = store
     return store
   }
