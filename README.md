@@ -103,7 +103,7 @@ export const Counter = connect(
 Note: `counter.state.get('total')` provides the selector to the `total`
 
 ### Render it!
-```
+```typescript
 import React from 'react'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
