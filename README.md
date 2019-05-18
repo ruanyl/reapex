@@ -12,7 +12,7 @@ Reapex is created to serve the following purpose:
 
 > Action Types are just string constants, and Action Creators are "function constants". One can derive Action Type and Action Creator from a reducer function. Why would I have to create them manually? 
 
-> Reapex simplified the creation of Action Type/Action Creator/Reducer and combined them to one concept which is called "Mutation". It .
+> Reapex simplified the creation of Action Type/Action Creator/Reducer and combined them to one concept which is called "Mutation". It lets you focus on writing the code logic, not copy/paste boilerplates.
 
 #### As the application grows, the code should be robust enough to scale.
 
