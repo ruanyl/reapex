@@ -18,26 +18,28 @@ Reapex is created to serve the following purpose:
 
 > Reapex is designed in a way that modules have a clear boundary with each other, and code split/dynamic loading is in the bone. Modules which baked with redux/redux-saga can be shared in different applications and Reapex support plugin which makes it easy to publish these reusable modules to npm. Such as [reapex-plugin-modal](https://github.com/ReapexJS/reapex-plugin-modal)
 
+
+#### Built with the love of TypeScript
+> Reapex is written with TypeScript which means you get strong typed state, selectors, actions out of the box.
+
 ## Features
 - [x] Reapex will automatically create actions/action types, much less boilerplate which makes app easy to maintain and less refactoring costs
 - [x] Reapex loads modules dynamically(code-split), sagas/reducers are registered automically
 - [x] Reapex supports plugin, application can be easily extended
 - [x] Super lightweight, can be easily intergrated with existing react/redux/redux-sagas application
 
-#### Built with the love of TypeScript
-Reapex is written with TypeScript which means you get strong typed state, selectors, actions out of the box.
-
 ## Getting started with a simple `Counter` example
+#### Finds more examples here: [reapex-example](https://github.com/ReapexJS/reapex-example)
 
 ```
 npm i reapex --save
 ```
 #### Install peer dependencies
 ```
-npm i react react-dom redux react-redux redux-saga --save-dev
+npm i react react-dom redux react-redux redux-saga --save
 ```
 
-### Initialize the application
+### 1. Initialize the application
 ```typescript
 import { App } from 'reapex'
 
@@ -45,12 +47,12 @@ const app = new App()
 
 ```
 
-### Create a model(the shape of the state)
+### 2. Create a model(the shape of the state)
 ```typescript
 const counter = app.model('Counter', { total: 0 })
 ```
 
-### Defined the mutations: how you want the state to be mutated
+### 3. Defined the mutations: how you want the state to be mutated
 Mutation combines action types and reducer, and it returns action creators
 
 ```typescript
@@ -67,7 +69,7 @@ The function: `(t: number) => s => s.set('total', s.total + t)`, `t: number` wil
 }
 ```
 
-### Connect it with Component
+### 4. Connect it with Component
 `react-reudx` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which automatically created by `reapex`.
 
 ```typescript
@@ -102,7 +104,7 @@ export const Counter = connect(
 ```
 Note: `counter.state.get('total')` provides the selector to the `total`
 
-### Render it!
+### 5. Render it!
 ```typescript
 import React from 'react'
 import { render } from 'react-dom'
