@@ -100,8 +100,8 @@ const createSaga = (modelSagas: EffectMap) => function* watcher() {
   }))
 }
 
-function* safeFork(saga: () => IterableIterator<any>) {
-  yield spawn(function* () {
+function safeFork(saga: () => IterableIterator<any>) {
+  return spawn(function* () {
     while (true) {
       try {
         yield call(saga)
@@ -192,7 +192,7 @@ export class App {
       if (this.store) {
         sagaMiddleware.run(function* () {
           const saga = createSaga(namedEffects)
-          yield call(safeFork, saga)
+          yield safeFork(saga)
         })
         this.store.dispatch({ type: '@@GLOBAL/EFFECTS_LOADED', payload: [namespace] })
       } else {

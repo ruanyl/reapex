@@ -58,7 +58,6 @@
     "react-dom": ">= 16.3.0",
     "react-redux": "5.x",
     "redux": "4.x",
-    "reselect": ">= 3.0",
     "redux-saga": ">= 1.0.0"
   },
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
