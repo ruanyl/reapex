@@ -100,7 +100,7 @@ const createSaga = (modelSagas: EffectMap) => function* watcher() {
   }))
 }
 
-function safeFork(saga: () => IterableIterator<any>) {
+export function safeFork(saga: () => IterableIterator<any>) {
   return spawn(function* () {
     while (true) {
       try {
@@ -125,7 +125,6 @@ export class App {
   mode: 'production' | 'development'
 
   constructor(props: AppConfig = {}) {
-    // TODO: external effects
     this.rootReducers = {
       ...props.externalReducers,
       __root: () => true,
@@ -217,7 +216,7 @@ export class App {
   }
 
   createRootSagas() {
-    const sagas = this.effectsArray.map(createSaga).map(safeFork)
+    const sagas = this.effectsArray.map(createSaga).concat(this.externalEffects).map(safeFork)
     return function* () {
       yield all(sagas)
     }
@@ -244,9 +243,6 @@ export class App {
     const reducer = this.getReducer()
     const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode)
     sagaMiddleware.run(rootSagas)
-    this.externalEffects.forEach(effect => {
-      sagaMiddleware.run(effect)
-    })
     this.store = store
     return store
   }
