@@ -1,6 +1,6 @@
 ## Reapex
 
-Reapex is a tiny framework to build pluggable and extendable redux(react) application, and it can integrate with existing react/redux application smoothly.
+Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application
 
 Reapex is created to serve the following purpose:
 
