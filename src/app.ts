@@ -3,7 +3,7 @@ import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle, apply, debounce } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
-import { createReducer, AnyAction } from 'reducer-tools'
+import { createReducer } from 'reducer-tools'
 import { Map } from 'immutable'
 
 import { typedActionCreators, Action, typedActionCreatorsForEffects } from './createActions'
@@ -74,6 +74,8 @@ export interface AppConfig {
   externalReducers?: Redux.ReducersMapObject
   externalEffects?: Watcher[]
   externalMiddlewares?: Middleware[]
+  loggerEnabled?: boolean
+  devtoolEnabled?: boolean
 }
 
 const createSaga = (modelSagas: EffectMap) => function* watcher() {
@@ -114,7 +116,6 @@ export function safeFork(saga: () => IterableIterator<any>) {
 }
 
 export class App {
-  mergedReducers: Reducer[] = []
   rootReducers: Redux.ReducersMapObject
   states: StateMap<Record<string, any>> = {}
   effectsArray: EffectMap[] = []
@@ -123,6 +124,8 @@ export class App {
   externalMiddlewares: Middleware[]
   store: Redux.Store<Map<string, any>>
   mode: 'production' | 'development'
+  devtoolEnabled: boolean | undefined
+  loggerEnabled: boolean | undefined
 
   constructor(props: AppConfig = {}) {
     this.rootReducers = {
@@ -130,6 +133,8 @@ export class App {
       __root: () => true,
     }
     this.mode = props.mode || 'production'
+    this.loggerEnabled = props.loggerEnabled
+    this.devtoolEnabled = props.devtoolEnabled
     this.externalEffects = props.externalEffects || []
     this.externalMiddlewares = props.externalMiddlewares || []
   }
@@ -222,26 +227,22 @@ export class App {
     }
   }
 
-  mergeReducers(reducers: Reducer[]) {
-    this.mergedReducers = reducers
+  registerReducer(name: string, reducer: Reducer) {
+    this.rootReducers[name] = reducer
+    if (this.store) {
+      this.store.replaceReducer(this.getReducer())
+    }
   }
 
   getReducer() {
     const rootReducer = combineReducers(this.rootReducers)
-    const reducer = (state: any, action: AnyAction) => {
-      let s = rootReducer(state, action)
-      this.mergedReducers.forEach(r => {
-        s = r(s, action)
-      })
-      return s
-    }
-    return reducer
+    return rootReducer
   }
 
   createStore() {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
-    const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode)
+    const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode, this.loggerEnabled, this.devtoolEnabled)
     sagaMiddleware.run(rootSagas)
     this.store = store
     return store
