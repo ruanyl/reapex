@@ -1,4 +1,4 @@
-import Redux, { Middleware, Reducer } from 'redux'
+import { Middleware, Reducer, ReducersMapObject, Store, AnyAction } from 'redux'
 import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle, apply, debounce } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
@@ -71,7 +71,7 @@ export interface EffectMap {
 
 export interface AppConfig {
   mode?: 'production' | 'development'
-  externalReducers?: Redux.ReducersMapObject
+  externalReducers?: ReducersMapObject
   externalEffects?: Watcher[]
   externalMiddlewares?: Middleware[]
   loggerEnabled?: boolean
@@ -116,13 +116,13 @@ export function safeFork(saga: () => IterableIterator<any>) {
 }
 
 export class App {
-  rootReducers: Redux.ReducersMapObject
+  rootReducers: ReducersMapObject
   states: StateMap<Record<string, any>> = {}
   effectsArray: EffectMap[] = []
   actionCreators: ActionCreators = {}
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
-  store: Redux.Store<Map<string, any>>
+  store: Store<Map<string, any>>
   mode: 'production' | 'development'
   devtoolEnabled: boolean | undefined
   loggerEnabled: boolean | undefined
@@ -150,14 +150,14 @@ export class App {
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
-      const namedMutations: Record<string, Redux.Reducer> = {}
+      const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: Redux.AnyAction) => mutationMap[key](...a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: AnyAction) => mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
-          namedMutations[key] = (s: LocalState<T>, a: Redux.AnyAction) => subscriptions[key](...a.payload)(s)
+          namedMutations[key] = (s: LocalState<T>, a: AnyAction) => subscriptions[key](...a.payload)(s)
         })
       }
 
