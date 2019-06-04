@@ -14,7 +14,7 @@ const initialState = { items: List(['home', 'hello', 'about']) }
 
 const nav = app.model<Fields>('Nav', initialState)
 
-const mutations = nav.mutations({
+const [mutations, actionTypes] = nav.mutations({
   push: (item?: string) => s => {
     if (item) {
       const items = nav.state.get('items')(s)
@@ -23,6 +23,8 @@ const mutations = nav.mutations({
     return s
   }
 })
+
+console.log(actionTypes)
 
 const mapStateToProps = createStructuredSelector({ items: nav.state.get('items') })
 const mapDispatchToProps = {

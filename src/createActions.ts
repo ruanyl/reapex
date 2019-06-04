@@ -1,5 +1,5 @@
 import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
-import { typedKeyMirror } from 'reducer-tools';
+import { typedKeyMirror, Mirrored } from 'reducer-tools';
 import { Mutator, TriggerMapInput, TriggerConfig1, TriggerConfig2 } from './app';
 // import { MutatorMap } from './app';
 
@@ -47,7 +47,7 @@ export const typedActionCreators = <T extends Record<string, any>, P extends Rec
       payload
     })) as any
   })
-  return actionCreatorMap
+  return [actionCreatorMap, actionTypes] as [ActionCreatorMap<T, P>, Mirrored<P>]
 }
 
 export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
@@ -64,5 +64,5 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(namespa
       payload
     })) as any
   })
-  return actionCreatorMap
+  return [actionCreatorMap, actionTypes] as [ActionCreatorMapForEffects<P>, Mirrored<P>]
 }

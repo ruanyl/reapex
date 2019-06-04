@@ -3,10 +3,10 @@ import { contains } from 'ramda'
 import { takeEvery, call, all, spawn, takeLatest, throttle, apply, debounce } from 'redux-saga/effects'
 import { combineReducers } from 'redux-immutable'
 import { createState, StateObject, LocalState } from 'immutable-state-creator'
-import { createReducer } from 'reducer-tools'
+import { createReducer, Mirrored } from 'reducer-tools'
 import { Map } from 'immutable'
 
-import { typedActionCreators, Action, typedActionCreatorsForEffects } from './createActions'
+import { typedActionCreators, Action, typedActionCreatorsForEffects, ActionCreatorMap, ActionCreatorMapForEffects } from './createActions'
 import { configureStore } from './store'
 import sagaMiddleware from './createSagaMiddleware';
 
@@ -20,7 +20,7 @@ export interface MutationsLoadedAction {
 }
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
-export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>>
+export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>[0]>
 export type Plug = (app: App, ...args: any[]) => any
 export type Watcher = () => IterableIterator<any>
 export type WatcherConfig = {
@@ -143,10 +143,10 @@ export class App {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
 
-    const mutationFunc = <P extends Record<string, Mutator<T>>, S extends Record<string, Mutator<T>>>(mutationMap: P, subscriptions?: S) => {
+    const mutationFunc = <P extends Record<string, Mutator<T>>, S extends Record<string, Mutator<T>>>(mutationMap: P, subscriptions?: S): [ActionCreatorMap<T, P>, Mirrored<P>] => {
 
       // create action creators
-      const actionCreators = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)
+      const [actionCreators, actionTypes] = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
@@ -166,10 +166,10 @@ export class App {
         this.store.replaceReducer(this.getReducer())
         this.store.dispatch({ type: '@@GLOBAL/MUTATIONS_LOADED', payload: [namespace] })
       }
-      return actionCreators
+      return [actionCreators, actionTypes]
     }
 
-    const effectFunc = <S extends EffectMapInput, P extends TriggerMapInput>(effectMap: S, triggerMap: P = {} as P) => {
+    const effectFunc = <S extends EffectMapInput, P extends TriggerMapInput>(effectMap: S, triggerMap: P = {} as P): [ActionCreatorMapForEffects<P>, Mirrored<P>] => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
@@ -183,7 +183,7 @@ export class App {
         }
       })
 
-      const effectAcrionCreators = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
+      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
 
       Object.keys(triggerMap).forEach(key => {
         if (effectMap.hasOwnProperty(key)) {
@@ -202,7 +202,7 @@ export class App {
       } else {
         this.effectsArray.push(namedEffects)
       }
-      return effectAcrionCreators
+      return [effectAcrionCreators, actionTypes]
     }
 
     return {

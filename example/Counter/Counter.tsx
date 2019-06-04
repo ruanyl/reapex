@@ -7,7 +7,7 @@ import app from '../app'
 
 const counter = app.model('Counter', { total: 0 })
 
-const mutations = counter.mutations({
+const [mutations, actionTypes] = counter.mutations({
   increase: (t: number) => s => {
     const total = s.total
     return s.set('total', total + t)
@@ -22,7 +22,9 @@ const mutations = counter.mutations({
   }
 })
 
-const effects = counter.effects({
+console.log(actionTypes);
+
+const [effects, effectsActionTypes] = counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
     const total = yield select(counter.state.get('total'))
@@ -54,6 +56,8 @@ const effects = counter.effects({
     }
   }
 })
+
+console.log(effectsActionTypes)
 
 const mapStateToProps = createStructuredSelector({
   total: counter.state.get('total'),
