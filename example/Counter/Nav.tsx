@@ -17,8 +17,8 @@ const nav = app.model<Fields>('Nav', initialState)
 const [mutations, actionTypes] = nav.mutations({
   push: (item?: string) => s => {
     if (item) {
-      const items = nav.state.get('items')(s)
-      return nav.state.set('items', items.push(item))(s)
+      const items = s.get('items')
+      return s.set('items', items.push(item))
     }
     return s
   }

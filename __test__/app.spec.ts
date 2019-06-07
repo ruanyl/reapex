@@ -22,7 +22,7 @@ describe('createActions', () => {
 
     store.dispatch(mutations.decrease())
     expect(store.getState().get('test', {}).toJS()).toEqual({total: 0})
-  });
+  })
 
   it('should generate actionTypes', () => {
     const model = app.model('test', {total: 0})
@@ -32,6 +32,6 @@ describe('createActions', () => {
     })
     expect(actionTypes.increase).toEqual('test/increase')
     expect(actionTypes.decrease).toEqual('test/decrease')
-  });
+  })
 });
 

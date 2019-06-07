@@ -27,7 +27,7 @@ console.log(actionTypes);
 const [effects, effectsActionTypes] = counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
-    const total = yield select(counter.state.get('total'))
+    const total = yield select(counter.selectors.total)
     console.log('total is: ', total)
   },
 
@@ -35,7 +35,7 @@ const [effects, effectsActionTypes] = counter.effects({
   'Counter/decrease': {
     *takeEvery(action: ReturnType<typeof mutations.decrease>) {
       console.log(action.type)
-      const total = yield select(counter.state.get('total'))
+      const total = yield select(counter.selectors.total)
       console.log('total is: ', total)
     },
   },
@@ -51,7 +51,7 @@ const [effects, effectsActionTypes] = counter.effects({
 }, {
   'triggerAction': {
     *takeEvery(n: number) {
-      const total = yield select(counter.state.get('total'))
+      const total = yield select(counter.selectors.total)
       console.log('triggerAction, total + N: ', total + n)
     }
   }
@@ -60,7 +60,7 @@ const [effects, effectsActionTypes] = counter.effects({
 console.log(effectsActionTypes)
 
 const mapStateToProps = createStructuredSelector({
-  total: counter.state.get('total'),
+  total: counter.selectors.total,
 })
 
 const mapDispatchToProps = {

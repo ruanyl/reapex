@@ -207,6 +207,7 @@ export class App {
 
     return {
       state: stateClass,
+      selectors: stateClass.selectors,
       mutations: mutationFunc,
       effects: effectFunc,
     }
