@@ -4,23 +4,21 @@ Reapex is a lightweight "framework" written in TypeScript to build pluggable and
 
 Reapex is created to serve the following purpose:
 
-#### As a developer, I want to configure and start a react/redux application quickly.
-
-> Managing a react/redux scaffolding isn't an exciting job. create-react-app could help a bit here, but Reapex let you create a react/redux application in just a few lines of code.
-
-#### As a developer, I get tired of writing and maintaining Action Types, and I want to get rid of writing every Action Creator manually.
+#### Get rid of Redux boilerplate.
 
 > Action Types are just string constants, and Action Creators are "function constants". One can derive Action Type and Action Creator from a reducer function. Why would I have to create them manually? 
 
 > Reapex simplified the creation of Action Type/Action Creator/Reducer and combined them to one concept which is called "Mutation". It lets you focus on writing the code logic, not copy/paste boilerplates.
 
-#### As the application grows, the code should be robust enough to scale.
+#### Modularization and ready for code splitting and dynamic loading.
 
-> Reapex is designed in a way that modules have a clear boundary with each other, and code split/dynamic loading is in the bone. Modules which baked with redux/redux-saga can be shared in different applications and Reapex support plugin which makes it easy to publish these reusable modules to npm. Such as [reapex-plugin-modal](https://github.com/ReapexJS/reapex-plugin-modal)
+> Reapex is designed in a way that modules have a clear boundary with each other, it forces people to think in a modularized way when working with Reapex. 
+
+> Reapex support plugin which makes it easy to share reusable modules, for example, publish to npm. Such as [reapex-plugin-modal](https://github.com/ReapexJS/reapex-plugin-modal)
 
 
 #### Built with the love of TypeScript
-> Reapex is written with TypeScript which means you get strong typed state, selectors, actions out of the box.
+> Reapex is written with TypeScript which means you get strong typed state, selectors, actions.
 
 ## Features
 - [x] Reapex will automatically create actions/action types, much less boilerplate which makes app easy to maintain and less refactoring costs
@@ -77,7 +75,7 @@ import React from 'react'
 import { createStructuredSelector } from 'reselect'
 import { connect } from 'react-redux'
 
-const mapStateToProps = createStructuredSelector({ total: counter.state.get('total') })
+const mapStateToProps = createStructuredSelector({ total: counter.selectors.total })
 
 const mapDispatchToProps = {
   increase: mutations.increase,
