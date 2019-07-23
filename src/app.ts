@@ -130,7 +130,6 @@ export class App {
   constructor(props: AppConfig = {}) {
     this.rootReducers = {
       ...props.externalReducers,
-      __root: () => true,
     }
     this.mode = props.mode || 'production'
     this.loggerEnabled = props.loggerEnabled
