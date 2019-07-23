@@ -10,14 +10,6 @@ import { typedActionCreators, Action, typedActionCreatorsForEffects, ActionCreat
 import { configureStore } from './store'
 import sagaMiddleware from './createSagaMiddleware';
 
-export interface EffectsLoadedAction {
-  type: '@@GLOBAL/EFFECTS_LOADED',
-  payload: [string]
-}
-export interface MutationsLoadedAction {
-  type: '@@GLOBAL/MUTATIONS_LOADED',
-  payload: [string]
-}
 export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
 export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
 export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>[0]>
