@@ -6,60 +6,22 @@ import { createState, StateObject, LocalState } from 'immutable-state-creator'
 import { createReducer, Mirrored } from 'reducer-tools'
 import { Map } from 'immutable'
 
-import { typedActionCreators, Action, typedActionCreatorsForEffects, ActionCreatorMap, ActionCreatorMapForEffects } from './createActions'
-import { configureStore } from './store'
 import sagaMiddleware from './createSagaMiddleware';
-
-export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
-export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
-export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>[0]>
-export type Plug = (app: App, ...args: any[]) => any
-export type Watcher = () => IterableIterator<any>
-export type WatcherConfig = {
-  watcher: Watcher
-}
-
-export type Saga<T = any> = (action?: Action<T, any>) => IterableIterator<any>
-
-export type SagaConfig1 = {
-  takeEvery: Saga
-}
-export type SagaConfig2 = {
-  takeLatest: Saga
-}
-export type SagaConfig3 = {
-  throttle: Saga
-  ms: number
-}
-export type SagaConfig4 = {
-  debounce: Saga
-  ms: number
-}
-
-export type Trigger = (...args: any[]) => IterableIterator<any>
-export type TriggerConfig1 = {
-  takeEvery: Trigger
-}
-export type TriggerConfig2 = {
-  takeLatest: Trigger
-}
-export interface TriggerMapInput {
-  [key: string]: TriggerConfig1 | TriggerConfig2
-}
-
-export interface EffectMapInput {
-  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig
-}
-
-export interface EffectMap {
-  [key: string]: Saga | SagaConfig1 & { trigger: false }
-    | SagaConfig2 & { trigger: false }
-    | SagaConfig3 & { trigger: false }
-    | SagaConfig4 & { trigger: false }
-    | WatcherConfig & { trigger: false }
-    | TriggerConfig1 & { trigger: true }
-    | TriggerConfig2 & { trigger: true }
-}
+import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
+import { configureStore } from './store'
+import {
+  Action,
+  Saga,
+  Watcher,
+  EffectMap,
+  StateMap,
+  ActionCreators,
+  Mutator,
+  EffectMapInput,
+  TriggerMapInput,
+  ActionCreatorMap,
+  ActionCreatorMapForEffects,
+} from './types';
 
 export interface AppConfig {
   mode?: 'production' | 'development'
@@ -69,6 +31,7 @@ export interface AppConfig {
   loggerEnabled?: boolean
   devtoolEnabled?: boolean
 }
+export type Plug = (app: App, ...args: any[]) => any
 
 const createSaga = (modelSagas: EffectMap) => function* watcher() {
   yield all(Object.keys(modelSagas).map(actionType => {

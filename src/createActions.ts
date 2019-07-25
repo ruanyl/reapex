@@ -1,7 +1,7 @@
 import { pickBy, either, mapObjIndexed, compose, head, tail, join, converge, map, keys, values, zipObj } from 'ramda'
 import { typedKeyMirror, Mirrored } from 'reducer-tools';
-import { Mutator, TriggerMapInput, TriggerConfig1, TriggerConfig2 } from './app';
-// import { MutatorMap } from './app';
+
+import { Mutator, TriggerMapInput, ActionCreatorMap, ActionCreatorMapForEffects } from './types';
 
 type Modifier = (key: string) => string
 
@@ -27,15 +27,6 @@ export const createActions =
     pickBy(either(isPureName, hasPrefix(name)))
   )
 
-export interface Action<T, P> {
-  type: T,
-  payload: P
-}
-
-export type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {
-  [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
-}
-
 export const typedActionCreators = <T extends Record<string, any>, P extends Record<string, Mutator<T>>>(namespace: string, mutators: P) => {
   const actionTypes = typedKeyMirror(mutators, namespace, '/')
   const actionCreatorMap: ActionCreatorMap<T, P> = {} as ActionCreatorMap<T, P>
@@ -50,10 +41,6 @@ export const typedActionCreators = <T extends Record<string, any>, P extends Rec
   return [actionCreatorMap, actionTypes] as [ActionCreatorMap<T, P>, Mirrored<P>]
 }
 
-export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
-  [K in keyof P]: P[K] extends TriggerConfig1 ? (...payload: Parameters<P[K]['takeEvery']>) => Action<K, Parameters<P[K]['takeEvery']>> :
-    P[K] extends TriggerConfig2 ? (...payload: Parameters<P[K]['takeLatest']>) => Action<K, Parameters<P[K]['takeLatest']>> : never
-}
 export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(namespace: string, triggerMap: P) => {
   const actionTypes = typedKeyMirror(triggerMap, namespace, '/')
   const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<P>
