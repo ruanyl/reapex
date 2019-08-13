@@ -1,129 +1,115 @@
-import { Middleware, Reducer, ReducersMapObject, Store, AnyAction } from 'redux'
-import { contains } from 'ramda'
-import { takeEvery, call, all, spawn, takeLatest, throttle, apply, debounce } from 'redux-saga/effects'
-import { combineReducers } from 'redux-immutable'
-import { createState, StateObject, LocalState } from 'immutable-state-creator'
-import { createReducer, Mirrored } from 'reducer-tools'
 import { Map } from 'immutable'
+import { createState, LocalState, StateObject } from 'immutable-state-creator'
+import { contains } from 'ramda'
+import { createReducer, Mirrored } from 'reducer-tools'
+import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
+import { combineReducers } from 'redux-immutable'
+import { all } from 'redux-saga/effects'
 
-import sagaMiddleware from './createSagaMiddleware';
-import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
+import sagaMiddleware from './createSagaMiddleware'
+import {
+  typedActionCreators,
+  typedActionCreatorsForEffects,
+} from './createActions'
+import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
 import {
-  Action,
-  Saga,
-  Watcher,
-  EffectMap,
-  StateMap,
-  ActionCreators,
-  Mutator,
-  EffectMapInput,
-  TriggerMapInput,
   ActionCreatorMap,
   ActionCreatorMapForEffects,
-} from './types';
+  ActionCreators,
+  EffectMap,
+  EffectMapInput,
+  Mutator,
+  StateMap,
+  TriggerMapInput,
+  Watcher,
+} from './types'
 
 export interface AppConfig {
-  mode?: 'production' | 'development'
-  externalReducers?: ReducersMapObject
-  externalEffects?: Watcher[]
-  externalMiddlewares?: Middleware[]
-  loggerEnabled?: boolean
-  devtoolEnabled?: boolean
+  mode: 'production' | 'development'
+  externalReducers: ReducersMapObject
+  externalEffects: Watcher[]
+  externalMiddlewares: Middleware[]
+  loggerEnabled: boolean
+  devtoolEnabled: boolean
 }
 export type Plug = (app: App, ...args: any[]) => any
-
-const createSaga = (modelSagas: EffectMap) => function* watcher() {
-  yield all(Object.keys(modelSagas).map(actionType => {
-    const sagaConfig = modelSagas[actionType]
-    const wrapper = (f: Saga) => {
-      return function* (action: Action<any, any>) {
-        yield apply(null, f, action.payload)
-      }
-    }
-    if ('takeEvery' in sagaConfig) {
-      return takeEvery(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeEvery) : sagaConfig.takeEvery)
-    } else if ('takeLatest' in sagaConfig) {
-      return takeLatest(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeLatest) : sagaConfig.takeLatest)
-    } else if ('throttle' in sagaConfig) {
-      return throttle(sagaConfig.ms, actionType, sagaConfig.throttle)
-    } else if ('watcher' in sagaConfig) {
-      return call(sagaConfig.watcher)
-    } else if ('debounce' in sagaConfig) {
-      return debounce(sagaConfig.ms, actionType, sagaConfig.debounce)
-    } else {
-      return takeEvery(actionType, sagaConfig)
-    }
-  }))
-}
-
-export function safeFork(saga: () => IterableIterator<any>) {
-  return spawn(function* () {
-    while (true) {
-      try {
-        yield call(saga)
-        break
-      } catch (e) {
-        console.error(e)
-      }
-    }
-  })
-}
 
 export class App {
   rootReducers: ReducersMapObject
   states: StateMap<Record<string, any>> = {}
   effectsArray: EffectMap[] = []
   actionCreators: ActionCreators = {}
-  externalEffects: Watcher[]
-  externalMiddlewares: Middleware[]
   store: Store<Map<string, any>>
-  mode: 'production' | 'development'
-  devtoolEnabled: boolean | undefined
-  loggerEnabled: boolean | undefined
 
-  constructor(props: AppConfig = {}) {
-    this.rootReducers = {
-      ...props.externalReducers,
-    }
-    this.mode = props.mode || 'production'
-    this.loggerEnabled = props.loggerEnabled
-    this.devtoolEnabled = props.devtoolEnabled
-    this.externalEffects = props.externalEffects || []
-    this.externalMiddlewares = props.externalMiddlewares || []
+  appConfig: AppConfig = {
+    mode: 'production',
+    externalEffects: [],
+    externalMiddlewares: [],
+    externalReducers: {},
+    loggerEnabled: false,
+    devtoolEnabled: false,
+  }
+
+  constructor(props: Partial<AppConfig> = {}) {
+    const { externalReducers, ...appConfig } = props
+    this.rootReducers = { ...externalReducers }
+
+    this.appConfig = { ...this.appConfig, ...appConfig }
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
 
-    const mutationFunc = <P extends Record<string, Mutator<T>>, S extends Record<string, Mutator<T>>>(mutationMap: P, subscriptions?: S): [ActionCreatorMap<T, P>, Mirrored<P>] => {
-
+    const mutationFunc = <
+      P extends Record<string, Mutator<T>>,
+      S extends Record<string, Mutator<T>>
+    >(
+      mutationMap: P,
+      subscriptions?: S
+    ): [ActionCreatorMap<T, P>, Mirrored<P>] => {
       // create action creators
-      const [actionCreators, actionTypes] = typedActionCreators<T, typeof mutationMap>(namespace, mutationMap)
+      const [actionCreators, actionTypes] = typedActionCreators<
+        T,
+        typeof mutationMap
+      >(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: LocalState<T>, a: AnyAction) => mutationMap[key](...a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (
+          s: LocalState<T>,
+          a: AnyAction
+        ) => mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
-          namedMutations[key] = (s: LocalState<T>, a: AnyAction) => subscriptions[key](...a.payload)(s)
+          namedMutations[key] = (s: LocalState<T>, a: AnyAction) =>
+            subscriptions[key](...a.payload)(s)
         })
       }
 
-      this.rootReducers[namespace] = createReducer(stateClass.create(), namedMutations)
+      this.rootReducers[namespace] = createReducer(
+        stateClass.create(),
+        namedMutations
+      )
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
-        this.store.dispatch({ type: '@@GLOBAL/MUTATIONS_LOADED', payload: [namespace] })
+        this.store.dispatch({
+          type: '@@GLOBAL/MUTATIONS_LOADED',
+          payload: [namespace],
+        })
       }
       return [actionCreators, actionTypes]
     }
 
-    const effectFunc = <S extends EffectMapInput, P extends TriggerMapInput>(effectMap: S, triggerMap: P = {} as P): [ActionCreatorMapForEffects<P>, Mirrored<P>] => {
+    const effectFunc = <S extends EffectMapInput, P extends TriggerMapInput>(
+      effectMap: S,
+      triggerMap: P = {} as P
+    ): [ActionCreatorMapForEffects<P>, Mirrored<P>] => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
@@ -137,22 +123,36 @@ export class App {
         }
       })
 
-      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
+      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(
+        `${namespace}`,
+        triggerMap
+      )
 
       Object.keys(triggerMap).forEach(key => {
         if (effectMap.hasOwnProperty(key)) {
-          throw new Error(`${namespace}.effects(), key: ${key} in ${JSON.stringify(triggerMap)} also appears in ${JSON.stringify(effectMap)}`) }
+          throw new Error(
+            `${namespace}.effects(), key: ${key} in ${JSON.stringify(
+              triggerMap
+            )} also appears in ${JSON.stringify(effectMap)}`
+          )
+        }
         const triggerConfig = triggerMap[key]
-        namedEffects[`${namespace}/${key}`] = { ...triggerConfig, trigger: true }
+        namedEffects[`${namespace}/${key}`] = {
+          ...triggerConfig,
+          trigger: true,
+        }
       })
 
       // dynamically register saga
       if (this.store) {
-        sagaMiddleware.run(function* () {
+        sagaMiddleware.run(function*() {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
-        this.store.dispatch({ type: '@@GLOBAL/EFFECTS_LOADED', payload: [namespace] })
+        this.store.dispatch({
+          type: '@@GLOBAL/EFFECTS_LOADED',
+          payload: [namespace],
+        })
       } else {
         this.effectsArray.push(namedEffects)
       }
@@ -176,8 +176,11 @@ export class App {
   }
 
   createRootSagas() {
-    const sagas = this.effectsArray.map(createSaga).concat(this.externalEffects).map(safeFork)
-    return function* () {
+    const sagas = this.effectsArray
+      .map(createSaga)
+      .concat(this.appConfig.externalEffects)
+      .map(safeFork)
+    return function*() {
       yield all(sagas)
     }
   }
@@ -197,7 +200,11 @@ export class App {
   createStore() {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
-    const store = configureStore(reducer, [...this.externalMiddlewares, sagaMiddleware], this.mode, this.loggerEnabled, this.devtoolEnabled)
+    const store = configureStore(
+      reducer,
+      [...this.appConfig.externalMiddlewares, sagaMiddleware],
+      this.appConfig
+    )
     sagaMiddleware.run(rootSagas)
     this.store = store
     return store

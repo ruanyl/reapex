@@ -12,22 +12,22 @@ const manifest = path.resolve(__dirname, "dist/manifest.json")
 //   componentEntries = componentEntries.concat(filename)
 // })
 
-/* eslint-disable max-len */
+const entry = Object.keys(packages.dependencies).filter(name => name.indexOf('@types') < 0).concat(['react', 'react-dom', 'react-router', 'react-router-dom', 'reselect'])
 module.exports = [
   {
-		name: "vendor",
+		name: 'vendor',
 		// mode: "development || "production",
-		mode: "production",
-    entry: Object.keys(packages.dependencies).filter(name => name.indexOf('@types') < 0).concat(['react', 'react-dom', 'react-router', 'react-router-dom', 'reselect']),
+		mode: 'production',
+    entry: entry,
 		output: {
 			path: path.resolve(__dirname, "dist"),
-			filename: "vendor.js",
-			library: "vendor_[hash]"
+			filename: 'vendor.js',
+			library: 'vendor_[hash]'
 		},
 		plugins: [
 			new webpack.DllPlugin({
-				name: "vendor_[hash]",
-				path: path.resolve(__dirname, "dist/manifest.json")
+				name: 'vendor_[hash]',
+				path: path.resolve(__dirname, 'dist/manifest.json')
 			})
 		]
 	},

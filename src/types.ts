@@ -1,16 +1,24 @@
-import { StateObject, LocalState } from 'immutable-state-creator'
+import { LocalState, StateObject } from 'immutable-state-creator'
 
 import { typedActionCreators } from './createActions'
 
-export type Mutator<T> = (...payload: any[]) => (localstate: LocalState<T>) => LocalState<T>
-export type StateMap<T extends Record<string, any>> = Record<string, StateObject<T>>
-export type ActionCreators = Record<string, ReturnType<typeof typedActionCreators>[0]>
+export type Mutator<T> = (
+  ...payload: any[]
+) => (localstate: LocalState<T>) => LocalState<T>
+export type StateMap<T extends Record<string, any>> = Record<
+  string,
+  StateObject<T>
+>
+export type ActionCreators = Record<
+  string,
+  ReturnType<typeof typedActionCreators>[0]
+>
 export type Watcher = () => IterableIterator<any>
 export type WatcherConfig = {
   watcher: Watcher
 }
 export interface Action<T, P> {
-  type: T,
+  type: T
   payload: P
 }
 
@@ -43,11 +51,19 @@ export interface TriggerMapInput {
 }
 
 export interface EffectMapInput {
-  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | WatcherConfig
+  [key: string]:
+    | Saga
+    | SagaConfig1
+    | SagaConfig2
+    | SagaConfig3
+    | SagaConfig4
+    | WatcherConfig
 }
 
 export interface EffectMap {
-  [key: string]: Saga | SagaConfig1 & { trigger: false }
+  [key: string]:
+    | Saga
+    | SagaConfig1 & { trigger: false }
     | SagaConfig2 & { trigger: false }
     | SagaConfig3 & { trigger: false }
     | SagaConfig4 & { trigger: false }
@@ -56,11 +72,21 @@ export interface EffectMap {
     | TriggerConfig2 & { trigger: true }
 }
 
-export type ActionCreatorMap<T extends Record<string, any>, P extends Record<string, Mutator<T>>> = {
+export type ActionCreatorMap<
+  T extends Record<string, any>,
+  P extends Record<string, Mutator<T>>
+> = {
   [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
 }
 
 export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
-  [K in keyof P]: P[K] extends TriggerConfig1 ? (...payload: Parameters<P[K]['takeEvery']>) => Action<K, Parameters<P[K]['takeEvery']>> :
-    P[K] extends TriggerConfig2 ? (...payload: Parameters<P[K]['takeLatest']>) => Action<K, Parameters<P[K]['takeLatest']>> : never
+  [K in keyof P]: P[K] extends TriggerConfig1
+    ? (
+        ...payload: Parameters<P[K]['takeEvery']>
+      ) => Action<K, Parameters<P[K]['takeEvery']>>
+    : P[K] extends TriggerConfig2
+    ? (
+        ...payload: Parameters<P[K]['takeLatest']>
+      ) => Action<K, Parameters<P[K]['takeLatest']>>
+    : never
 }
