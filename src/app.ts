@@ -30,8 +30,6 @@ export interface AppConfig {
   externalReducers: ReducersMapObject
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
-  loggerEnabled: boolean
-  devtoolEnabled: boolean
 }
 export type Plug = (app: App, ...args: any[]) => any
 
@@ -47,8 +45,6 @@ export class App {
     externalEffects: [],
     externalMiddlewares: [],
     externalReducers: {},
-    loggerEnabled: false,
-    devtoolEnabled: false,
   }
 
   constructor(props: Partial<AppConfig> = {}) {
@@ -200,11 +196,10 @@ export class App {
   createStore() {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
-    const store = configureStore(
-      reducer,
-      [...this.appConfig.externalMiddlewares, sagaMiddleware],
-      this.appConfig
-    )
+    const store = configureStore(reducer, [
+      ...this.appConfig.externalMiddlewares,
+      sagaMiddleware,
+    ])
     sagaMiddleware.run(rootSagas)
     this.store = store
     return store
