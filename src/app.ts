@@ -26,7 +26,6 @@ import {
 } from './types'
 
 export interface AppConfig {
-  mode: 'production' | 'development'
   externalReducers: ReducersMapObject
   externalEffects: Watcher[]
   externalMiddlewares: Middleware[]
@@ -41,7 +40,6 @@ export class App {
   store: Store<Map<string, any>>
 
   appConfig: AppConfig = {
-    mode: 'production',
     externalEffects: [],
     externalMiddlewares: [],
     externalReducers: {},

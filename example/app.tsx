@@ -15,7 +15,6 @@ const logger = createLogger({
 })
 
 const app = new App({
-  mode: 'development',
   externalEffects: [globalWatcher],
   externalMiddlewares: [logger],
 })
