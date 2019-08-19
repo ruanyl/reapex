@@ -1,5 +1,7 @@
+import { createLogger } from 'redux-logger'
+import { take } from 'redux-saga/effects'
+
 import { App } from '../src'
-import { take } from 'redux-saga/effects';
 
 function* globalWatcher() {
   while (true) {
@@ -8,9 +10,14 @@ function* globalWatcher() {
   }
 }
 
+const logger = createLogger({
+  stateTransformer: (state: any) => state.toJS(),
+})
+
 const app = new App({
   mode: 'development',
-  externalEffects: [globalWatcher]
+  externalEffects: [globalWatcher],
+  externalMiddlewares: [logger],
 })
 
 export default app
