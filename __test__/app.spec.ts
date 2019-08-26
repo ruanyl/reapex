@@ -1,7 +1,7 @@
 import { App } from '../src/app'
 import {put, delay} from 'redux-saga/effects';
 
-describe('createActions', () => {
+describe('create actions', () => {
   let app: App
 
   beforeEach(() => {
@@ -63,6 +63,14 @@ describe('createActions', () => {
 
     store.dispatch({ type: 'OtherNamespace/actionType' })
     expect(model.selectors.total(store.getState())).toEqual(100)
+  });
+});
+
+describe('create sagas', () => {
+  let app: App
+
+  beforeEach(() => {
+    app = new App()
   });
 
   it('should run sagas by default with takeEvery effect', () => {
@@ -159,4 +167,3 @@ describe('createActions', () => {
     expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
   });
 });
-
