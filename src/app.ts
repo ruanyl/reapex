@@ -26,9 +26,10 @@ import {
 } from './types'
 
 export interface AppConfig {
-  externalReducers: ReducersMapObject
-  externalEffects: Watcher[]
-  externalMiddlewares: Middleware[]
+  reducers: ReducersMapObject
+  sagas: Watcher[]
+  middlewares: Middleware[]
+  actionTypeDelimiter: string
 }
 export type Plug = (app: App, ...args: any[]) => any
 
@@ -40,14 +41,15 @@ export class App {
   store: Store<Map<string, any>>
 
   appConfig: AppConfig = {
-    externalEffects: [],
-    externalMiddlewares: [],
-    externalReducers: {},
+    sagas: [],
+    middlewares: [],
+    reducers: {},
+    actionTypeDelimiter: '/',
   }
 
   constructor(props: Partial<AppConfig> = {}) {
-    const { externalReducers, ...appConfig } = props
-    this.rootReducers = { ...externalReducers }
+    const { reducers, ...appConfig } = props
+    this.rootReducers = { ...reducers }
 
     this.appConfig = { ...this.appConfig, ...appConfig }
   }
@@ -67,7 +69,7 @@ export class App {
       const [actionCreators, actionTypes] = typedActionCreators<
         T,
         typeof mutationMap
-      >(namespace, mutationMap)
+      >(namespace, mutationMap, this.appConfig.actionTypeDelimiter)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
@@ -119,7 +121,8 @@ export class App {
 
       const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(
         `${namespace}`,
-        triggerMap
+        triggerMap,
+        this.appConfig.actionTypeDelimiter
       )
 
       Object.keys(triggerMap).forEach(key => {
@@ -172,7 +175,7 @@ export class App {
   createRootSagas() {
     const sagas = this.effectsArray
       .map(createSaga)
-      .concat(this.appConfig.externalEffects)
+      .concat(this.appConfig.sagas)
       .map(safeFork)
     return function*() {
       yield all(sagas)
@@ -195,7 +198,7 @@ export class App {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
     const store = configureStore(reducer, [
-      ...this.appConfig.externalMiddlewares,
+      ...this.appConfig.middlewares,
       sagaMiddleware,
     ])
     sagaMiddleware.run(rootSagas)

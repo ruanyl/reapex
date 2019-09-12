@@ -15,8 +15,8 @@ const logger = createLogger({
 })
 
 const app = new App({
-  externalEffects: [globalWatcher],
-  externalMiddlewares: [logger],
+  sagas: [globalWatcher],
+  middlewares: [logger],
 })
 
 export default app
