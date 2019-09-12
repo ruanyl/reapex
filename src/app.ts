@@ -164,6 +164,16 @@ export class App {
     }
   }
 
+  runSaga(saga: Watcher) {
+    if (this.store) {
+      sagaMiddleware.run(function* () {
+        yield safeFork(saga)
+      })
+    } else {
+      this.appConfig.sagas.push(saga)
+    }
+  }
+
   plugin<T extends Plug>(plug: T, ...args: any[]): ReturnType<typeof plug> {
     return plug(this, ...args)
   }
