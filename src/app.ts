@@ -1,6 +1,5 @@
 import { Map } from 'immutable'
 import { createState, LocalState, StateObject } from 'immutable-state-creator'
-import { contains } from 'ramda'
 import { createReducer, Mirrored } from 'reducer-tools'
 import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
@@ -179,7 +178,7 @@ export class App {
   }
 
   hasModel(name: string) {
-    return contains(name, Object.keys(this.states))
+    return this.states.hasOwnProperty(name)
   }
 
   createRootSagas() {
