@@ -1,3 +1,4 @@
+import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map } from 'immutable'
 import { createState, LocalState, StateObject } from 'immutable-state-creator'
 import { createReducer, Mirrored } from 'reducer-tools'
@@ -5,7 +6,6 @@ import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
 import { all } from 'redux-saga/effects'
 
-import sagaMiddleware from './createSagaMiddleware'
 import {
   typedActionCreators,
   typedActionCreatorsForEffects,
@@ -38,6 +38,7 @@ export class App {
   effectsArray: EffectMap[] = []
   actionCreators: ActionCreators = {}
   store: Store<Map<string, any>>
+  sagaMiddleware: SagaMiddleware<any>
 
   appConfig: AppConfig = {
     sagas: [],
@@ -141,7 +142,7 @@ export class App {
 
       // dynamically register saga
       if (this.store) {
-        sagaMiddleware.run(function*() {
+        this.sagaMiddleware.run(function*() {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
@@ -165,7 +166,7 @@ export class App {
 
   runSaga(saga: Watcher) {
     if (this.store) {
-      sagaMiddleware.run(function* () {
+      this.sagaMiddleware.run(function* () {
         yield safeFork(saga)
       })
     } else {
@@ -206,11 +207,12 @@ export class App {
   createStore() {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
+    this.sagaMiddleware = createSagaMiddleware()
     const store = configureStore(reducer, [
       ...this.appConfig.middlewares,
-      sagaMiddleware,
+      this.sagaMiddleware,
     ])
-    sagaMiddleware.run(rootSagas)
+    this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
   }
