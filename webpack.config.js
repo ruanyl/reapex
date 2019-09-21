@@ -1,16 +1,9 @@
 const path = require('path')
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-// const glob = require('glob')
+
 const packages = require('./package.json')
 const manifest = path.resolve(__dirname, "dist/manifest.json")
-
-// let componentEntries = []
-// const registeredComponents = ['Counter', 'Hello', 'Nav'].forEach(comp => {
-//   const filename = glob.sync(`./example/**/${comp}.tsx`)
-//   console.log(filename)
-//   componentEntries = componentEntries.concat(filename)
-// })
 
 const entry = Object.keys(packages.dependencies).filter(name => name.indexOf('@types') < 0).concat(['react', 'react-dom', 'react-router', 'react-router-dom', 'reselect'])
 module.exports = [

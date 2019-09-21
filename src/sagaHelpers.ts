@@ -12,7 +12,7 @@ import {
 import { Action, EffectMap, Saga } from './types'
 
 export const createSaga = (modelSagas: EffectMap) =>
-  function* watcher() {
+  function* watcher(): IterableIterator<any> {
     yield all(
       Object.keys(modelSagas).map(actionType => {
         const sagaConfig = modelSagas[actionType]

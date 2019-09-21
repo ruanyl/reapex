@@ -1,7 +1,7 @@
 import * as React from 'react'
+import { connect } from 'react-redux'
 import { select, take } from 'redux-saga/effects'
 import { createStructuredSelector } from 'reselect'
-import { connect } from 'react-redux'
 
 import app from '../app'
 
