@@ -1,6 +1,6 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map } from 'immutable'
-import { createState, LocalState, StateObject } from 'immutable-state-creator'
+import { createState, State, StateObject } from 'immutable-state-creator'
 import { createReducer, Mirrored } from 'reducer-tools'
 import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
@@ -76,14 +76,14 @@ export class App {
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
         namedMutations[`${namespace}/${key}`] = (
-          s: LocalState<T>,
+          s: State<T>,
           a: AnyAction
         ) => mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
-          namedMutations[key] = (s: LocalState<T>, a: AnyAction) =>
+          namedMutations[key] = (s: State<T>, a: AnyAction) =>
             subscriptions[key](...a.payload)(s)
         })
       }

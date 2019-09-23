@@ -1,10 +1,10 @@
-import { LocalState, StateObject } from 'immutable-state-creator'
+import { State, StateObject } from 'immutable-state-creator'
 
 import { typedActionCreators } from './createActions'
 
 export type Mutator<T> = (
   ...payload: any[]
-) => (localstate: LocalState<T>) => LocalState<T>
+) => (localstate: State<T>) => State<T>
 export type StateMap<T extends Record<string, any>> = Record<
   string,
   StateObject<T>

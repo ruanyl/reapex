@@ -1,6 +1,6 @@
 {
   "name": "reapex",
-  "version": "0.8.3",
+  "version": "0.8.4",
   "description": "A framework to build React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -54,7 +54,7 @@
     "webpack-dev-middleware": "^3.1.2"
   },
   "dependencies": {
-    "immutable-state-creator": "^1.2.0",
+    "immutable-state-creator": "~1.2.0",
     "reducer-tools": "^1.0.0",
     "redux-immutable": "^4.0.0"
   },
