@@ -178,6 +178,10 @@ export class App {
     return plug(this, ...args)
   }
 
+  use<T extends Plug>(logic: T, ...args: any[]): ReturnType<typeof logic> {
+    return logic(this, ...args)
+  }
+
   hasModel(name: string) {
     return this.states.hasOwnProperty(name)
   }
