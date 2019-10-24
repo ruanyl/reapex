@@ -26,8 +26,7 @@ Reapex is created to serve the following purpose:
 - [x] Reapex supports plugin, application can be easily extended
 - [x] Super lightweight, can be easily intergrated with existing react/redux/redux-sagas application
 
-## Getting started with a simple `Counter` example
-#### Finds more examples here: [reapex-example](https://github.com/ReapexJS/reapex-example)
+## Getting started with a simple `Counter` [example](https://github.com/ReapexJS/reapex-example)
 
 ```
 npm i reapex --save
@@ -54,7 +53,7 @@ const counter = app.model('Counter', { total: 0 })
 Mutation combines action types and reducer, and it returns action creators
 
 ```typescript
-const mutations = counter.mutations({
+const [mutations] = counter.mutations({
   increase: (t: number) => s => s.set('total', s.total + t),
   decrease: () => s => s.set('total', s.total - 1),
 })
