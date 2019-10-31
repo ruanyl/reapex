@@ -8,11 +8,12 @@ import {
   takeLatest,
   throttle,
 } from 'redux-saga/effects'
+import { SagaIterator } from 'redux-saga'
 
 import { Action, EffectMap, Saga } from './types'
 
 export const createSaga = (modelSagas: EffectMap) =>
-  function* watcher(): IterableIterator<any> {
+  function* watcher(): SagaIterator {
     yield all(
       Object.keys(modelSagas).map(actionType => {
         const sagaConfig = modelSagas[actionType]
@@ -48,7 +49,7 @@ export const createSaga = (modelSagas: EffectMap) =>
     )
   }
 
-export function safeFork(saga: () => IterableIterator<any>) {
+export function safeFork(saga: () => SagaIterator<any>) {
   return spawn(function*() {
     while (true) {
       try {

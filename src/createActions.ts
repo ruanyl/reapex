@@ -18,7 +18,7 @@ export const typedActionCreators = <
   const actionTypes = typedKeyMirror(mutators, namespace, actionTypeDelimiter)
   const actionCreatorMap: ActionCreatorMap<T, P> = {} as ActionCreatorMap<T, P>
 
-  Object.keys(mutators).forEach(k => {
+  Object.keys(mutators).forEach((k: keyof P) => {
     const mutator = mutators[k]
     actionCreatorMap[k] = ((...payload: Parameters<typeof mutator>) => ({
       type: actionTypes[k],
@@ -41,7 +41,7 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
     P
   > = {} as ActionCreatorMapForEffects<P>
 
-  Object.keys(triggerMap).forEach(k => {
+  Object.keys(triggerMap).forEach((k: keyof P) => {
     actionCreatorMap[k] = ((...payload: any[]) => ({
       type: actionTypes[k],
       payload,

@@ -1,4 +1,5 @@
 import { State, StateObject } from 'immutable-state-creator'
+import { SagaIterator } from 'redux-saga'
 
 import { typedActionCreators } from './createActions'
 
@@ -13,7 +14,7 @@ export type ActionCreators = Record<
   string,
   ReturnType<typeof typedActionCreators>[0]
 >
-export type Watcher = () => IterableIterator<any>
+export type Watcher = () => SagaIterator
 export type WatcherConfig = {
   watcher: Watcher
 }
@@ -23,8 +24,8 @@ export interface Action<T, P> {
 }
 
 export type Saga<T = any> =
-  | ((action: Action<T, any>) => IterableIterator<any>)
-  | (() => IterableIterator<any>)
+  | ((action: Action<T, any>) => SagaIterator)
+  | (() => SagaIterator)
 
 export type SagaConfig1 = {
   takeEvery: Saga
@@ -41,7 +42,7 @@ export type SagaConfig4 = {
   ms: number
 }
 
-export type Trigger = (...args: any[]) => IterableIterator<any>
+export type Trigger = (...args: any[]) => SagaIterator
 export type TriggerConfig1 = {
   takeEvery: Trigger
 }
