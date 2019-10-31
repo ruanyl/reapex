@@ -2812,10 +2812,10 @@ ignore-walk@^3.0.1:
   dependencies:
     minimatch "^3.0.4"
 
-immutable-state-creator@~1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/immutable-state-creator/-/immutable-state-creator-1.2.0.tgz#e856c48fc93fca7b39d99c61b71e0d95c148d739"
-  integrity sha512-EU18HxmraZY3fZZNiSNLi/9Scey6exuR4bDeSEYxznueDquESO78cegLlF31byri/Z5/svTPi7FNFrOzklUXUw==
+immutable-state-creator@~1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/immutable-state-creator/-/immutable-state-creator-1.2.1.tgz#a4ad3e6bd3df20fae5d6ba1d8bf7bd7327034724"
+  integrity sha512-7GgNXeu4UHO9SbJ8ortVi0dz4L7RNiFfnWUJofe0Bnp5uJsUlqCBSpegl9SCx8gxCXfUcDdWVbKfaUAeq7TYLQ==
 
 immutable@^4.0.0-rc.1, immutable@^4.0.0-rc.12:
   version "4.0.0-rc.12"

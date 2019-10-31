@@ -22,7 +22,9 @@ export interface Action<T, P> {
   payload: P
 }
 
-export type Saga<T = any> = (action?: Action<T, any>) => IterableIterator<any>
+export type Saga<T = any> =
+  | ((action: Action<T, any>) => IterableIterator<any>)
+  | (() => IterableIterator<any>)
 
 export type SagaConfig1 = {
   takeEvery: Saga
