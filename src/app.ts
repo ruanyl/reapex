@@ -75,10 +75,8 @@ export class App {
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (
-          s: State<T>,
-          a: AnyAction
-        ) => mutationMap[key](...a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (s: State<T>, a: AnyAction) =>
+          mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
@@ -166,7 +164,7 @@ export class App {
 
   runSaga(saga: Watcher) {
     if (this.store) {
-      this.sagaMiddleware.run(function* () {
+      this.sagaMiddleware.run(function*() {
         yield safeFork(saga)
       })
     } else {
@@ -203,9 +201,23 @@ export class App {
     }
   }
 
+  setExternalReducers(reducers: Record<string, Reducer>) {
+    this.rootReducers = {
+      ...this.rootReducers,
+      ...reducers,
+    }
+    if (this.store) {
+      this.store.replaceReducer(this.getReducer())
+    }
+  }
+
   getReducer() {
-    const rootReducer = combineReducers(this.rootReducers)
-    return rootReducer
+    if (Object.entries(this.rootReducers).length !== 0) {
+      const rootReducer = combineReducers(this.rootReducers)
+      return rootReducer
+    } else {
+      return () => Map()
+    }
   }
 
   createStore() {
