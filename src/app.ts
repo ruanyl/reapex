@@ -25,15 +25,14 @@ import {
 } from './types'
 
 export interface AppConfig {
-  reducers: ReducersMapObject
-  sagas: Watcher[]
   middlewares: Middleware[]
   actionTypeDelimiter: string
 }
 export type Plug = (app: App, ...args: any[]) => any
 
 export class App {
-  rootReducers: ReducersMapObject
+  rootReducers: ReducersMapObject = {}
+  sagas: Watcher[] = []
   states: StateMap<Record<string, any>> = {}
   effectsArray: EffectMap[] = []
   actionCreators: ActionCreators = {}
@@ -41,17 +40,12 @@ export class App {
   sagaMiddleware: SagaMiddleware<any>
 
   appConfig: AppConfig = {
-    sagas: [],
     middlewares: [],
-    reducers: {},
     actionTypeDelimiter: '/',
   }
 
   constructor(props: Partial<AppConfig> = {}) {
-    const { reducers, ...appConfig } = props
-    this.rootReducers = { ...reducers }
-
-    this.appConfig = { ...this.appConfig, ...appConfig }
+    this.appConfig = { ...this.appConfig, ...props }
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
@@ -168,7 +162,7 @@ export class App {
         yield safeFork(saga)
       })
     } else {
-      this.appConfig.sagas.push(saga)
+      this.sagas.push(saga)
     }
   }
 
@@ -187,7 +181,7 @@ export class App {
   createRootSagas() {
     const sagas = this.effectsArray
       .map(createSaga)
-      .concat(this.appConfig.sagas)
+      .concat(this.sagas)
       .map(safeFork)
     return function*() {
       yield all(sagas)
