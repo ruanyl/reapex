@@ -1,15 +1,21 @@
+import { delay, put } from 'redux-saga/effects'
+
 import { App } from '../src/app'
-import {put, delay} from 'redux-saga/effects';
+
+interface ValueAction<T = any> {
+  type: string
+  value: T
+}
 
 describe('create actions', () => {
   let app: App
 
   beforeEach(() => {
     app = new App()
-  });
+  })
 
   it('should create actions', () => {
-    const model = app.model('Counter', {total: 0})
+    const model = app.model('Counter', { total: 0 })
     const [mutations] = model.mutations({
       increase: () => s => s.set('total', s.total + 1),
       decrease: () => s => s.set('total', s.total - 1),
@@ -23,7 +29,7 @@ describe('create actions', () => {
   })
 
   it('should create actionTypes', () => {
-    const model = app.model('Counter', {total: 0})
+    const model = app.model('Counter', { total: 0 })
     const [, actionTypes] = model.mutations({
       increase: () => s => s.set('total', s.total + 1),
       decrease: () => s => s.set('total', s.total - 1),
@@ -33,7 +39,7 @@ describe('create actions', () => {
   })
 
   it('should update state when dispatch actions', () => {
-    const model = app.model('Counter', {total: 0})
+    const model = app.model('Counter', { total: 0 })
     const [mutations] = model.mutations({
       increase: () => s => s.set('total', s.total + 1),
       decrease: () => s => s.set('total', s.total - 1),
@@ -47,31 +53,36 @@ describe('create actions', () => {
 
     store.dispatch(mutations.decrease())
     expect(model.selectors.total(store.getState())).toEqual(0)
-  });
+  })
 
   it('Model can subscribe to action types of other namespace', () => {
-    const model = app.model('test', {total: 0})
-    model.mutations({
-      increase: () => s => s.set('total', s.total + 1),
-      decrease: () => s => s.set('total', s.total - 1),
-    }, {
-      'OtherNamespace/actionType': () => s => s.set('total', 100)
-    })
+    const model = app.model('test', { total: 0 })
+    model.mutations(
+      {
+        increase: () => s => s.set('total', s.total + 1),
+        decrease: () => s => s.set('total', s.total - 1),
+      },
+      {
+        'OtherNamespace/actionType': () => s => s.set('total', 100),
+      }
+    )
 
     const store = app.createStore()
     expect(model.selectors.total(store.getState())).toEqual(0)
 
     store.dispatch({ type: 'OtherNamespace/actionType' })
     expect(model.selectors.total(store.getState())).toEqual(100)
-  });
-});
+  })
+})
 
 describe('create sagas', () => {
   let app: App
 
   beforeEach(() => {
-    app = new App()
-  });
+    app = new App({
+      actionTypeHasNamespace: (actionType: string) => actionType.includes('.'),
+    })
+  })
 
   it('should run sagas by default with takeEvery effect', () => {
     interface State {
@@ -82,15 +93,19 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      setCurrentLanguage: (language: string) => s => s.set('currentLanguage', language),
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      setCurrentLanguage: (language: string) => s =>
+        s.set('currentLanguage', language),
+      addLanguage: (language: string) => s =>
+        s.set('languages', s.languages.concat(language)),
     })
 
     model.effects({
-      *setCurrentLanguage(action: ReturnType<typeof mutations.setCurrentLanguage>) {
+      *setCurrentLanguage(
+        action: ReturnType<typeof mutations.setCurrentLanguage>
+      ) {
         const [language] = action.payload
         yield put(mutations.addLanguage(language))
-      }
+      },
     })
 
     const store = app.createStore()
@@ -99,8 +114,11 @@ describe('create sagas', () => {
     store.dispatch(mutations.setCurrentLanguage('English'))
     store.dispatch(mutations.setCurrentLanguage('Chinese'))
     expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
-  });
+    expect(model.selectors.languages(store.getState())).toEqual([
+      'English',
+      'Chinese',
+    ])
+  })
 
   it('should run sagas with takeLatest effect', () => {
     interface State {
@@ -111,8 +129,10 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      setCurrentLanguage: (language: string) => s => s.set('currentLanguage', language),
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      setCurrentLanguage: (language: string) => s =>
+        s.set('currentLanguage', language),
+      addLanguage: (language: string) => s =>
+        s.set('languages', s.languages.concat(language)),
     })
 
     model.effects({
@@ -121,8 +141,8 @@ describe('create sagas', () => {
           yield delay(1000)
           const [language] = action.payload
           yield put(mutations.addLanguage(language))
-        }
-      }
+        },
+      },
     })
 
     const store = app.createStore()
@@ -138,7 +158,38 @@ describe('create sagas', () => {
         resolver()
       }, 1500)
     })
-  });
+  })
+
+  it('should run saga by watching an external actions', () => {
+    interface State {
+      languages: string[]
+    }
+    const initialState: State = { languages: [] }
+    const model = app.model('User', initialState)
+
+    const [mutations] = model.mutations({
+      addLanguage: (language: string) => s =>
+        s.set('languages', s.languages.concat(language)),
+    })
+
+    model.effects({
+      'ActionType.External.SetCurrentLanguage': function* setCurrentLanguage(
+        action: ValueAction<string>
+      ) {
+        const language = action.value
+        yield put(mutations.addLanguage(language))
+      },
+    })
+
+    const store = app.createStore()
+    expect(model.selectors.languages(store.getState())).toEqual([])
+
+    store.dispatch({
+      type: 'ActionType.External.SetCurrentLanguage',
+      value: 'Chinese',
+    })
+    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+  })
 
   it('should create effects only actions', () => {
     interface State {
@@ -148,22 +199,29 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      addLanguage: (language: string) => s =>
+        s.set('languages', s.languages.concat(language)),
     })
 
-    const [effects] = model.effects({}, {
-      setCurrentLanguage: {
-        *takeEvery(language: string) {
-          yield put(mutations.addLanguage(language))
-        }
+    const [effects] = model.effects(
+      {},
+      {
+        setCurrentLanguage: {
+          *takeEvery(language: string) {
+            yield put(mutations.addLanguage(language))
+          },
+        },
       }
-    })
+    )
 
     const store = app.createStore()
     expect(model.selectors.languages(store.getState())).toEqual([])
 
     store.dispatch(effects.setCurrentLanguage('English'))
     store.dispatch(effects.setCurrentLanguage('Chinese'))
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
-  });
-});
+    expect(model.selectors.languages(store.getState())).toEqual([
+      'English',
+      'Chinese',
+    ])
+  })
+})

@@ -1,4 +1,5 @@
 import { State, StateObject } from 'immutable-state-creator'
+import { AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
 import { typedActionCreators } from './createActions'
@@ -25,6 +26,7 @@ export interface Action<T, P> {
 
 export type Saga<T = any> =
   | ((action: Action<T, any>) => SagaIterator)
+  | ((action: AnyAction) => SagaIterator)
   | (() => SagaIterator)
 
 export type SagaConfig1 = {

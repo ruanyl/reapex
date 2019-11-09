@@ -23,10 +23,12 @@ import {
   TriggerMapInput,
   Watcher,
 } from './types'
+import { actionTypeHasNamespace as defaultActionTypeHasNamespace } from './utils'
 
 export interface AppConfig {
   middlewares: Middleware[]
   actionTypeDelimiter: string
+  actionTypeHasNamespace: (actionType: string) => boolean
 }
 export type Plug = (app: App, ...args: any[]) => any
 
@@ -42,10 +44,24 @@ export class App {
   appConfig: AppConfig = {
     middlewares: [],
     actionTypeDelimiter: '/',
+    actionTypeHasNamespace: defaultActionTypeHasNamespace,
   }
 
   constructor(props: Partial<AppConfig> = {}) {
-    this.appConfig = { ...this.appConfig, ...props }
+    const { actionTypeHasNamespace, ...appConfig } = props
+
+    // 1. update this.appConfig
+    this.appConfig = { ...this.appConfig, ...appConfig }
+
+    // 2. if actionTypeHasNamespace exists, combine it with the default one
+    if (actionTypeHasNamespace) {
+      this.appConfig = {
+        ...this.appConfig,
+        actionTypeHasNamespace: (actionType: string) =>
+          actionTypeHasNamespace(actionType) ||
+          defaultActionTypeHasNamespace(actionType),
+      }
+    }
   }
 
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
@@ -101,7 +117,7 @@ export class App {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
-        const hasNamespace = key.includes('/')
+        const hasNamespace = this.appConfig.actionTypeHasNamespace(key)
         const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
 
         if (typeof sagaConfig === 'function') {
