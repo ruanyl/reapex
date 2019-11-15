@@ -59,6 +59,7 @@
     "redux-immutable": "^4.0.0"
   },
   "peerDependencies": {
+    "immutable": "^3.8.1 || ^4.0.0-rc.1",
     "react": ">= 16.3.0",
     "react-dom": ">= 16.3.0",
     "react-redux": "5.x",
