@@ -15,8 +15,9 @@ const logger = createLogger({
 })
 
 const app = new App({
-  sagas: [globalWatcher],
   middlewares: [logger],
 })
+
+app.runSaga(globalWatcher)
 
 export default app
