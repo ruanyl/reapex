@@ -2,31 +2,26 @@
 
 Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application
 
-Reapex is created to serve the following purpose:
+Reapex is designed in a way that modules have a clear boundary with each other, it forces people to think in a modularized way when working with Reapex. 
 
-#### Get rid of Redux boilerplate.
-
-> Action Types are just string constants, and Action Creators are "function constants". One can derive Action Type and Action Creator from a reducer function. Why would I have to create them manually? 
-
-> Reapex simplified the creation of Action Type/Action Creator/Reducer and combined them to one concept which is called "Mutation". It lets you focus on writing the code logic, not copy/paste boilerplates.
-
-#### Modularization and ready for code splitting and dynamic loading.
-
-> Reapex is designed in a way that modules have a clear boundary with each other, it forces people to think in a modularized way when working with Reapex. 
-
-> Reapex support plugin which makes it easy to share reusable modules, for example, publish to npm. Such as [reapex-plugin-modal](https://github.com/ReapexJS/reapex-plugin-modal)
+Reapex supports plugins which make it easy to share reusable modules among projects. Or even publishing to npm. Such as [reapex-plugin-dataloader](https://github.com/ReapexJS/reapex-plugin-dataloader)
 
 
 #### Built with the love of TypeScript
-> Reapex is written with TypeScript which means you get strong typed state, selectors, actions.
+> Reapex is written with TypeScript and it offers strongly typed state, selectors, actions.
 
 ## Features
-- [x] Reapex will automatically create actions/action types, much less boilerplate which makes app easy to maintain and less refactoring costs
-- [x] Reapex loads modules dynamically(code-split), sagas/reducers are registered automically
-- [x] Reapex supports plugin, application can be easily extended
-- [x] Super lightweight, can be easily intergrated with existing react/redux/redux-sagas application
+- [x] Reapex will automatically create actions/action types, much less boilerplate which makes app easy to maintain and refactor
+- [x] Reapex loads modules dynamically, sagas/reducers are registered dynamically which makes code-splitting easy
+- [x] Plugin support, create reusable and shareable code easily
+- [x] Lightweight, easy to integrate with existing react/redux/redux-sagas application
 
-## Getting started with a simple `Counter` [example](https://github.com/ReapexJS/reapex-example)
+## Examples
+
+1. [Counter](https://codesandbox.io/s/reapex-example-counter-9pyy6): A legendary Counter example
+2. [Login Form](https://codesandbox.io/s/reapex-login-form-7f3m6): Side effects handling with the demo of API call
+
+## Getting started with a simple `Counter` example
 
 ```
 npm i reapex --save
@@ -71,33 +66,20 @@ The function: `(t: number) => s => s.set('total', s.total + t)`, `t: number` wil
 
 ```typescript
 import React from 'react'
-import { createStructuredSelector } from 'reselect'
-import { connect } from 'react-redux'
+import { useSelector, useDispatch, Provider } from 'react-redux'
 
-const mapStateToProps = createStructuredSelector({ total: counter.selectors.total })
-
-const mapDispatchToProps = {
-  increase: mutations.increase,
-  decrease: mutations.decrease,
-}
-
-type CounterComponentProps = typeof mapDispatchToProps & ReturnType<typeof mapStateToProps>
-
-const CounterComponent: React.SFC<CounterComponentProps> = props => {
+export const Counter = () => {
+  const total = useSelector(CounterModel.selectors.total)
+  const dispatch = useDispatch()
+  
   return (
     <>
-      <button onClick={() => props.decrease()}>-</button>
+      <button onClick={() => dispatch(mutations.decrease())}>-</button>
       {props.total}
-      <button onClick={() => props.increase(2)}>+2</button>
+      <button onClick={() => dispatch(mutations.increase(2))}>+2</button>
     </>
   )
 }
-
-export const Counter = connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(CounterComponent)
-
 ```
 Note: `counter.state.get('total')` provides the selector to the `total`
 
