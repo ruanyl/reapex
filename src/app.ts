@@ -110,10 +110,10 @@ export class App {
       return [actionCreators, actionTypes]
     }
 
-    const effectFunc = <S extends EffectMapInput, P extends TriggerMapInput>(
-      effectMap: S,
-      triggerMap: P = {} as P
-    ): [ActionCreatorMapForEffects<P>, Mirrored<P>] => {
+    const effectFunc = <P extends EffectMapInput, S extends TriggerMapInput>(
+      effectMap: P,
+      triggerMap: S = {} as S
+    ): [ActionCreatorMapForEffects<S>, Mirrored<S>] => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
