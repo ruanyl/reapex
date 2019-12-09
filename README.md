@@ -62,7 +62,7 @@ The function: `(t: number) => s => s.set('total', s.total + t)`, `t: number` wil
 ```
 
 ### 4. Connect it with Component
-`react-reudx` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which automatically created by `reapex`.
+`react-redux` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which automatically created by `reapex`.
 
 ```typescript
 import React from 'react'
