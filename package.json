@@ -54,7 +54,7 @@
     "webpack-dev-middleware": "^3.1.2"
   },
   "dependencies": {
-    "immutable-state-creator": "~1.2.1",
+    "immutable-state-creator": "~1.2.2",
     "reducer-tools": "^1.0.0",
     "redux-immutable": "^4.0.0"
   },
