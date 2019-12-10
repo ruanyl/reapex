@@ -1,6 +1,6 @@
 {
   "name": "reapex",
-  "version": "0.10.1",
+  "version": "0.10.2",
   "description": "A framework to build React application",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
