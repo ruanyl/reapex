@@ -60,9 +60,6 @@
   },
   "peerDependencies": {
     "immutable": "^3.8.1 || ^4.0.0-rc.1",
-    "react": ">= 16.3.0",
-    "react-dom": ">= 16.3.0",
-    "react-redux": "^5.0.0 || ^6.0.0 || ^7.0.0",
     "redux": "4.x",
     "redux-saga": ">= 1.1.0"
   },
