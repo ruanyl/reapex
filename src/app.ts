@@ -22,6 +22,7 @@ import {
   StateMap,
   TriggerMapInput,
   Watcher,
+  Subscriber,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace } from './utils'
 
@@ -70,7 +71,7 @@ export class App {
 
     const mutationFunc = <
       P extends Record<string, Mutator<T>>,
-      S extends Record<string, Mutator<T>>
+      S extends Record<string, Subscriber<T>>
     >(
       mutationMap: P,
       subscriptions?: S
@@ -92,7 +93,7 @@ export class App {
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
           namedMutations[key] = (s: State<T>, a: AnyAction) =>
-            subscriptions[key](...a.payload)(s)
+            subscriptions[key](a)(s)
         })
       }
 

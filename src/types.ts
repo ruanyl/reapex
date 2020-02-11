@@ -7,6 +7,11 @@ import { typedActionCreators } from './createActions'
 export type Mutator<T> = (
   ...payload: any[]
 ) => (localstate: State<T>) => State<T>
+
+export type Subscriber<T> = (
+  action: AnyAction
+) => (localstate: State<T>) => State<T>
+
 export type StateMap<T extends Record<string, any>> = Record<
   string,
   StateObject<T>
@@ -68,13 +73,13 @@ export interface EffectMapInput {
 export interface EffectMap {
   [key: string]:
     | Saga
-    | SagaConfig1 & { trigger: false }
-    | SagaConfig2 & { trigger: false }
-    | SagaConfig3 & { trigger: false }
-    | SagaConfig4 & { trigger: false }
-    | WatcherConfig & { trigger: false }
-    | TriggerConfig1 & { trigger: true }
-    | TriggerConfig2 & { trigger: true }
+    | (SagaConfig1 & { trigger: false })
+    | (SagaConfig2 & { trigger: false })
+    | (SagaConfig3 & { trigger: false })
+    | (SagaConfig4 & { trigger: false })
+    | (WatcherConfig & { trigger: false })
+    | (TriggerConfig1 & { trigger: true })
+    | (TriggerConfig2 & { trigger: true })
 }
 
 export type ActionCreatorMap<
