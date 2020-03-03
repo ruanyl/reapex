@@ -2,8 +2,6 @@ import { State, StateObject } from 'immutable-state-creator'
 import { AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
-import { typedActionCreators } from './createActions'
-
 export type Mutator<T> = (
   ...payload: any[]
 ) => (localstate: State<T>) => State<T>
@@ -16,10 +14,7 @@ export type StateMap<T extends Record<string, any>> = Record<
   string,
   StateObject<T>
 >
-export type ActionCreators = Record<
-  string,
-  ReturnType<typeof typedActionCreators>[0]
->
+export type AnyActionCreator = (...payload: any[]) => Action<any, any[]>
 export type Watcher = () => SagaIterator
 export type WatcherConfig = {
   watcher: Watcher

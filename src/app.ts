@@ -1,6 +1,11 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map } from 'immutable'
-import { createState, State, StateObject } from 'immutable-state-creator'
+import {
+  createState,
+  Selectors,
+  State,
+  StateObject,
+} from 'immutable-state-creator'
 import { createReducer, Mirrored } from 'reducer-tools'
 import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
@@ -15,14 +20,14 @@ import { configureStore } from './store'
 import {
   ActionCreatorMap,
   ActionCreatorMapForEffects,
-  ActionCreators,
+  AnyActionCreator,
   EffectMap,
   EffectMapInput,
   Mutator,
   StateMap,
+  Subscriber,
   TriggerMapInput,
   Watcher,
-  Subscriber,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace } from './utils'
 
@@ -33,12 +38,24 @@ export interface AppConfig {
 }
 export type Plug = (app: App, ...args: any[]) => any
 
+export const mutationsLoaded = (namespace: string) => ({
+  type: '@@GLOBAL/MUTATIONS_LOADED',
+  payload: [namespace],
+})
+
+export const effectsLoaded = (namespace: string) => ({
+  type: '@@GLOBAL/EFFECTS_LOADED',
+  payload: [namespace],
+})
+
 export class App {
   rootReducers: ReducersMapObject = {}
   sagas: Watcher[] = []
   states: StateMap<Record<string, any>> = {}
   effectsArray: EffectMap[] = []
-  actionCreators: ActionCreators = {}
+  actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
+  effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
+  selectors: Record<string, Selectors<Record<string, any>>> = {}
   store: Store<Map<string, any>>
   sagaMiddleware: SagaMiddleware<any>
 
@@ -68,6 +85,7 @@ export class App {
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
+    this.selectors[namespace] = stateClass.selectors
 
     const mutationFunc = <
       P extends Record<string, Mutator<T>>,
@@ -103,10 +121,7 @@ export class App {
       )
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
-        this.store.dispatch({
-          type: '@@GLOBAL/MUTATIONS_LOADED',
-          payload: [namespace],
-        })
+        this.store.dispatch(mutationsLoaded(namespace))
       }
       return [actionCreators, actionTypes]
     }
@@ -133,6 +148,7 @@ export class App {
         triggerMap,
         this.appConfig.actionTypeDelimiter
       )
+      this.effectActionCreators[namespace] = effectAcrionCreators
 
       Object.keys(triggerMap).forEach(key => {
         if (effectMap.hasOwnProperty(key)) {
@@ -155,10 +171,7 @@ export class App {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
-        this.store.dispatch({
-          type: '@@GLOBAL/EFFECTS_LOADED',
-          payload: [namespace],
-        })
+        this.store.dispatch(effectsLoaded(namespace))
       } else {
         this.effectsArray.push(namedEffects)
       }
