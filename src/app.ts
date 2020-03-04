@@ -240,7 +240,7 @@ export class App {
       const rootReducer = combineReducers(this.rootReducers)
       return rootReducer
     } else {
-      return () => Map()
+      return (() => Map()) as Reducer<any, AnyAction>
     }
   }
 
