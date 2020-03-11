@@ -85,7 +85,9 @@ export class App {
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
-    this.selectors[namespace] = stateClass.selectors
+    this.selectors[namespace] = stateClass.selectors as Selectors<
+      Record<string, any>
+    >
 
     const mutationFunc = <
       P extends Record<string, Mutator<T>>,
