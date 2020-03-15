@@ -2,16 +2,16 @@
 
 Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application
 
-Reapex is designed in a way that modules have a clear boundary with each other, it forces people to think in a modularized way when working with Reapex. 
+Reapex is designed in a way that modules have a clear boundary with each other. It provides strong-typed everything out of the box.
 
-Reapex supports plugins which make it easy to share reusable modules among projects. Or even publishing to npm. Such as [reapex-plugin-dataloader](https://github.com/ReapexJS/reapex-plugin-dataloader)
+Reapex supports plugins which make it easy to share reusable codes. For example, sharing module among projects or publishing to npm and share with the public. Such as [reapex-plugin-dataloader](https://github.com/ReapexJS/reapex-plugin-dataloader)
 
 
 #### Built with the love of TypeScript
-> Reapex is written with TypeScript and it offers strongly typed state, selectors, actions.
+> Reapex is written with TypeScript and it provides stronge-typed state, selectors, actions.
 
 ## Features
-- [x] Reapex will automatically create actions/action types, much less boilerplate which makes app easy to maintain and refactor
+- [x] Reapex creates actions/action types for you, it eliminates redux boilerplate which makes it easy to maintain
 - [x] Reapex loads modules dynamically, sagas/reducers are registered dynamically which makes code-splitting easy
 - [x] Plugin support, create reusable and shareable code easily
 - [x] Lightweight, easy to integrate with existing react/redux/redux-sagas application
