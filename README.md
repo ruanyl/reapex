@@ -8,7 +8,7 @@ Reapex supports plugins which make it easy to share reusable codes. For example,
 
 
 #### Built with the love of TypeScript
-> Reapex is written with TypeScript and it provides stronge-typed state, selectors, actions.
+> Reapex is written with TypeScript and it provides strong-typed state, selectors, actions.
 
 ## Features
 - [x] Reapex creates actions/action types for you, it eliminates redux boilerplate which makes it easy to maintain
