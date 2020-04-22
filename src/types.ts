@@ -1,14 +1,22 @@
 import { State, StateObject } from 'immutable-state-creator'
-import { AnyAction } from 'redux'
+import { Action as ReduxAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
 export type Mutator<T> = (
   ...payload: any[]
 ) => (localstate: State<T>) => State<T>
 
-export type Subscriber<T> = (
-  action: AnyAction
-) => (localstate: State<T>) => State<T>
+export interface MutatorInput<T> {
+  [key: string]: Mutator<T>
+}
+
+export type Subscriber<T, A extends ReduxAction> = {
+  bivarianceHack(action: A): (localstate: State<T>) => State<T>
+}['bivarianceHack']
+
+export interface SubscriberInput<T> {
+  [key: string]: Subscriber<T, ReduxAction>
+}
 
 export type StateMap<T extends Record<string, any>> = Record<
   string,
@@ -24,9 +32,13 @@ export interface Action<T, P> {
   payload: P
 }
 
+type AnySaga<A extends ReduxAction> = {
+  bivarianceHack(action: A): SagaIterator
+}['bivarianceHack']
+
 export type Saga<T = any> =
   | ((action: Action<T, any>) => SagaIterator)
-  | ((action: AnyAction) => SagaIterator)
+  | AnySaga<ReduxAction>
   | (() => SagaIterator)
 
 export type SagaConfig1 = {
