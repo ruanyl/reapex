@@ -6,22 +6,35 @@ import app from './app'
 
 const counter = app.model('Counter', { total: 0 })
 
-export const [mutations, actionTypes] = counter.mutations({
-  increase: () => s => {
-    const total = s.total
-    return s.set('total', total + 1)
+export const [mutations, actionTypes] = counter.mutations(
+  {
+    increase: (n: number) => (s) => {
+      const total = s.total
+      return s.set('total', total + 1)
+    },
+    decrease: () => (s) => {
+      const total = s.total
+      return s.set('total', total - 1)
+    },
   },
-  decrease: () => s => {
-    const total = s.total
-    return s.set('total', total - 1)
-  },
-})
+  {
+    test: (a: MyAction) => (s) => s,
+  }
+)
+
+type MyAction = {
+  type: string
+  value: number
+}
 
 export const [effects] = counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
     const total = yield select(counter.selectors.total)
     console.log('total is: ', total)
+  },
+  myaction: {
+    *takeEvery(action: MyAction) {},
   },
 })
 
@@ -32,7 +45,7 @@ export const Counter: React.SFC = () => {
     <>
       <button onClick={() => dispatch(mutations.decrease())}>-</button>
       {total}
-      <button onClick={() => dispatch(mutations.increase())}>+</button>
+      <button onClick={() => dispatch(mutations.increase(1))}>+</button>
     </>
   )
 }
