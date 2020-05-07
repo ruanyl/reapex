@@ -1,1 +1,5 @@
 src/
+dist
+coverage
+__test__
+example
