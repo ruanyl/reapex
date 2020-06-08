@@ -105,13 +105,13 @@ export class App {
 
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
-      Object.keys(mutationMap).forEach((key) => {
+      Object.keys(mutationMap).forEach(key => {
         namedMutations[`${namespace}/${key}`] = (s: State<T>, a: AnyAction) =>
           mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
-        Object.keys(subscriptions).forEach((key) => {
+        Object.keys(subscriptions).forEach(key => {
           namedMutations[key] = (s: State<T>, a: AnyAction) =>
             subscriptions[key](a)(s)
         })
@@ -133,7 +133,7 @@ export class App {
       triggerMap: S = {} as S
     ): [ActionCreatorMapForEffects<S>, Mirrored<S>] => {
       const namedEffects: EffectMap = {}
-      Object.keys(effectMap).forEach((key) => {
+      Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
         const hasNamespace = this.appConfig.actionTypeHasNamespace(key)
         const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
@@ -152,7 +152,7 @@ export class App {
       )
       this.effectActionCreators[namespace] = effectAcrionCreators
 
-      Object.keys(triggerMap).forEach((key) => {
+      Object.keys(triggerMap).forEach(key => {
         if (effectMap.hasOwnProperty(key)) {
           throw new Error(
             `${namespace}.effects(), key: ${key} in ${JSON.stringify(
@@ -169,7 +169,7 @@ export class App {
 
       // dynamically register saga
       if (this.store) {
-        this.sagaMiddleware.run(function* () {
+        this.sagaMiddleware.run(function*() {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
@@ -190,7 +190,7 @@ export class App {
 
   runSaga(saga: Watcher) {
     if (this.store) {
-      this.sagaMiddleware.run(function* () {
+      this.sagaMiddleware.run(function*() {
         yield safeFork(saga)
       })
     } else {
@@ -215,7 +215,7 @@ export class App {
       .map(createSaga)
       .concat(this.sagas)
       .map(safeFork)
-    return function* () {
+    return function*() {
       yield all(sagas)
     }
   }
