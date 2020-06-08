@@ -37,9 +37,10 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
   actionTypeDelimiter = '/'
 ) => {
   const actionTypes = typedKeyMirror(triggerMap, namespace, actionTypeDelimiter)
-  const actionCreatorMap: ActionCreatorMapForEffects<
+  /* eslint-disable @typescript-eslint/indent */
+  const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<
     P
-  > = {} as ActionCreatorMapForEffects<P>
+  >
 
   Object.keys(triggerMap).forEach((k: keyof P) => {
     actionCreatorMap[k] = ((...payload: any[]) => ({

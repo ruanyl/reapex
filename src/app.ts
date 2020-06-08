@@ -85,6 +85,7 @@ export class App {
   model<T extends Record<string, any>>(namespace: string, initialState: T) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass as StateObject<Record<string, any>>
+    /* eslint-disable @typescript-eslint/indent */
     this.selectors[namespace] = stateClass.selectors as Selectors<
       Record<string, any>
     >
@@ -153,7 +154,7 @@ export class App {
       this.effectActionCreators[namespace] = effectAcrionCreators
 
       Object.keys(triggerMap).forEach(key => {
-        if (effectMap.hasOwnProperty(key)) {
+        if (Object.prototype.hasOwnProperty.call(effectMap, key)) {
           throw new Error(
             `${namespace}.effects(), key: ${key} in ${JSON.stringify(
               triggerMap
@@ -207,7 +208,7 @@ export class App {
   }
 
   hasModel(name: string) {
-    return this.states.hasOwnProperty(name)
+    return Object.prototype.hasOwnProperty.call(this.states, name)
   }
 
   createRootSagas() {

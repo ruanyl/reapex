@@ -1,0 +1,145 @@
+module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    node: true,
+  },
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: 'tsconfig.json',
+    sourceType: 'module',
+  },
+  plugins: ['@typescript-eslint', 'jsdoc'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+  ],
+  rules: {
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      { selector: 'default', format: ['camelCase'] },
+      { selector: 'typeLike', format: ['PascalCase'] },
+      { selector: 'enum', format: ['PascalCase', 'UPPER_CASE'] },
+    ],
+    // note you must disable the base rule as it can report incorrect errors
+    'dot-notation': 'off',
+    '@typescript-eslint/dot-notation': ['error'],
+    '@typescript-eslint/explicit-member-accessibility': 'off',
+    // note you must disable the base rule as it can report incorrect errors
+    indent: 'off',
+    // Problems with the indent rule
+    // https://github.com/typescript-eslint/typescript-eslint/issues/1824
+    '@typescript-eslint/indent': ['error', 2],
+    // note you must disable the base rule as it can report incorrect errors
+    'no-empty-function': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
+    // better to enable  this
+    '@typescript-eslint/no-explicit-any': 'off',
+    // better to enable  this
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/no-require-imports': 'off',
+    // note you must disable the base rule as it can report incorrect errors
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'error',
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/prefer-namespace-keyword': 'error',
+    // note you must disable the base rule as it can report incorrect errors
+    quotes: 'off',
+    '@typescript-eslint/quotes': [
+      'error',
+      'single',
+      {
+        avoidEscape: true,
+      },
+    ],
+    '@typescript-eslint/type-annotation-spacing': 'error',
+    'brace-style': ['off', '1tbs'],
+    camelcase: 'off',
+    'comma-dangle': 'off',
+    curly: 'error',
+    'default-case': 'error',
+    'eol-last': 'off',
+    eqeqeq: ['error', 'smart'],
+    'guard-for-in': 'off',
+    'id-blacklist': [
+      'off',
+      'any',
+      'Number',
+      'number',
+      'String',
+      'string',
+      'Boolean',
+      'boolean',
+      'Undefined',
+      'undefined',
+    ],
+    'id-match': 'off',
+    'jsdoc/check-alignment': 'error',
+    'jsdoc/check-indentation': 'error',
+    'jsdoc/newline-after-description': 'error',
+    'max-len': [
+      'error',
+      {
+        code: 200,
+      },
+    ],
+    'no-bitwise': 'error',
+    'no-caller': 'error',
+    'no-cond-assign': 'error',
+    'no-console': [
+      'error',
+      {
+        allow: [
+          'log',
+          'warn',
+          'dir',
+          'timeLog',
+          'assert',
+          'clear',
+          'count',
+          'countReset',
+          'group',
+          'groupEnd',
+          'table',
+          'dirxml',
+          'error',
+          'groupCollapsed',
+          'Console',
+          'profile',
+          'profileEnd',
+          'timeStamp',
+          'context',
+        ],
+      },
+    ],
+    'no-debugger': 'error',
+    'no-empty': 'off',
+    'no-eval': 'error',
+    'no-fallthrough': 'error',
+    'no-multiple-empty-lines': 'off',
+    'no-new-wrappers': 'error',
+    'no-redeclare': 'error',
+    'no-shadow': [
+      'error',
+      {
+        hoist: 'all',
+      },
+    ],
+    'no-trailing-spaces': 'error',
+    'no-underscore-dangle': 'off',
+    'no-unused-labels': 'error',
+    'no-var': 'error',
+    radix: 'error',
+    'spaced-comment': [
+      'error',
+      'always',
+      {
+        markers: ['/'],
+      },
+    ],
+  },
+}

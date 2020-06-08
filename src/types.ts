@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/indent */
 import { State, StateObject } from 'immutable-state-creator'
 import { Action as ReduxAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
