@@ -33,7 +33,6 @@ import { actionTypeHasNamespace as defaultActionTypeHasNamespace } from './utils
 
 export interface AppConfig {
   middlewares: Middleware[]
-  actionTypeDelimiter: string
   actionTypeHasNamespace: (actionType: string) => boolean
 }
 export type Plug = (app: App, ...args: any[]) => any
@@ -61,7 +60,6 @@ export class App {
 
   appConfig: AppConfig = {
     middlewares: [],
-    actionTypeDelimiter: '/',
     actionTypeHasNamespace: defaultActionTypeHasNamespace,
   }
 
@@ -101,7 +99,7 @@ export class App {
       const [actionCreators, actionTypes] = typedActionCreators<
         T,
         typeof mutationMap
-      >(namespace, mutationMap, this.appConfig.actionTypeDelimiter)
+      >(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
@@ -148,8 +146,7 @@ export class App {
 
       const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(
         `${namespace}`,
-        triggerMap,
-        this.appConfig.actionTypeDelimiter
+        triggerMap
       )
       this.effectActionCreators[namespace] = effectAcrionCreators
 
@@ -189,13 +186,16 @@ export class App {
     }
   }
 
-  runSaga(saga: Watcher) {
+  runSaga(sagas: Watcher | Watcher[]) {
+    const allSagas = Array<Watcher>().concat(sagas)
     if (this.store) {
-      this.sagaMiddleware.run(function*() {
-        yield safeFork(saga)
+      allSagas.forEach(saga => {
+        this.sagaMiddleware.run(function*() {
+          yield safeFork(saga)
+        })
       })
     } else {
-      this.sagas.push(saga)
+      this.sagas.push(...allSagas)
     }
   }
 
