@@ -1,3 +1,50 @@
+# release 0.12.0
+
+### Breaking change
+
+Removed `actionTypeDelimiter` from App constructor, this will enforce to use `/` as action type delimiter
+
+### New feature
+
+The `effects()` trigger map now support `throttle`, `debounce` and `takeLeading`
+
+1. `takeLeading` example of only do fetching user once in one time
+```
+const [effects] = model.effects({}, {
+  requestUser: {
+    *takeLeading() {
+      yield call(API.getUser)
+    }
+  }
+})
+```
+
+2. `debounce` example of decreasing the rate of validation function call when input changes
+```
+const [effects] = model.effects({}, {
+  handleInputChange: {
+    *debounce(input) {
+      yield call(validate, input)
+    },
+    ms: 500,
+  }
+})
+```
+
+3. `throttle` example of limiting the API calls of requesting suggestions on input changes
+```
+const [effects] = model.effects({}, {
+  requestSuggestions: {
+    *throttle(input) {
+      yield call(API.findSuggestions, input)
+    },
+    ms: 1000,
+  }
+})
+```
+
+
+
 # release 0.10.0
 
 ### Breaking change
