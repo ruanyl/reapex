@@ -8,17 +8,17 @@ const counter = app.model('Counter', { total: 0 })
 
 export const [mutations, actionTypes] = counter.mutations(
   {
-    increase: (n: number) => (s) => {
+    increase: (n: number) => s => {
       const total = s.total
       return s.set('total', total + 1)
     },
-    decrease: () => (s) => {
+    decrease: () => s => {
       const total = s.total
       return s.set('total', total - 1)
     },
   },
   {
-    test: (a: MyAction) => (s) => s,
+    test: (a: MyAction) => s => s,
   }
 )
 
