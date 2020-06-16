@@ -1,10 +1,15 @@
 import * as React from 'react'
+import { Record } from 'immutable'
 import { useDispatch, useSelector } from 'react-redux'
 import { select } from 'redux-saga/effects'
 
 import app from './app'
 
-const counter = app.model('Counter', { total: 0 })
+const shape = { total: 0 }
+const CounterState = Record(shape)
+const initialState = new CounterState()
+
+const counter = app.model('Counter', initialState)
 
 export const [mutations, actionTypes] = counter.mutations(
   {
