@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/indent */
-import { State, StateObject } from 'immutable-state-creator'
+import { Record as ImmutableRecord } from 'immutable'
+import { Mirrored } from 'reducer-tools'
 import { Action as ReduxAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
-export type Mutator<T> = (
-  ...payload: any[]
-) => (localstate: State<T>) => State<T>
+/* eslint-disable @typescript-eslint/indent */
+import { Selectors, State, StateObject, StateShape } from './createState'
+
+export type Mutator<T> = (...payload: any[]) => (localstate: T) => T
 
 export interface MutatorInput<T> {
   [key: string]: Mutator<T>
@@ -19,10 +20,7 @@ export interface SubscriberInput<T> {
   [key: string]: Subscriber<T, ReduxAction>
 }
 
-export type StateMap<T extends Record<string, any>> = Record<
-  string,
-  StateObject<T>
->
+export type StateMap<T extends StateShape> = Record<string, StateObject<T, State<T>>>
 export type AnyActionCreator = (...payload: any[]) => Action<any, any[]>
 export type Watcher = () => SagaIterator
 export type WatcherConfig = {
@@ -37,10 +35,7 @@ type AnySaga<A extends ReduxAction> = {
   bivarianceHack(action: A): SagaIterator
 }['bivarianceHack']
 
-export type Saga<T = any> =
-  | ((action: Action<T, any>) => SagaIterator)
-  | AnySaga<ReduxAction>
-  | (() => SagaIterator)
+export type Saga<T = any> = ((action: Action<T, any>) => SagaIterator) | AnySaga<ReduxAction> | (() => SagaIterator)
 
 export type SagaConfig1 = {
   takeEvery: Saga
@@ -80,23 +75,11 @@ export type TriggerConfig5 = {
   takeLeading: Trigger
 }
 export interface TriggerMapInput {
-  [key: string]:
-    | TriggerConfig1
-    | TriggerConfig2
-    | TriggerConfig3
-    | TriggerConfig4
-    | TriggerConfig5
+  [key: string]: TriggerConfig1 | TriggerConfig2 | TriggerConfig3 | TriggerConfig4 | TriggerConfig5
 }
 
 export interface EffectMapInput {
-  [key: string]:
-    | Saga
-    | SagaConfig1
-    | SagaConfig2
-    | SagaConfig3
-    | SagaConfig4
-    | SagaConfig5
-    | WatcherConfig
+  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | SagaConfig5 | WatcherConfig
 }
 
 export interface EffectMap {
@@ -115,33 +98,51 @@ export interface EffectMap {
     | (TriggerConfig5 & { trigger: true })
 }
 
-export type ActionCreatorMap<
-  T extends Record<string, any>,
-  P extends Record<string, Mutator<T>>
-> = {
+export type ActionCreatorMap<S, P extends Record<string, Mutator<S>>> = {
   [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
 }
 
 export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
   [K in keyof P]: P[K] extends TriggerConfig1
-    ? (
-        ...payload: Parameters<P[K]['takeEvery']>
-      ) => Action<K, Parameters<P[K]['takeEvery']>>
+    ? (...payload: Parameters<P[K]['takeEvery']>) => Action<K, Parameters<P[K]['takeEvery']>>
     : P[K] extends TriggerConfig2
-    ? (
-        ...payload: Parameters<P[K]['takeLatest']>
-      ) => Action<K, Parameters<P[K]['takeLatest']>>
+    ? (...payload: Parameters<P[K]['takeLatest']>) => Action<K, Parameters<P[K]['takeLatest']>>
     : P[K] extends TriggerConfig3
-    ? (
-        ...payload: Parameters<P[K]['throttle']>
-      ) => Action<K, Parameters<P[K]['throttle']>>
+    ? (...payload: Parameters<P[K]['throttle']>) => Action<K, Parameters<P[K]['throttle']>>
     : P[K] extends TriggerConfig4
-    ? (
-        ...payload: Parameters<P[K]['debounce']>
-      ) => Action<K, Parameters<P[K]['debounce']>>
+    ? (...payload: Parameters<P[K]['debounce']>) => Action<K, Parameters<P[K]['debounce']>>
     : P[K] extends TriggerConfig5
-    ? (
-        ...payload: Parameters<P[K]['takeLeading']>
-      ) => Action<K, Parameters<P[K]['takeLeading']>>
+    ? (...payload: Parameters<P[K]['takeLeading']>) => Action<K, Parameters<P[K]['takeLeading']>>
     : never
+}
+
+export interface MutationFunction<S extends StateShape | ImmutableRecord<StateShape>> {
+  (mutationMap: MutatorInput<S>, subscriptions?: SubscriberInput<S>): [
+    ActionCreatorMap<S, MutatorInput<S>>,
+    Mirrored<MutatorInput<S>>
+  ]
+}
+
+export type EffectFunction = <P extends EffectMapInput, S extends TriggerMapInput>(
+  effectMap: P,
+  triggerMap?: S
+) => [ActionCreatorMapForEffects<S>, Mirrored<S>]
+
+export type Model<T extends StateShape> = {
+  state: StateObject<T, T>
+  selectors: Selectors<T, T>
+  mutations: MutationFunction<T>
+  effects: EffectFunction
+}
+
+export type ImmutableModel<T extends StateShape> = {
+  state: StateObject<T, ImmutableRecord<T>>
+  selectors: Selectors<T, ImmutableRecord<T>>
+  mutations: MutationFunction<ImmutableRecord<T>>
+  effects: EffectFunction
+}
+
+export interface ModelFunction {
+  <T extends StateShape>(namespace: string, initialState: T): Model<T>
+  <T extends StateShape>(namespace: string, initialState: ImmutableRecord<T>): ImmutableModel<T>
 }

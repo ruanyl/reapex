@@ -1,20 +1,12 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
-import { Map } from 'immutable'
-import {
-  createState,
-  Selectors,
-  State,
-  StateObject,
-} from 'immutable-state-creator'
+import { Map, Record as ImmutableRecord } from 'immutable'
 import { createReducer, Mirrored } from 'reducer-tools'
 import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
 import { all } from 'redux-saga/effects'
 
-import {
-  typedActionCreators,
-  typedActionCreatorsForEffects,
-} from './createActions'
+import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
+import { createState, Selectors, State, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
 import {
@@ -23,6 +15,7 @@ import {
   AnyActionCreator,
   EffectMap,
   EffectMapInput,
+  ModelFunction,
   MutatorInput,
   StateMap,
   SubscriberInput,
@@ -50,11 +43,11 @@ export const effectsLoaded = (namespace: string) => ({
 export class App {
   rootReducers: ReducersMapObject = {}
   sagas: Watcher[] = []
-  states: StateMap<Record<string, any>> = {}
+  states: StateMap<StateShape> = {}
   effectsArray: EffectMap[] = []
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
-  selectors: Record<string, Selectors<Record<string, any>>> = {}
+  selectors: Record<string, Selectors<StateShape, State<StateShape>>> = {}
   store: Store<Map<string, any>>
   sagaMiddleware: SagaMiddleware<any>
 
@@ -74,52 +67,41 @@ export class App {
       this.appConfig = {
         ...this.appConfig,
         actionTypeHasNamespace: (actionType: string) =>
-          actionTypeHasNamespace(actionType) ||
-          defaultActionTypeHasNamespace(actionType),
+          actionTypeHasNamespace(actionType) || defaultActionTypeHasNamespace(actionType),
       }
     }
   }
 
-  model<T extends Record<string, any>>(namespace: string, initialState: T) {
+  model: ModelFunction = (namespace: string, initialState: StateShape | ImmutableRecord<StateShape>) => {
     const stateClass = createState(namespace, initialState)
-    this.states[namespace] = stateClass as StateObject<Record<string, any>>
-    /* eslint-disable @typescript-eslint/indent */
-    this.selectors[namespace] = stateClass.selectors as Selectors<
-      Record<string, any>
-    >
+    this.states[namespace] = stateClass
+    this.selectors[namespace] = stateClass.selectors
 
-    const mutationFunc = <
-      P extends MutatorInput<T>,
-      S extends SubscriberInput<T>
-    >(
-      mutationMap: P,
-      subscriptions?: S
-    ): [ActionCreatorMap<T, P>, Mirrored<P>] => {
+    const mutationFunc = (
+      mutationMap: MutatorInput<typeof initialState>,
+      subscriptions?: SubscriberInput<typeof initialState>
+    ): [
+      ActionCreatorMap<typeof initialState, MutatorInput<typeof initialState>>,
+      Mirrored<MutatorInput<typeof initialState>>
+    ] => {
       // create action creators
-      const [actionCreators, actionTypes] = typedActionCreators<
-        T,
-        typeof mutationMap
-      >(namespace, mutationMap)
+      const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: State<T>, a: AnyAction) =>
+        namedMutations[`${namespace}/${key}`] = (s: typeof initialState, a: AnyAction) =>
           mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
-          namedMutations[key] = (s: State<T>, a: AnyAction) =>
-            subscriptions[key](a)(s)
+          namedMutations[key] = (s: typeof initialState, a: AnyAction) => subscriptions[key](a)(s)
         })
       }
 
-      this.rootReducers[namespace] = createReducer(
-        stateClass.create(),
-        namedMutations
-      )
+      this.rootReducers[namespace] = createReducer(initialState, namedMutations)
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
         this.store.dispatch(mutationsLoaded(namespace))
@@ -144,18 +126,15 @@ export class App {
         }
       })
 
-      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(
-        `${namespace}`,
-        triggerMap
-      )
+      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
       this.effectActionCreators[namespace] = effectAcrionCreators
 
       Object.keys(triggerMap).forEach(key => {
         if (Object.prototype.hasOwnProperty.call(effectMap, key)) {
           throw new Error(
-            `${namespace}.effects(), key: ${key} in ${JSON.stringify(
-              triggerMap
-            )} also appears in ${JSON.stringify(effectMap)}`
+            `${namespace}.effects(), key: ${key} in ${JSON.stringify(triggerMap)} also appears in ${JSON.stringify(
+              effectMap
+            )}`
           )
         }
         const triggerConfig = triggerMap[key]
@@ -183,7 +162,7 @@ export class App {
       selectors: stateClass.selectors,
       mutations: mutationFunc,
       effects: effectFunc,
-    }
+    } as any
   }
 
   runSaga(sagas: Watcher | Watcher[]) {
@@ -251,10 +230,7 @@ export class App {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
     this.sagaMiddleware = createSagaMiddleware()
-    const store = configureStore(reducer, [
-      ...this.appConfig.middlewares,
-      this.sagaMiddleware,
-    ])
+    const store = configureStore(reducer, [...this.appConfig.middlewares, this.sagaMiddleware])
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
