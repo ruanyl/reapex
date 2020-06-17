@@ -1,6 +1,6 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map, Record as ImmutableRecord } from 'immutable'
-import { createReducer, Mirrored } from 'reducer-tools'
+import { createReducer } from 'reducer-tools'
 import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { combineReducers } from 'redux-immutable'
 import { all } from 'redux-saga/effects'
@@ -10,12 +10,9 @@ import { createState, Selectors, State, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
 import {
-  ActionCreatorMap,
-  ActionCreatorMapForEffects,
   AnyActionCreator,
   EffectMap,
   EffectMapInput,
-  ModelFunction,
   MutatorInput,
   StateMap,
   SubscriberInput,
@@ -72,18 +69,15 @@ export class App {
     }
   }
 
-  model: ModelFunction = (namespace: string, initialState: StateShape | ImmutableRecord<StateShape>) => {
+  model<T extends StateShape, S extends T | ImmutableRecord<T>>(namespace: string, initialState: S) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
     this.selectors[namespace] = stateClass.selectors
 
-    const mutationFunc = (
-      mutationMap: MutatorInput<typeof initialState>,
-      subscriptions?: SubscriberInput<typeof initialState>
-    ): [
-      ActionCreatorMap<typeof initialState, MutatorInput<typeof initialState>>,
-      Mirrored<MutatorInput<typeof initialState>>
-    ] => {
+    const mutationFunc = <M extends MutatorInput<S>, N extends SubscriberInput<S>>(
+      mutationMap: M,
+      subscriptions?: N
+    ) => {
       // create action creators
       const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap)
       this.actionCreators[namespace] = actionCreators
@@ -106,13 +100,10 @@ export class App {
         this.store.replaceReducer(this.getReducer())
         this.store.dispatch(mutationsLoaded(namespace))
       }
-      return [actionCreators, actionTypes]
+      return [actionCreators, actionTypes] as const
     }
 
-    const effectFunc = <P extends EffectMapInput, S extends TriggerMapInput>(
-      effectMap: P,
-      triggerMap: S = {} as S
-    ): [ActionCreatorMapForEffects<S>, Mirrored<S>] => {
+    const effectFunc = <M extends EffectMapInput, N extends TriggerMapInput>(effectMap: M, triggerMap: N = {} as N) => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach(key => {
         const sagaConfig = effectMap[key]
@@ -154,7 +145,7 @@ export class App {
       } else {
         this.effectsArray.push(namedEffects)
       }
-      return [effectAcrionCreators, actionTypes]
+      return [effectAcrionCreators, actionTypes] as const
     }
 
     return {
@@ -162,7 +153,7 @@ export class App {
       selectors: stateClass.selectors,
       mutations: mutationFunc,
       effects: effectFunc,
-    } as any
+    }
   }
 
   runSaga(sagas: Watcher | Watcher[]) {

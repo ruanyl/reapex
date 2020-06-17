@@ -1,22 +1,14 @@
 import { Mirrored, typedKeyMirror } from 'reducer-tools'
 
-import {
-  ActionCreatorMap,
-  ActionCreatorMapForEffects,
-  Mutator,
-  TriggerMapInput,
-} from './types'
+import { ActionCreatorMap, ActionCreatorMapForEffects, Mutator, TriggerMapInput } from './types'
 
-export const typedActionCreators = <
-  T extends Record<string, any>,
-  P extends Record<string, Mutator<T>>
->(
+export const typedActionCreators = <P extends Record<string, Mutator<any>>>(
   namespace: string,
   mutators: P,
   actionTypeDelimiter = '/'
 ) => {
   const actionTypes = typedKeyMirror(mutators, namespace, actionTypeDelimiter)
-  const actionCreatorMap: ActionCreatorMap<T, P> = {} as ActionCreatorMap<T, P>
+  const actionCreatorMap: ActionCreatorMap<P> = {} as ActionCreatorMap<P>
 
   Object.keys(mutators).forEach((k: keyof P) => {
     const mutator = mutators[k]
@@ -25,10 +17,7 @@ export const typedActionCreators = <
       payload,
     })) as any
   })
-  return [actionCreatorMap, actionTypes] as [
-    ActionCreatorMap<T, P>,
-    Mirrored<P>
-  ]
+  return [actionCreatorMap, actionTypes] as [ActionCreatorMap<P>, Mirrored<P>]
 }
 
 export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
@@ -38,9 +27,7 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
 ) => {
   const actionTypes = typedKeyMirror(triggerMap, namespace, actionTypeDelimiter)
   /* eslint-disable @typescript-eslint/indent */
-  const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<
-    P
-  >
+  const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<P>
 
   Object.keys(triggerMap).forEach((k: keyof P) => {
     actionCreatorMap[k] = ((...payload: any[]) => ({
@@ -48,8 +35,5 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
       payload,
     })) as any
   })
-  return [actionCreatorMap, actionTypes] as [
-    ActionCreatorMapForEffects<P>,
-    Mirrored<P>
-  ]
+  return [actionCreatorMap, actionTypes] as [ActionCreatorMapForEffects<P>, Mirrored<P>]
 }

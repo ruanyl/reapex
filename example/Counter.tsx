@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { Record } from 'immutable'
 import { useDispatch, useSelector } from 'react-redux'
 import { select } from 'redux-saga/effects'
