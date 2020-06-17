@@ -1,10 +1,7 @@
-import { Record as ImmutableRecord } from 'immutable'
-import { Mirrored } from 'reducer-tools'
 import { Action as ReduxAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
-/* eslint-disable @typescript-eslint/indent */
-import { Selectors, State, StateObject, StateShape } from './createState'
+import { State, StateObject, StateShape } from './createState'
 
 export type Mutator<T> = (...payload: any[]) => (localstate: T) => T
 
@@ -13,7 +10,7 @@ export interface MutatorInput<T> {
 }
 
 export type Subscriber<T, A extends ReduxAction> = {
-  bivarianceHack(action: A): (localstate: State<T>) => State<T>
+  bivarianceHack(action: A): (localstate: T) => T
 }['bivarianceHack']
 
 export interface SubscriberInput<T> {
@@ -98,7 +95,7 @@ export interface EffectMap {
     | (TriggerConfig5 & { trigger: true })
 }
 
-export type ActionCreatorMap<S, P extends Record<string, Mutator<S>>> = {
+export type ActionCreatorMap<P extends Record<string, Mutator<any>>> = {
   [K in keyof P]: (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
 }
 
@@ -114,35 +111,4 @@ export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
     : P[K] extends TriggerConfig5
     ? (...payload: Parameters<P[K]['takeLeading']>) => Action<K, Parameters<P[K]['takeLeading']>>
     : never
-}
-
-export interface MutationFunction<S extends StateShape | ImmutableRecord<StateShape>> {
-  (mutationMap: MutatorInput<S>, subscriptions?: SubscriberInput<S>): [
-    ActionCreatorMap<S, MutatorInput<S>>,
-    Mirrored<MutatorInput<S>>
-  ]
-}
-
-export type EffectFunction = <P extends EffectMapInput, S extends TriggerMapInput>(
-  effectMap: P,
-  triggerMap?: S
-) => [ActionCreatorMapForEffects<S>, Mirrored<S>]
-
-export type Model<T extends StateShape> = {
-  state: StateObject<T, T>
-  selectors: Selectors<T, T>
-  mutations: MutationFunction<T>
-  effects: EffectFunction
-}
-
-export type ImmutableModel<T extends StateShape> = {
-  state: StateObject<T, ImmutableRecord<T>>
-  selectors: Selectors<T, ImmutableRecord<T>>
-  mutations: MutationFunction<ImmutableRecord<T>>
-  effects: EffectFunction
-}
-
-export interface ModelFunction {
-  <T extends StateShape>(namespace: string, initialState: T): Model<T>
-  <T extends StateShape>(namespace: string, initialState: ImmutableRecord<T>): ImmutableModel<T>
 }

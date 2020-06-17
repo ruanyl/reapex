@@ -1,7 +1,7 @@
 import { createLogger } from 'redux-logger'
 import { take } from 'redux-saga/effects'
 
-import { App } from '../lib'
+import { App } from '../src'
 
 function* globalWatcher() {
   while (true) {
