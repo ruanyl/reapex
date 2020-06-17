@@ -85,13 +85,12 @@ export class App {
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: typeof initialState, a: AnyAction) =>
-          mutationMap[key](...a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => mutationMap[key](...a.payload)(s)
       })
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach(key => {
-          namedMutations[key] = (s: typeof initialState, a: AnyAction) => subscriptions[key](a)(s)
+          namedMutations[key] = (s: S, a: AnyAction) => subscriptions[key](a)(s)
         })
       }
 
