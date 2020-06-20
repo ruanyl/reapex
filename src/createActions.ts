@@ -1,6 +1,5 @@
-import { Mirrored, typedKeyMirror } from 'reducer-tools'
-
 import { ActionCreatorMap, ActionCreatorMapForEffects, Mutator, TriggerMapInput } from './types'
+import { Mirrored, typedKeyMirror } from './utils'
 
 export const typedActionCreators = <P extends Record<string, Mutator<any>>>(
   namespace: string,
