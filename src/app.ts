@@ -1,8 +1,6 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map, Record as ImmutableRecord } from 'immutable'
-import { createReducer } from 'reducer-tools'
-import { AnyAction, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
-import { combineReducers } from 'redux-immutable'
+import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
@@ -20,11 +18,12 @@ import {
   TriggerMapInput,
   Watcher,
 } from './types'
-import { actionTypeHasNamespace as defaultActionTypeHasNamespace } from './utils'
+import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
 
 export interface AppConfig {
   middlewares: Middleware[]
   actionTypeHasNamespace: (actionType: string) => boolean
+  immutableRootState: boolean
 }
 export type Logic = (app: App, ...args: any[]) => any
 
@@ -46,13 +45,14 @@ export class App {
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   selectors: Record<string, Selectors<StateShape, State<StateShape>>> = {}
-  store: Store<Map<string, any>>
+  store: Store<Map<string, any> | Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
   plugins: Plugin[] = []
 
   appConfig: AppConfig = {
     middlewares: [],
     actionTypeHasNamespace: defaultActionTypeHasNamespace,
+    immutableRootState: false,
   }
 
   constructor(props: Partial<AppConfig> = {}) {
@@ -217,10 +217,16 @@ export class App {
 
   getReducer() {
     if (Object.entries(this.rootReducers).length !== 0) {
-      const rootReducer = combineReducers(this.rootReducers)
-      return rootReducer
+      if (this.appConfig.immutableRootState) {
+        const { combineReducers: immutableCombineReducers } = require('redux-immutable')
+        const rootReducer = immutableCombineReducers(this.rootReducers)
+        return rootReducer
+      } else {
+        const rootReducer = combineReducers(this.rootReducers)
+        return rootReducer
+      }
     } else {
-      return (() => Map()) as Reducer<any, AnyAction>
+      return (() => (this.appConfig.immutableRootState ? Map() : {})) as Reducer<any, AnyAction>
     }
   }
 

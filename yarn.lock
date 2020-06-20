@@ -3230,11 +3230,6 @@ ignore@^4.0.6:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-4.0.6.tgz#750e3db5862087b4737ebac8207ffd1ef27b25fc"
   integrity sha512-cyFDKrqc/YdcWFniJhzI42+AzS+gNwmUzOSFcRCQYwySuBBBy/KjuxWLZ/FHEH6Moq1NizMOBWyTcv8O4OZIMg==
 
-immutable-state-creator@~1.2.4:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/immutable-state-creator/-/immutable-state-creator-1.2.4.tgz#35fdfbd31d3bd7d14e574bc2a2c218da82ffb677"
-  integrity sha512-a+rAJe5PA207b4F8q8Oti8GkhzZEjn16bHjobGDUSAa2sElcwrWX4vlxVm0c53OJaUN6fhG4OTYvORb+GK7CVQ==
-
 immutable@^4.0.0-rc.1, immutable@^4.0.0-rc.12:
   version "4.0.0-rc.12"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.12.tgz#ca59a7e4c19ae8d9bf74a97bdf0f6e2f2a5d0217"
@@ -5623,11 +5618,6 @@ realpath-native@^1.1.0:
   integrity sha512-wlgPA6cCIIg9gKz0fgAPjnzh4yR/LnXovwuo9hvyGvx3h8nX4+/iLZplfUWasXpqD8BdnGnP5njOFjkUwPzvjA==
   dependencies:
     util.promisify "^1.0.0"
-
-reducer-tools@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/reducer-tools/-/reducer-tools-1.0.0.tgz#57a43861f8828b770278024516523ef4c74244c6"
-  integrity sha512-aWRKn2TJQ99cYP2b4Vot9xRwmzuX9W2Y+2mEExm5PqJR/H55vOXsr1id8LwUdmnT7a6NPNpe/dgiNKUBCFPRkw==
 
 redux-devtools-extension@^2.13.8:
   version "2.13.8"
