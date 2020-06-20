@@ -14,6 +14,7 @@ import {
   EffectMap,
   EffectMapInput,
   MutatorInput,
+  Plugin,
   StateMap,
   SubscriberInput,
   TriggerMapInput,
@@ -25,7 +26,7 @@ export interface AppConfig {
   middlewares: Middleware[]
   actionTypeHasNamespace: (actionType: string) => boolean
 }
-export type Plug = (app: App, ...args: any[]) => any
+export type Logic = (app: App, ...args: any[]) => any
 
 export const mutationsLoaded = (namespace: string) => ({
   type: '@@GLOBAL/MUTATIONS_LOADED',
@@ -47,6 +48,7 @@ export class App {
   selectors: Record<string, Selectors<StateShape, State<StateShape>>> = {}
   store: Store<Map<string, any>>
   sagaMiddleware: SagaMiddleware<any>
+  plugins: Plugin[] = []
 
   appConfig: AppConfig = {
     middlewares: [],
@@ -85,7 +87,13 @@ export class App {
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
       Object.keys(mutationMap).forEach(key => {
-        namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => mutationMap[key](...a.payload)(s)
+        namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => {
+          let mutator = mutationMap[key]
+          this.plugins.forEach(plugin => {
+            if (plugin.beforeMutation) mutator = plugin.beforeMutation(mutationMap[key])
+          })
+          return mutator(...a.payload)(s)
+        }
       })
 
       if (subscriptions) {
@@ -168,11 +176,11 @@ export class App {
     }
   }
 
-  plugin<T extends Plug>(plug: T, ...args: any[]): ReturnType<typeof plug> {
-    return plug(this, ...args)
+  plugin(plug: Plugin) {
+    this.plugins.push(plug)
   }
 
-  use<T extends Plug>(logic: T, ...args: any[]): ReturnType<typeof logic> {
+  use<T extends Logic>(logic: T, ...args: any[]): ReturnType<typeof logic> {
     return logic(this, ...args)
   }
 

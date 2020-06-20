@@ -112,3 +112,7 @@ export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
     ? (...payload: Parameters<P[K]['takeLeading']>) => Action<K, Parameters<P[K]['takeLeading']>>
     : never
 }
+
+export interface Plugin {
+  beforeMutation?: (m: Mutator<any>) => Mutator<any>
+}
