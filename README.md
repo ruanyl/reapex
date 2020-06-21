@@ -1,20 +1,14 @@
 ## Reapex
 
-Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application
+Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application. It greatly reduced the boilerpates of a regular redux based application.
 
 Reapex is designed in a way that modules have a clear boundary with each other. It provides strong-typed everything out of the box.
 
-Reapex supports plugins which make it easy to share reusable codes. For example, sharing module among projects or publishing to npm and share with the public. Such as [reapex-plugin-dataloader](https://github.com/ReapexJS/reapex-plugin-dataloader)
+You can use reapex to create shareable modules easily. And share the modules among projects or publishing to npm and share with the public. Such as [reapex-plugin-dataloader](https://github.com/ReapexJS/reapex-plugin-dataloader)
 
 
 #### Built with the love of TypeScript
 > Reapex is written with TypeScript and it provides strong-typed state, selectors, actions.
-
-## Features
-- [x] Reapex creates actions/action types for you, it eliminates redux boilerplate which makes it easy to maintain
-- [x] Reapex loads modules dynamically, sagas/reducers are registered dynamically which makes code-splitting easy
-- [x] Plugin support, create reusable and shareable code easily
-- [x] Lightweight, easy to integrate with existing react/redux/redux-sagas application
 
 ## Examples
 
@@ -41,28 +35,19 @@ const app = new App()
 
 ### 2. Create a model(the shape of the state)
 ```typescript
-const counter = app.model('Counter', { total: 0 })
+const CounterModel = app.model('Counter', { total: 0 })
 ```
 
 ### 3. Defined the mutations: how you want the state to be mutated
-Mutation combines action types and reducer, and it returns action creators
-
 ```typescript
 const [mutations] = counter.mutations({
-  increase: (t: number) => s => s.set('total', s.total + t),
-  decrease: () => s => s.set('total', s.total - 1),
+  increase: () => s => ({...s, total: s.total + 1}),
+  decrease: () => s => ({...s, total: s.total - 1}),
 })
-```
-The function: `(t: number) => s => s.set('total', s.total + t)`, `t: number` will be the input parameter of the action creator. `s` is a typed immutable `Record<{total: number}>`. By running the code above you will get an action creator map as:
-```
-{
-  increase: (t: number) => ({ type: 'Counter/increase',  payload: [t] })
-  decrease: () => ({ type: 'Counter/decrease' })
-}
 ```
 
 ### 4. Connect it with Component
-`react-redux` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which automatically created by `reapex`.
+`react-redux` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which provided by `reapex`.
 
 ```typescript
 import React from 'react'
@@ -71,17 +56,16 @@ import { useSelector, useDispatch, Provider } from 'react-redux'
 export const Counter = () => {
   const total = useSelector(CounterModel.selectors.total)
   const dispatch = useDispatch()
-  
+
   return (
     <>
       <button onClick={() => dispatch(mutations.decrease())}>-</button>
       {props.total}
-      <button onClick={() => dispatch(mutations.increase(2))}>+2</button>
+      <button onClick={() => dispatch(mutations.increase())}>+</button>
     </>
   )
 }
 ```
-Note: `counter.state.get('total')` provides the selector to the `total`
 
 ### 5. Render it!
 ```typescript
