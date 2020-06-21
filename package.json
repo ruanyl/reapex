@@ -36,7 +36,6 @@
     "express": "~4.16.3",
     "glob": "~7.1.2",
     "html-webpack-plugin": "~3.2.0",
-    "immutable": "^4.0.0-rc.12",
     "import-sort-parser-typescript": "^6.0.0",
     "import-sort-style-as": "^1.2.3",
     "jest": "^24.7.0",
@@ -59,9 +58,10 @@
     "webpack-cli": "^3.3.11",
     "webpack-dev-middleware": "^3.7.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "immutable": "^4.0.0-rc.1"
+  },
   "peerDependencies": {
-    "immutable": "^3.8.1 || ^4.0.0-rc.1",
     "redux": "4.x",
     "redux-saga": ">= 1.1.3"
   },
