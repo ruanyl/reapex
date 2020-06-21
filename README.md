@@ -12,8 +12,8 @@ You can use reapex to create shareable modules easily. And share the modules amo
 
 ## Examples
 
-1. [Counter](https://codesandbox.io/s/reapex-example-counter-9pyy6): A legendary Counter example
-2. [Login Form](https://codesandbox.io/s/reapex-login-form-7f3m6): Side effects handling with the demo of API call
+1. [Counter](https://codesandbox.io/s/reapex-example-counter-oluew): A simple Counter example
+2. [Login Form](https://codesandbox.io/s/reapex-login-form-06eq1): Side effects handling with the demo of API call
 
 ## Getting started with a simple `Counter` example
 
