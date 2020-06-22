@@ -20,7 +20,7 @@ You can use reapex to create shareable modules easily. And share the modules amo
 ```
 npm i reapex --save
 ```
-#### Install peer dependencies
+#### Peer dependencies
 ```
 npm i react react-dom redux react-redux redux-saga --save
 ```
@@ -54,6 +54,7 @@ import React from 'react'
 import { useSelector, useDispatch, Provider } from 'react-redux'
 
 export const Counter = () => {
+  // reapex generate selectors for all the fields of the state
   const total = useSelector(CounterModel.selectors.total)
   const dispatch = useDispatch()
 
@@ -82,3 +83,37 @@ render(
   document.getElementById('root')
 )
 ```
+
+## Use Immutable Record as the state
+```typescript
+import { Record } from 'immutable'
+
+const CounterState = Record({ total: 0 })
+const CounterModel = app.model('Counter', new CounterState())
+
+// the state here is an Immutable Record
+const [mutations] = counter.mutations({
+  increase: () => s => s.set('total', s.total + 1),
+  decrease: () => s => s.set('total', s.total - 1),
+})
+```
+
+## Integration with immerjs
+```typescript
+import immerPlugin from 'reapex-plugin-immer'
+
+app.plugin(immerPlugin)
+
+const CounterModel = app.model('Counter', { total: 0 })
+const [mutations] = counter.mutations({
+  increase: () => s => {
+    s.total = s.total + 1
+    return s
+  },
+  decrease: () => s => {
+    s.total = s.total - 1
+    return s
+  },
+})
+```
+Checkout [reapex-plugin-immer](https://github.com/ReapexJS/reapex-plugin-immer)
