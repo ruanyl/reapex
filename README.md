@@ -1,4 +1,9 @@
-## Reapex
+# Reapex 
+[![travis-ci](https://travis-ci.org/ruanyl/reapex.svg?branch=master)](https://travis-ci.org/github/ruanyl/reapex)
+[![npm](https://img.shields.io/npm/v/reapex.svg)](https://www.npmjs.com/package/reapex)
+[![issues](https://img.shields.io/github/issues/ruanyl/reapex)](https://github.com/ruanyl/reapex/issues)
+[![license](https://img.shields.io/github/license/ruanyl/reapex)](https://github.com/ruanyl/reapex/blob/master/LICENSE.md)
+
 
 Reapex is a lightweight "framework" written in TypeScript to build pluggable and extendable redux(react) application. It greatly reduced the boilerpates of a regular redux based application.
 
