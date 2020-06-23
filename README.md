@@ -1,5 +1,6 @@
 # Reapex 
 [![travis-ci](https://travis-ci.org/ruanyl/reapex.svg?branch=master)](https://travis-ci.org/github/ruanyl/reapex)
+![github-workflow](https://github.com/ruanyl/reapex/workflows/CI/badge.svg)
 [![npm](https://img.shields.io/npm/v/reapex.svg)](https://www.npmjs.com/package/reapex)
 [![issues](https://img.shields.io/github/issues/ruanyl/reapex)](https://github.com/ruanyl/reapex/issues)
 [![license](https://img.shields.io/github/license/ruanyl/reapex)](https://github.com/ruanyl/reapex/blob/master/LICENSE.md)
