@@ -90,7 +90,9 @@ export class App {
         namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => {
           let mutator = mutationMap[key]
           this.plugins.forEach(plugin => {
-            if (plugin.beforeMutation) mutator = plugin.beforeMutation(mutationMap[key])
+            if (plugin.beforeMutation) {
+              mutator = plugin.beforeMutation(mutationMap[key])
+            }
           })
           return mutator(...a.payload)(s)
         }

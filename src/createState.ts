@@ -38,11 +38,10 @@ export const createState: CreateState = <T extends StateShape>(namespace: string
   const selectors = {} as FieldSelectors<T> & SelfSelector<State<T>>
 
   for (const k in initial) {
-    // @ts-ignore
-    selectors[k] = get(k)
+    selectors[k] = get(k) as any
   }
 
-  selectors['self'] = (state: GlobalState) => {
+  selectors.self = (state: GlobalState) => {
     const localState = Map.isMap(state) ? state.get(namespace) : state[namespace]
     return localState as State<T>
   }
