@@ -10,6 +10,7 @@
     "test": "npm run test-only",
     "test-only": "jest --coverage",
     "test:watch": "jest --watch",
+    "lint": "eslint src/**",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {

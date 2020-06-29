@@ -7,4 +7,9 @@ module.exports = {
     project: 'tsconfig.json',
     sourceType: 'module',
   },
+  settings: {
+    react: {
+      version: 'detect',
+    },
+  },
 }
