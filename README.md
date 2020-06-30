@@ -16,6 +16,8 @@ You can use reapex to create shareable modules easily. And share the modules amo
 #### Built with the love of TypeScript
 > Reapex is written with TypeScript and it provides strong-typed state, selectors, actions.
 
+#### [Documentation (WIP)](https://reapex.gitbook.io/docs/)
+
 ## Examples
 
 1. [Counter](https://codesandbox.io/s/reapex-example-counter-oluew): A simple Counter example
