@@ -232,11 +232,11 @@ export class App {
     }
   }
 
-  createStore() {
+  createStore(initialState?: Map<string, any> | Record<string, any>) {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
     this.sagaMiddleware = createSagaMiddleware()
-    const store = configureStore(reducer, [...this.appConfig.middlewares, this.sagaMiddleware])
+    const store = configureStore(reducer, [...this.appConfig.middlewares, this.sagaMiddleware], initialState)
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
