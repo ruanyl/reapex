@@ -1,6 +1,7 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
 import { Map, Record as ImmutableRecord } from 'immutable'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
+import { combineReducers as immutableCombineReducers } from 'redux-immutable'
 import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
@@ -220,7 +221,6 @@ export class App {
   getReducer() {
     if (Object.entries(this.rootReducers).length !== 0) {
       if (this.appConfig.immutableRootState) {
-        const { combineReducers: immutableCombineReducers } = require('redux-immutable')
         const rootReducer = immutableCombineReducers(this.rootReducers)
         return rootReducer
       } else {
