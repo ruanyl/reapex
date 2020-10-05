@@ -1,7 +1,7 @@
 import { createLogger } from 'redux-logger'
 import { take } from 'redux-saga/effects'
 
-import { App } from '../src'
+import { App } from '../lib'
 
 function* globalWatcher() {
   while (true) {
@@ -10,9 +10,7 @@ function* globalWatcher() {
   }
 }
 
-const logger = createLogger({
-  stateTransformer: (state: any) => state.toJS(),
-})
+const logger = createLogger()
 
 const app = new App({
   middlewares: [logger],

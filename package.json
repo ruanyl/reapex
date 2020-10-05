@@ -6,7 +6,7 @@
   "types": "./lib/index.d.ts",
   "scripts": {
     "build": "./node_modules/.bin/tsc --outDir lib --declaration",
-    "start": "webpack --config webpack.config.js && node server.js",
+    "start": "yarn build && webpack --config webpack.config.js && node server.js",
     "test": "npm run test-only",
     "test-only": "jest --coverage",
     "test:watch": "jest --watch",
