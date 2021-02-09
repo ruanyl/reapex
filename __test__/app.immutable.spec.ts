@@ -20,8 +20,8 @@ describe('create actions', () => {
   it('should create actions', () => {
     const model = app.model('Counter', initialState)
     const [mutations] = model.mutations({
-      increase: () => s => s.set('total', s.total + 1),
-      decrease: () => s => s.set('total', s.total - 1),
+      increase: () => (s) => s.set('total', s.total + 1),
+      decrease: () => (s) => s.set('total', s.total - 1),
     })
 
     const store = app.createStore()
@@ -34,8 +34,8 @@ describe('create actions', () => {
   it('should create actionTypes', () => {
     const model = app.model('Counter', initialState)
     const [, actionTypes] = model.mutations({
-      increase: () => s => s.set('total', s.total + 1),
-      decrease: () => s => s.set('total', s.total - 1),
+      increase: () => (s) => s.set('total', s.total + 1),
+      decrease: () => (s) => s.set('total', s.total - 1),
     })
     expect(actionTypes.increase).toEqual('Counter/increase')
     expect(actionTypes.decrease).toEqual('Counter/decrease')
@@ -44,8 +44,8 @@ describe('create actions', () => {
   it('should update state when dispatch actions', () => {
     const model = app.model('Counter', initialState)
     const [mutations] = model.mutations({
-      increase: () => s => s.set('total', s.total + 1),
-      decrease: () => s => s.set('total', s.total - 1),
+      increase: () => (s) => s.set('total', s.total + 1),
+      decrease: () => (s) => s.set('total', s.total - 1),
     })
 
     const store = app.createStore()
@@ -62,11 +62,11 @@ describe('create actions', () => {
     const model = app.model('test', initialState)
     model.mutations(
       {
-        increase: () => s => s.set('total', s.total + 1),
-        decrease: () => s => s.set('total', s.total - 1),
+        increase: () => (s) => s.set('total', s.total + 1),
+        decrease: () => (s) => s.set('total', s.total - 1),
       },
       {
-        'OtherNamespace/actionType': () => s => s.set('total', 100),
+        'OtherNamespace/actionType': () => (s) => s.set('total', 100),
       }
     )
 
@@ -97,8 +97,8 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      setCurrentLanguage: (language: string) => s => s.set('currentLanguage', language),
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      setCurrentLanguage: (language: string) => (s) => s.set('currentLanguage', language),
+      addLanguage: (language: string) => (s) => s.set('languages', s.languages.concat(language)),
     })
 
     model.effects({
@@ -127,8 +127,8 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      setCurrentLanguage: (language: string) => s => s.set('currentLanguage', language),
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      setCurrentLanguage: (language: string) => (s) => s.set('currentLanguage', language),
+      addLanguage: (language: string) => (s) => s.set('languages', s.languages.concat(language)),
     })
 
     model.effects({
@@ -148,7 +148,7 @@ describe('create sagas', () => {
     store.dispatch(mutations.setCurrentLanguage('Chinese'))
     expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
 
-    return new Promise(resolver => {
+    return new Promise((resolver) => {
       setTimeout(() => {
         expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
         resolver()
@@ -165,7 +165,7 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      addLanguage: (language: string) => (s) => s.set('languages', s.languages.concat(language)),
     })
 
     model.effects({
@@ -194,25 +194,22 @@ describe('create sagas', () => {
     const model = app.model('User', initialState)
 
     const [mutations] = model.mutations({
-      addLanguage: (language: string) => s => s.set('languages', s.languages.concat(language)),
+      addLanguage: (language: string) => (s) => s.set('languages', s.languages.concat(language)),
     })
 
-    const [effects] = model.effects(
-      {},
-      {
-        setCurrentLanguage: {
-          *takeEvery(language: string) {
-            yield put(mutations.addLanguage(language))
-          },
+    const [triggers] = model.triggers({
+      setCurrentLanguage: {
+        *takeEvery(language: string) {
+          yield put(mutations.addLanguage(language))
         },
-      }
-    )
+      },
+    })
 
     const store = app.createStore()
     expect(model.selectors.languages(store.getState())).toEqual([])
 
-    store.dispatch(effects.setCurrentLanguage('English'))
-    store.dispatch(effects.setCurrentLanguage('Chinese'))
+    store.dispatch(triggers.setCurrentLanguage('English'))
+    store.dispatch(triggers.setCurrentLanguage('Chinese'))
     expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
   })
 })

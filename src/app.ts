@@ -38,6 +38,11 @@ export const effectsLoaded = (namespace: string) => ({
   payload: [namespace],
 })
 
+export const triggersLoaded = (namespace: string) => ({
+  type: '@@GLOBAL/TRIGGERS_LOADED',
+  payload: [namespace],
+})
+
 export class App {
   rootReducers: ReducersMapObject = {}
   sagas: Watcher[] = []
@@ -87,10 +92,10 @@ export class App {
 
       // reducer map which key is prepend with namespace
       const namedMutations: Record<string, Reducer> = {}
-      Object.keys(mutationMap).forEach(key => {
+      Object.keys(mutationMap).forEach((key) => {
         namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => {
           let mutator = mutationMap[key]
-          this.plugins.forEach(plugin => {
+          this.plugins.forEach((plugin) => {
             if (plugin.beforeMutation) {
               mutator = plugin.beforeMutation(mutationMap[key])
             }
@@ -100,7 +105,7 @@ export class App {
       })
 
       if (subscriptions) {
-        Object.keys(subscriptions).forEach(key => {
+        Object.keys(subscriptions).forEach((key) => {
           namedMutations[key] = (s: S, a: AnyAction) => subscriptions[key](a)(s)
         })
       }
@@ -113,9 +118,9 @@ export class App {
       return [actionCreators, actionTypes] as const
     }
 
-    const effectFunc = <M extends EffectMapInput, N extends TriggerMapInput>(effectMap: M, triggerMap: N = {} as N) => {
+    const effectFunc = <M extends EffectMapInput>(effectMap: M) => {
       const namedEffects: EffectMap = {}
-      Object.keys(effectMap).forEach(key => {
+      Object.keys(effectMap).forEach((key) => {
         const sagaConfig = effectMap[key]
         const hasNamespace = this.appConfig.actionTypeHasNamespace(key)
         const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
@@ -127,14 +132,28 @@ export class App {
         }
       })
 
+      // dynamically register saga
+      if (this.store) {
+        this.sagaMiddleware.run(function* () {
+          const saga = createSaga(namedEffects)
+          yield safeFork(saga)
+        })
+        this.store.dispatch(effectsLoaded(namespace))
+      } else {
+        this.effectsArray.push(namedEffects)
+      }
+    }
+
+    const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {
+      const namedEffects: EffectMap = {}
       const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
       this.effectActionCreators[namespace] = effectAcrionCreators
 
-      Object.keys(triggerMap).forEach(key => {
-        if (Object.prototype.hasOwnProperty.call(effectMap, key)) {
+      Object.keys(triggerMap).forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(this.actionCreators[namespace], key)) {
           throw new Error(
             `${namespace}.effects(), key: ${key} in ${JSON.stringify(triggerMap)} also appears in ${JSON.stringify(
-              effectMap
+              this.actionCreators[namespace]
             )}`
           )
         }
@@ -147,11 +166,11 @@ export class App {
 
       // dynamically register saga
       if (this.store) {
-        this.sagaMiddleware.run(function*() {
+        this.sagaMiddleware.run(function* () {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
-        this.store.dispatch(effectsLoaded(namespace))
+        this.store.dispatch(triggersLoaded(namespace))
       } else {
         this.effectsArray.push(namedEffects)
       }
@@ -163,14 +182,15 @@ export class App {
       selectors: stateClass.selectors,
       mutations: mutationFunc,
       effects: effectFunc,
+      triggers: triggerFunc,
     }
   }
 
   runSaga(sagas: Watcher | Watcher[]) {
     const allSagas = Array<Watcher>().concat(sagas)
     if (this.store) {
-      allSagas.forEach(saga => {
-        this.sagaMiddleware.run(function*() {
+      allSagas.forEach((saga) => {
+        this.sagaMiddleware.run(function* () {
           yield safeFork(saga)
         })
       })
@@ -192,11 +212,8 @@ export class App {
   }
 
   createRootSagas() {
-    const sagas = this.effectsArray
-      .map(createSaga)
-      .concat(this.sagas)
-      .map(safeFork)
-    return function*() {
+    const sagas = this.effectsArray.map(createSaga).concat(this.sagas).map(safeFork)
+    return function* () {
       yield all(sagas)
     }
   }
