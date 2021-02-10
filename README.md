@@ -26,7 +26,7 @@ You can use reapex to create shareable modules easily. And share the modules amo
 ## Getting started with a simple `Counter` example
 
 ```
-npm i reapex@latest --save
+npm i reapex@beta --save
 ```
 #### Peer dependencies
 ```
