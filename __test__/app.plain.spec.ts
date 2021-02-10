@@ -1,4 +1,4 @@
-import { delay, put } from 'redux-saga/effects'
+import { delay } from 'redux-saga/effects'
 
 import { App } from '../src/app'
 
@@ -49,10 +49,10 @@ describe('create actions', () => {
     const store = app.createStore()
     expect(model.selectors.total(store.getState())).toEqual(0)
 
-    store.dispatch(mutations.increase())
+    mutations.increase()
     expect(model.selectors.total(store.getState())).toEqual(1)
 
-    store.dispatch(mutations.decrease())
+    mutations.decrease()
     expect(model.selectors.total(store.getState())).toEqual(0)
   })
 
@@ -101,15 +101,15 @@ describe('create sagas', () => {
     model.effects({
       *setCurrentLanguage(action: ReturnType<typeof mutations.setCurrentLanguage>) {
         const [language] = action.payload
-        yield put(mutations.addLanguage(language))
+        mutations.addLanguage(language)
       },
     })
 
     const store = app.createStore()
     expect(model.selectors.currentLanguage(store.getState())).toEqual('')
 
-    store.dispatch(mutations.setCurrentLanguage('English'))
-    store.dispatch(mutations.setCurrentLanguage('Chinese'))
+    mutations.setCurrentLanguage('English')
+    mutations.setCurrentLanguage('Chinese')
     expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
     expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
   })
@@ -132,7 +132,7 @@ describe('create sagas', () => {
         *takeLatest(action: ReturnType<typeof mutations.setCurrentLanguage>) {
           yield delay(1000)
           const [language] = action.payload
-          yield put(mutations.addLanguage(language))
+          mutations.addLanguage(language)
         },
       },
     })
@@ -140,8 +140,8 @@ describe('create sagas', () => {
     const store = app.createStore()
     expect(model.selectors.currentLanguage(store.getState())).toEqual('')
 
-    store.dispatch(mutations.setCurrentLanguage('English'))
-    store.dispatch(mutations.setCurrentLanguage('Chinese'))
+    mutations.setCurrentLanguage('English')
+    mutations.setCurrentLanguage('Chinese')
     expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
 
     return new Promise((resolver) => {
@@ -166,7 +166,7 @@ describe('create sagas', () => {
     model.effects({
       'ActionType.External.SetCurrentLanguage': function* setCurrentLanguage(action: ValueAction<string>) {
         const language = action.value
-        yield put(mutations.addLanguage(language))
+        mutations.addLanguage(language)
       },
     })
 
@@ -194,7 +194,7 @@ describe('create sagas', () => {
     const [triggers] = model.triggers({
       setCurrentLanguage: {
         *takeEvery(language: string) {
-          yield put(mutations.addLanguage(language))
+          mutations.addLanguage(language)
         },
       },
     })
@@ -202,8 +202,8 @@ describe('create sagas', () => {
     const store = app.createStore()
     expect(model.selectors.languages(store.getState())).toEqual([])
 
-    store.dispatch(triggers.setCurrentLanguage('English'))
-    store.dispatch(triggers.setCurrentLanguage('Chinese'))
+    triggers.setCurrentLanguage('English')
+    triggers.setCurrentLanguage('Chinese')
     expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
   })
 })

@@ -87,7 +87,7 @@ export class App {
       subscriptions?: N
     ) => {
       // create action creators
-      const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap)
+      const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap, this)
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
@@ -146,7 +146,7 @@ export class App {
 
     const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {
       const namedEffects: EffectMap = {}
-      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(`${namespace}`, triggerMap)
+      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(namespace, triggerMap, this)
       this.effectActionCreators[namespace] = effectAcrionCreators
 
       Object.keys(triggerMap).forEach((key) => {

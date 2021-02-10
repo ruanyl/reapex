@@ -1,6 +1,6 @@
 import React from 'react'
 import { Record } from 'immutable'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 import { select } from 'redux-saga/effects'
 
 import app from './app'
@@ -13,17 +13,17 @@ const counter = app.model('Counter', initialState)
 
 export const [mutations, actionTypes] = counter.mutations(
   {
-    increase: (n: number) => s => {
+    increase: (n: number) => (s) => {
       const total = s.total
       return s.set('total', total + 1)
     },
-    decrease: () => s => {
+    decrease: () => (s) => {
       const total = s.total
       return s.set('total', total - 1)
     },
   },
   {
-    test: (a: MyAction) => s => s,
+    test: (a: MyAction) => (s) => s,
   }
 )
 
@@ -32,7 +32,7 @@ type MyAction = {
   value: number
 }
 
-export const [effects] = counter.effects({
+counter.effects({
   // by default is the current namespace, which is `Counter`
   *increase() {
     const total = yield select(counter.selectors.total)
@@ -45,12 +45,11 @@ export const [effects] = counter.effects({
 
 export const Counter: React.SFC = () => {
   const total = useSelector(counter.selectors.total)
-  const dispatch = useDispatch()
   return (
     <>
-      <button onClick={() => dispatch(mutations.decrease())}>-</button>
+      <button onClick={() => mutations.decrease()}>-</button>
       {total}
-      <button onClick={() => dispatch(mutations.increase(1))}>+</button>
+      <button onClick={() => mutations.increase(1)}>+</button>
     </>
   )
 }

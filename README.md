@@ -59,18 +59,17 @@ const [mutations] = counter.mutations({
 
 ```typescript
 import React from 'react'
-import { useSelector, useDispatch, Provider } from 'react-redux'
+import { useSelector, Provider } from 'react-redux'
 
 export const Counter = () => {
   // reapex generate selectors for all the fields of the state
   const total = useSelector(CounterModel.selectors.total)
-  const dispatch = useDispatch()
 
   return (
     <>
-      <button onClick={() => dispatch(mutations.decrease())}>-</button>
+      <button onClick={() => mutations.decrease()}>-</button>
       {props.total}
-      <button onClick={() => dispatch(mutations.increase())}>+</button>
+      <button onClick={() => mutations.increase()}>+</button>
     </>
   )
 }
