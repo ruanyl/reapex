@@ -26,7 +26,7 @@ You can use reapex to create shareable modules easily. And share the modules amo
 ## Getting started with a simple `Counter` example
 
 ```
-npm i reapex@beta --save
+npm i reapex@latest --save
 ```
 #### Peer dependencies
 ```
@@ -59,17 +59,18 @@ const [mutations] = counter.mutations({
 
 ```typescript
 import React from 'react'
-import { useSelector, Provider } from 'react-redux'
+import { useSelector, useDispatch, Provider } from 'react-redux'
 
 export const Counter = () => {
   // reapex generate selectors for all the fields of the state
   const total = useSelector(CounterModel.selectors.total)
+  const dispatch = useDispatch()
 
   return (
     <>
-      <button onClick={() => mutations.decrease()}>-</button>
+      <button onClick={() => dispatch(mutations.decrease())}>-</button>
       {props.total}
-      <button onClick={() => mutations.increase()}>+</button>
+      <button onClick={() => dispatch(mutations.increase())}>+</button>
     </>
   )
 }
