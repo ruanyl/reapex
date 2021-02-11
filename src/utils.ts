@@ -1,13 +1,9 @@
-import { AnyAction } from 'redux'
+import { AnyAction, Reducer } from 'redux'
 
 export const actionTypeHasNamespace = (actionType: string) => actionType.includes('/')
 
-export type ReducerMap<S extends any, A extends AnyAction> = {
-  [P in A['type']]?: A extends { type: P } ? (state: S, action: A) => S : never
-}
-
-export const createReducer = <T extends any, S extends ReducerMap<T, AnyAction>>(initialState: T, reducerMap: S) => {
-  return (state: T = initialState, action: AnyAction): T => {
+export const createReducer = <S extends any, R extends Record<string, Reducer<S>>>(initialState: S, reducerMap: R) => {
+  return (state: S = initialState, action: AnyAction): S => {
     const actionType = action.type
     const reducer = reducerMap[actionType]
     if (reducer) {
@@ -18,16 +14,12 @@ export const createReducer = <T extends any, S extends ReducerMap<T, AnyAction>>
   }
 }
 
-export type Mirrored<T extends Record<string, unknown>> = {
-  [K in keyof T]: K
+export type Mirrored<T extends Record<string, unknown>, N extends string> = {
+  [K in keyof T]: `${N}/${string & K}`
 }
 
-export const typedKeyMirror = <T extends Record<string, unknown>>(
-  keyMap: T,
-  namespace: string,
-  separator: string = '/'
-) => {
-  const keyMirrored: Mirrored<T> = {} as Mirrored<T>
-  Object.keys(keyMap).forEach((k: keyof T) => (keyMirrored[k] = `${namespace}${separator}${k}`))
+export const typedKeyMirror = <T extends Record<string, unknown>, N extends string>(keyMap: T, namespace: N) => {
+  const keyMirrored: Mirrored<T, N> = {} as Mirrored<T, N>
+  Object.keys(keyMap).forEach((k: keyof T) => (keyMirrored[k] = `${namespace}/${k}` as const))
   return keyMirrored
 }

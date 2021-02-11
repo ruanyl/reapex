@@ -1,9 +1,9 @@
 import { App } from './app'
 import { ActionCreatorMap, ActionCreatorMapForEffects, Mutator, TriggerMapInput } from './types'
-import { Mirrored, typedKeyMirror } from './utils'
+import { typedKeyMirror } from './utils'
 
-export const typedActionCreators = <P extends Record<string, Mutator<any>>>(
-  namespace: string,
+export const typedActionCreators = <N extends string, P extends Record<string, Mutator<any>>>(
+  namespace: N,
   mutators: P,
   app: App
 ) => {
@@ -18,11 +18,11 @@ export const typedActionCreators = <P extends Record<string, Mutator<any>>>(
         payload,
       })) as any
   })
-  return [actionCreatorMap, actionTypes] as [ActionCreatorMap<P>, Mirrored<P>]
+  return [actionCreatorMap, actionTypes] as const
 }
 
-export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
-  namespace: string,
+export const typedActionCreatorsForEffects = <N extends string, P extends TriggerMapInput>(
+  namespace: N,
   triggerMap: P,
   app: App
 ) => {
@@ -37,5 +37,5 @@ export const typedActionCreatorsForEffects = <P extends TriggerMapInput>(
         payload,
       })) as any
   })
-  return [actionCreatorMap, actionTypes] as [ActionCreatorMapForEffects<P>, Mirrored<P>]
+  return [actionCreatorMap, actionTypes] as const
 }

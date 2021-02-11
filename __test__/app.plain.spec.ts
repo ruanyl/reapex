@@ -147,7 +147,7 @@ describe('create sagas', () => {
     return new Promise((resolver) => {
       setTimeout(() => {
         expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
-        resolver()
+        resolver(0)
       }, 1500)
     })
   })

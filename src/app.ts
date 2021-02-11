@@ -18,8 +18,8 @@ import {
   Watcher,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
-import type { Record as ImmutableRecord } from 'immutable'
 
+import type { Record as ImmutableRecord } from 'immutable'
 
 export interface AppConfig {
   middlewares: Middleware[]
@@ -75,7 +75,7 @@ export class App {
     }
   }
 
-  model<T extends StateShape, S extends T | ImmutableRecord<T>>(namespace: string, initialState: S) {
+  model<T extends StateShape, S extends T | ImmutableRecord<T>, N extends string>(namespace: N, initialState: S) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
     this.selectors[namespace] = stateClass.selectors
@@ -89,7 +89,7 @@ export class App {
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
-      const namedMutations: Record<string, Reducer> = {}
+      const namedMutations: Record<string, Reducer<S>> = {}
       Object.keys(mutationMap).forEach((key) => {
         namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => {
           let mutator = mutationMap[key]
