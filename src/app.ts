@@ -1,7 +1,5 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
-import { Map, Record as ImmutableRecord } from 'immutable'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
-import { combineReducers as immutableCombineReducers } from 'redux-immutable'
 import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
@@ -20,11 +18,12 @@ import {
   Watcher,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
+import type { Record as ImmutableRecord } from 'immutable'
+
 
 export interface AppConfig {
   middlewares: Middleware[]
   actionTypeHasNamespace: (actionType: string) => boolean
-  immutableRootState: boolean
 }
 export type Logic = (app: App, ...args: any[]) => any
 
@@ -51,14 +50,13 @@ export class App {
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   selectors: Record<string, Selectors<StateShape, State<StateShape>>> = {}
-  store: Store<Map<string, any> | Record<string, any>>
+  store: Store<Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
   plugins: Plugin[] = []
 
   appConfig: AppConfig = {
     middlewares: [],
     actionTypeHasNamespace: defaultActionTypeHasNamespace,
-    immutableRootState: false,
   }
 
   constructor(props: Partial<AppConfig> = {}) {
@@ -237,19 +235,14 @@ export class App {
 
   getReducer() {
     if (Object.entries(this.rootReducers).length !== 0) {
-      if (this.appConfig.immutableRootState) {
-        const rootReducer = immutableCombineReducers(this.rootReducers)
-        return rootReducer
-      } else {
-        const rootReducer = combineReducers(this.rootReducers)
-        return rootReducer
-      }
+      const rootReducer = combineReducers(this.rootReducers)
+      return rootReducer
     } else {
-      return (() => (this.appConfig.immutableRootState ? Map() : {})) as Reducer<any, AnyAction>
+      return {} as Reducer
     }
   }
 
-  createStore(initialState?: Map<string, any> | Record<string, any>) {
+  createStore(initialState?: Record<string, any>) {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
     this.sagaMiddleware = createSagaMiddleware()

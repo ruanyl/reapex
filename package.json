@@ -23,7 +23,6 @@
     "@types/react-redux": "^7.1.5",
     "@types/react-router": "^4.0.25",
     "@types/react-router-dom": "^4.2.6",
-    "@types/redux-immutable": "^4.0.1",
     "@types/redux-logger": "^3.0.6",
     "@typescript-eslint/eslint-plugin": "^3.5.0",
     "@typescript-eslint/parser": "^3.5.0",
@@ -47,7 +46,6 @@
     "react-router-dom": "~4.2.2",
     "redux": "^4.0.0",
     "redux-devtools-extension": "^2.13.8",
-    "redux-immutable": "^4.0.0",
     "redux-logger": "^3.0.6",
     "redux-saga": "^1.1.3",
     "reselect": "~3.0.1",
@@ -62,7 +60,6 @@
   "peerDependencies": {
     "immutable": "^3.8.1 || ^4.0.0-rc.1",
     "redux": "4.x",
-    "redux-immutable": "^4.0.0",
     "redux-saga": ">= 1.1.3"
   },
   "prettier": {
