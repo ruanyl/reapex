@@ -48,7 +48,7 @@ const CounterModel = app.model('Counter', { total: 0 })
 
 ### 3. Defined the mutations: how you want the state to be mutated
 ```typescript
-const [mutations] = counter.mutations({
+const [mutations] = CounterModel.mutations({
   increase: () => s => ({...s, total: s.total + 1}),
   decrease: () => s => ({...s, total: s.total - 1}),
 })
@@ -69,7 +69,7 @@ export const Counter = () => {
   return (
     <>
       <button onClick={() => dispatch(mutations.decrease())}>-</button>
-      {props.total}
+      {total}
       <button onClick={() => dispatch(mutations.increase())}>+</button>
     </>
   )
