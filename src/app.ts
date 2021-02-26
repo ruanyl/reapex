@@ -238,7 +238,7 @@ export class App {
       const rootReducer = combineReducers(this.rootReducers)
       return rootReducer
     } else {
-      return {} as Reducer
+      return () => ({})
     }
   }
 
