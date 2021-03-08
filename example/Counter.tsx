@@ -11,26 +11,16 @@ const initialState = new CounterState()
 
 const counter = app.model('Counter', initialState)
 
-export const [mutations, actionTypes] = counter.mutations(
-  {
-    increase: (n: number) => (s) => {
-      const total = s.total
-      return s.set('total', total + 1)
-    },
-    decrease: () => (s) => {
-      const total = s.total
-      return s.set('total', total - 1)
-    },
+export const [mutations, actionTypes] = counter.mutations({
+  increase: () => (s) => {
+    const total = s.total
+    return s.set('total', total + 1)
   },
-  {
-    test: (a: MyAction) => (s) => s,
-  }
-)
-
-type MyAction = {
-  type: string
-  value: number
-}
+  decrease: () => (s) => {
+    const total = s.total
+    return s.set('total', total - 1)
+  },
+})
 
 counter.effects({
   // by default is the current namespace, which is `Counter`
@@ -38,18 +28,27 @@ counter.effects({
     const total = yield select(counter.selectors.total)
     console.log('total is: ', total)
   },
-  myaction: {
-    *takeEvery(action: MyAction) {},
+  decrease: {
+    async takeEvery() {
+      console.log('Wait 1.5s and then increase 1 automatically')
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(0)
+        }, 1500)
+      })
+      mutations.increase()
+      console.log('Increased 1')
+    },
   },
 })
 
-export const Counter: React.SFC = () => {
+export const Counter = () => {
   const total = useSelector(counter.selectors.total)
   return (
     <>
-      <button onClick={() => mutations.decrease()}>-</button>
+      <button onClick={mutations.decrease}>-</button>
       {total}
-      <button onClick={() => mutations.increase(1)}>+</button>
+      <button onClick={mutations.increase}>+</button>
     </>
   )
 }

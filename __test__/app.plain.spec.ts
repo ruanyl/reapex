@@ -193,7 +193,7 @@ describe('create sagas', () => {
 
     const [triggers] = model.triggers({
       setCurrentLanguage: {
-        *takeEvery(language: string) {
+        takeEvery(language: string) {
           mutations.addLanguage(language)
         },
       },

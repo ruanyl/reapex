@@ -1,4 +1,4 @@
-import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
+import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 
@@ -15,7 +15,6 @@ import {
   StateMap,
   SubscriberInput,
   TriggerMapInput,
-  Watcher,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
 
@@ -44,7 +43,7 @@ export const triggersLoaded = (namespace: string) => ({
 
 export class App {
   rootReducers: ReducersMapObject = {}
-  sagas: Watcher[] = []
+  sagas: Saga[] = []
   states: StateMap<StateShape> = {}
   effectsArray: EffectMap[] = []
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
@@ -184,8 +183,8 @@ export class App {
     }
   }
 
-  runSaga(sagas: Watcher | Watcher[]) {
-    const allSagas = Array<Watcher>().concat(sagas)
+  runSaga(sagas: Saga | Saga[]) {
+    const allSagas = Array<Saga>().concat(sagas)
     if (this.store) {
       allSagas.forEach((saga) => {
         this.sagaMiddleware.run(function* () {

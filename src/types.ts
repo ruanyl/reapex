@@ -19,20 +19,16 @@ export interface SubscriberInput<T> {
 
 export type StateMap<T extends StateShape> = Record<string, StateObject<T, State<T>>>
 export type AnyActionCreator = (...payload: any[]) => Action<any, any[]>
-export type Watcher = () => SagaIterator
-export type WatcherConfig = {
-  watcher: Watcher
-}
 export interface Action<T, P> {
   type: T
   payload: P
 }
 
 type AnySaga<A extends ReduxAction> = {
-  bivarianceHack(action: A): SagaIterator
+  bivarianceHack(action?: A): SagaIterator | Promise<void> | void
 }['bivarianceHack']
 
-export type Saga<T = any> = ((action: Action<T, any>) => SagaIterator) | AnySaga<ReduxAction> | (() => SagaIterator)
+export type Saga<T = any> = AnySaga<ReduxAction<T>>
 
 export type SagaConfig1 = {
   takeEvery: Saga
@@ -53,7 +49,7 @@ export type SagaConfig5 = {
   takeLeading: Saga
 }
 
-export type Trigger = (...args: any[]) => SagaIterator
+export type Trigger = (...args: any[]) => any
 export type TriggerConfig1 = {
   takeEvery: Trigger
 }
@@ -76,7 +72,7 @@ export interface TriggerMapInput {
 }
 
 export interface EffectMapInput {
-  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | SagaConfig5 | WatcherConfig
+  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | SagaConfig5
 }
 
 export interface EffectMap {
@@ -87,7 +83,6 @@ export interface EffectMap {
     | (SagaConfig3 & { trigger: false })
     | (SagaConfig4 & { trigger: false })
     | (SagaConfig5 & { trigger: false })
-    | (WatcherConfig & { trigger: false })
     | (TriggerConfig1 & { trigger: true })
     | (TriggerConfig2 & { trigger: true })
     | (TriggerConfig3 & { trigger: true })

@@ -151,7 +151,7 @@ describe('create sagas', () => {
     return new Promise((resolver) => {
       setTimeout(() => {
         expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
-        resolver()
+        resolver(0)
       }, 1500)
     })
   })
@@ -199,7 +199,7 @@ describe('create sagas', () => {
 
     const [triggers] = model.triggers({
       setCurrentLanguage: {
-        *takeEvery(language: string) {
+        takeEvery(language: string) {
           mutations.addLanguage(language)
         },
       },

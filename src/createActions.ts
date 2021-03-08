@@ -12,11 +12,11 @@ export const typedActionCreators = <N extends string, P extends Record<string, M
 
   Object.keys(mutators).forEach((k: keyof P) => {
     const mutator = mutators[k]
-    actionCreatorMap[k] = ((...payload: Parameters<typeof mutator>) =>
+    actionCreatorMap[k] = (...payload: Parameters<typeof mutator>) =>
       app.store.dispatch({
         type: actionTypes[k],
         payload,
-      })) as any
+      })
   })
   return [actionCreatorMap, actionTypes] as const
 }
