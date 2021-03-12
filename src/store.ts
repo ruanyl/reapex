@@ -1,10 +1,9 @@
-import { Map } from 'immutable'
 import { AnyAction, applyMiddleware, createStore, Middleware, Reducer, Store } from 'redux'
 
 export const configureStore = (
   reducers: Reducer,
   middlewares: Middleware[],
-  initialState?: Map<string, any> | Record<string, any>
+  initialState?: Record<string, any>
 ): Store<any, AnyAction> => {
   let store: Store<any, AnyAction>
   if (process.env.NODE_ENV === 'development') {

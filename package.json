@@ -58,7 +58,7 @@
   },
   "dependencies": {},
   "peerDependencies": {
-    "immutable": "^3.8.1 || ^4.0.0-rc.1",
+    "react-redux": ">= 7.1.0",
     "redux": "4.x",
     "redux-saga": ">= 1.1.3"
   },

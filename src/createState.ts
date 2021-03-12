@@ -1,49 +1,55 @@
-import { Map, Record as ImmutableRecord } from 'immutable'
-
 export type StateShape = Record<string, any>
 
-export type GlobalState = Record<string, StateShape> | Map<string, ImmutableRecord<StateShape>>
-
-export type State<T = StateShape> = T | ImmutableRecord<T>
+export type GlobalState = Record<string, StateShape>
 
 export type FieldSelectors<T extends StateShape> = {
   [K in keyof T]: (state: GlobalState) => T[K]
 }
 
-export type SelfSelector<S extends State> = {
-  self: (state: GlobalState) => S
+export type SelfSelector<T extends StateShape> = {
+  self: (state: GlobalState) => T
 }
 
-export type Selectors<T extends StateShape, S extends State<T>> = FieldSelectors<T> & SelfSelector<S>
+export type Selectors<T extends StateShape> = FieldSelectors<T> & SelfSelector<T>
 
-export interface StateObject<T extends StateShape, S extends State<T>> {
+export interface StateObject<T extends StateShape> {
   get: <K extends keyof T>(k: K) => (s: GlobalState) => T[K]
-  selectors: FieldSelectors<T> & SelfSelector<S>
+  selectors: FieldSelectors<T> & SelfSelector<T>
   namespace: string
 }
 
 interface CreateState {
-  <T extends StateShape>(namespace: string, fields: T): StateObject<T, T>
-  <T extends StateShape>(namespace: string, fields: ImmutableRecord<T>): StateObject<T, ImmutableRecord<T>>
+  <T extends StateShape>(namespace: string, fields: T): StateObject<T>
 }
 
-export const createState: CreateState = <T extends StateShape>(namespace: string, fields: State<T>) => {
-  const initial: T = ImmutableRecord.isRecord(fields) ? fields.toObject() : fields
+function isIterable<T>(
+  value: T | IterableIterator<[keyof T, T[keyof T]]>
+): value is IterableIterator<[keyof T, T[keyof T]]> {
+  return Symbol.iterator in Object(value)
+}
 
+export const createState: CreateState = <T extends StateShape>(namespace: string, fields: T) => {
   const get = <K extends keyof T>(k: K) => (state: GlobalState) => {
-    const localState = Map.isMap(state) ? (state.get(namespace) as ImmutableRecord<T>) : (state[namespace] as T)
-    return ImmutableRecord.isRecord(localState) ? (localState as ImmutableRecord<T>).get(k) : (localState as T)[k]
+    const localState = state[namespace] as T
+    return localState[k]
   }
 
-  const selectors = {} as FieldSelectors<T> & SelfSelector<State<T>>
+  const selectors = {} as FieldSelectors<T> & SelfSelector<T>
 
-  for (const k in initial) {
-    selectors[k] = get(k) as any
+  // Support immutablejs Record as state
+  if (isIterable(fields) && fields['@@__IMMUTABLE_RECORD__@@']) {
+    for (const [k] of fields as IterableIterator<[keyof T, T[keyof T]]>) {
+      selectors[k] = get(k) as any
+    }
+  } else {
+    for (const k in fields) {
+      selectors[k] = get(k) as any
+    }
   }
 
   selectors.self = (state: GlobalState) => {
-    const localState = Map.isMap(state) ? state.get(namespace) : state[namespace]
-    return localState as State<T>
+    const localState = state[namespace] as T
+    return localState
   }
 
   return {

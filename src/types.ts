@@ -1,7 +1,7 @@
 import { Action as ReduxAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
-import { State, StateObject, StateShape } from './createState'
+import { StateObject, StateShape } from './createState'
 
 export type Mutator<T> = (...payload: any[]) => (localstate: T) => T
 
@@ -17,7 +17,7 @@ export interface SubscriberInput<T> {
   [key: string]: Subscriber<T, ReduxAction>
 }
 
-export type StateMap<T extends StateShape> = Record<string, StateObject<T, State<T>>>
+export type StateMap<T extends StateShape> = Record<string, StateObject<T>>
 export type AnyActionCreator = (...payload: any[]) => Action<any, any[]>
 export interface Action<T, P> {
   type: T

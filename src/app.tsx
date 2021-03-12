@@ -1,9 +1,12 @@
+import React from 'react'
 import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
+import { render } from 'react-dom'
+import { Provider } from 'react-redux'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
-import { createState, Selectors, State, StateShape } from './createState'
+import { createState, Selectors, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
 import {
@@ -17,8 +20,6 @@ import {
   TriggerMapInput,
 } from './types'
 import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
-
-import type { Record as ImmutableRecord } from 'immutable'
 
 export interface AppConfig {
   middlewares: Middleware[]
@@ -48,7 +49,7 @@ export class App {
   effectsArray: EffectMap[] = []
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
-  selectors: Record<string, Selectors<StateShape, State<StateShape>>> = {}
+  selectors: Record<string, Selectors<StateShape>> = {}
   store: Store<Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
   plugins: Plugin[] = []
@@ -74,12 +75,12 @@ export class App {
     }
   }
 
-  model<T extends StateShape, S extends T | ImmutableRecord<T>, N extends string>(namespace: N, initialState: S) {
+  model<T extends StateShape, N extends string>(namespace: N, initialState: T) {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
     this.selectors[namespace] = stateClass.selectors
 
-    const mutationFunc = <M extends MutatorInput<S>, N extends SubscriberInput<S>>(
+    const mutationFunc = <M extends MutatorInput<T>, N extends SubscriberInput<T>>(
       mutationMap: M,
       subscriptions?: N
     ) => {
@@ -88,9 +89,9 @@ export class App {
       this.actionCreators[namespace] = actionCreators
 
       // reducer map which key is prepend with namespace
-      const namedMutations: Record<string, Reducer<S>> = {}
+      const namedMutations: Record<string, Reducer<T>> = {}
       Object.keys(mutationMap).forEach((key) => {
-        namedMutations[`${namespace}/${key}`] = (s: S, a: AnyAction) => {
+        namedMutations[`${namespace}/${key}`] = (s: T, a: AnyAction) => {
           let mutator = mutationMap[key]
           this.plugins.forEach((plugin) => {
             if (plugin.beforeMutation) {
@@ -103,7 +104,7 @@ export class App {
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach((key) => {
-          namedMutations[key] = (s: S, a: AnyAction) => subscriptions[key](a)(s)
+          namedMutations[key] = (s: T, a: AnyAction) => subscriptions[key](a)(s)
         })
       }
 
@@ -249,5 +250,15 @@ export class App {
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
+  }
+
+  render(Comp: React.ComponentType, target: HTMLElement | null) {
+    const store = this.store ?? this.createStore()
+    render(
+      <Provider store={store}>
+        <Comp />
+      </Provider>,
+      target
+    )
   }
 }

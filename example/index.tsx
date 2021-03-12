@@ -1,16 +1,12 @@
 import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
 import { BrowserRouter } from 'react-router-dom'
 
 import app from './app'
 import { Counter } from './Counter'
 import { UserInfo } from './UserInfo'
 
-const store = app.createStore()
-
-render(
-  <Provider store={store}>
+const Root = () => {
+  return (
     <BrowserRouter>
       <div>
         <p>Counter example: </p>
@@ -20,6 +16,7 @@ render(
         <UserInfo />
       </div>
     </BrowserRouter>
-  </Provider>,
-  document.getElementById('root')
-)
+  )
+}
+
+app.render(Root, document.getElementById('root'))
