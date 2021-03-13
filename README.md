@@ -59,7 +59,7 @@ const [mutations] = CounterModel.mutations({
 
 ```typescript
 import React from 'react'
-import { useSelector, Provider } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 export const Counter = () => {
   // reapex generate selectors for all the fields of the state
@@ -77,18 +77,7 @@ export const Counter = () => {
 
 ### 5. Render it!
 ```typescript
-import React from 'react'
-import { render } from 'react-dom'
-import { Provider } from 'react-redux'
-
-const store = app.createStore()
-
-render(
-  <Provider store={store}>
-    <Counter />
-  </Provider>,
-  document.getElementById('root')
-)
+app.render(Counter, document.getElementById('root'))
 ```
 
 ## Use Immutable Record as the state
