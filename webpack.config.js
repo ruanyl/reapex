@@ -3,35 +3,40 @@ const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const packages = require('./package.json')
-const manifest = path.resolve(__dirname, "dist/manifest.json")
+const manifest = path.resolve(__dirname, 'dist/manifest.json')
 
-const entry = Object.keys(packages.dependencies).filter(name => name.indexOf('@types') < 0).concat(['react', 'react-dom', 'react-router', 'react-router-dom', 'reselect'])
+const entry = Object.keys(packages.dependencies)
+  .filter((name) => name.indexOf('@types') < 0)
+  .concat(['react', 'react-dom', 'react-router', 'react-router-dom', 'reselect'])
 module.exports = [
   {
-		name: 'vendor',
-		// mode: "development || "production",
-		mode: 'production',
+    name: 'vendor',
+    // mode: "development || "production",
+    mode: 'production',
     entry: entry,
-		output: {
-			path: path.resolve(__dirname, "dist"),
-			filename: 'vendor.js',
-			library: 'vendor_[hash]'
-		},
-		plugins: [
-			new webpack.DllPlugin({
-				name: 'vendor_[hash]',
-				path: path.resolve(__dirname, 'dist/manifest.json')
-			})
-		]
-	},
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'vendor.js',
+      library: 'vendor_[hash]',
+    },
+    plugins: [
+      new webpack.DllPlugin({
+        name: 'vendor_[hash]',
+        path: path.resolve(__dirname, 'dist/manifest.json'),
+      }),
+    ],
+  },
 
   {
     name: 'app',
     mode: 'development',
-    dependencies: ['vendor'],
     devtool: 'inline-source-map',
+    devServer: {
+      contentBase: './dist',
+      hot: true,
+    },
     entry: {
-      app: ['./example/index.tsx']
+      app: ['./example/index.tsx'],
     },
     output: {
       path: path.join(__dirname, 'dist'),
@@ -40,7 +45,7 @@ module.exports = [
       chunkFilename: '[name].bundle.js',
     },
     resolve: {
-      extensions: [".ts", ".tsx", ".js"]
+      extensions: ['.ts', '.tsx', '.js'],
     },
 
     plugins: [
@@ -51,15 +56,12 @@ module.exports = [
         jsassets: [`/vendor.js`],
       }),
       new webpack.DllReferencePlugin({
-				manifest: manifest
-			}),
+        manifest: manifest,
+      }),
     ],
 
     module: {
-      rules: [
-        { test: /\.tsx?$/, loader: 'ts-loader' },
-      ],
+      rules: [{ test: /\.tsx?$/, loader: 'ts-loader' }],
     },
   },
-
 ]

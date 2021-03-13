@@ -3,7 +3,7 @@ import { take } from 'redux-saga/effects'
 
 import { App } from '../lib'
 
-function* globalWatcher() {
+function* globalWatcher(): Iterator<any> {
   while (true) {
     const action = yield take('Counter/increase')
     console.log('this is global watcher for Counter/increase', action)

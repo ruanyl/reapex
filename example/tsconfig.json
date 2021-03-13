@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
-    "module": "esnext",
     "moduleResolution": "node",
-    "strict": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
@@ -11,6 +9,7 @@
     "sourceMap": true,
     "jsx": "react",
     "target": "es5",
+    "noUnusedLocals": true,
     "lib": ["ES2015","ES2016", "ESNEXT", "DOM", "ES5", "ScriptHost", "ES2015.Promise"]
   },
   "include": [
