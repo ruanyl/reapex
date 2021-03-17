@@ -1,12 +1,12 @@
 import React from 'react'
 import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
 import { render } from 'react-dom'
-import { Provider } from 'react-redux'
+import { Provider, useSelector } from 'react-redux'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
-import { createState, Selectors, StateShape } from './createState'
+import { createState, GlobalState, Selectors, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
 import {
@@ -175,12 +175,26 @@ export class App {
       return [effectAcrionCreators, actionTypes] as const
     }
 
+    const useState = <S extends (state: T) => any>(selector: S): ReturnType<S> => {
+      const value = useSelector((s: GlobalState) => selector(stateClass.selectors.self(s)))
+      return value
+    }
+
+    const getState = () => {
+      if (!this.store) {
+        throw new Error(`State not initiated: ${namespace}`)
+      }
+      return stateClass.selectors.self(this.store.getState())
+    }
+
     return {
       state: stateClass,
       selectors: stateClass.selectors,
       mutations: mutationFunc,
       effects: effectFunc,
       triggers: triggerFunc,
+      useState,
+      getState,
     }
   }
 

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Record } from 'immutable'
-import { useSelector } from 'react-redux'
 import { select } from 'redux-saga/effects'
 
 import app from './app'
@@ -28,22 +27,20 @@ counter.effects({
     const total = yield select(counter.selectors.total)
     console.log('total is: ', total)
   },
-  decrease: {
-    async takeEvery() {
-      console.log('Wait 1.5s and then increase 1 automatically')
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(0)
-        }, 1500)
-      })
-      mutations.increase()
-      console.log('Increased 1')
-    },
+  async decrease() {
+    console.log('Wait 1.5s and then increase 1 automatically')
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(0)
+      }, 1500)
+    })
+    mutations.increase()
+    console.log('Increased 1')
   },
 })
 
 export const Counter = () => {
-  const total = useSelector(counter.selectors.total)
+  const total = counter.useState((s) => s.total)
   return (
     <>
       <button onClick={mutations.decrease}>-</button>
