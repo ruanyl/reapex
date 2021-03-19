@@ -1,4 +1,4 @@
-import { Action as ReduxAction } from 'redux'
+import { Action as ReduxAction, AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 
 import { StateObject, StateShape } from './createState'
@@ -24,60 +24,71 @@ export interface Action<T, P> {
   payload: P
 }
 
-type AnySaga<A extends ReduxAction> = {
-  bivarianceHack(action?: A): SagaIterator | Promise<void> | void
+export type Saga = {
+  bivarianceHack(action?: AnyAction): SagaIterator
 }['bivarianceHack']
 
-export type Saga<T = any> = AnySaga<ReduxAction<T>>
+// Non generator function
+type SagaNonGeneratorFunction = {
+  bivarianceHack(action?: AnyAction): Promise<void> | void
+}['bivarianceHack']
 
 export type SagaConfig1 = {
-  takeEvery: Saga
+  takeEvery: Saga | SagaNonGeneratorFunction
 }
 export type SagaConfig2 = {
   takeLatest: Saga
 }
 export type SagaConfig3 = {
-  throttle: Saga
+  throttle: Saga | SagaNonGeneratorFunction
   ms: number
 }
 export type SagaConfig4 = {
-  debounce: Saga
+  debounce: Saga | SagaNonGeneratorFunction
   ms: number
 }
 
 export type SagaConfig5 = {
-  takeLeading: Saga
+  takeLeading: Saga | SagaNonGeneratorFunction
 }
 
-export type Trigger = (...args: any[]) => any
+export type Trigger = (...args: any[]) => SagaIterator
+export type TriggerNonGeneratorFunction = (...args: any[]) => Promise<void> | void
+
 export type TriggerConfig1 = {
-  takeEvery: Trigger
+  takeEvery: Trigger | TriggerNonGeneratorFunction
 }
 export type TriggerConfig2 = {
   takeLatest: Trigger
 }
 export type TriggerConfig3 = {
-  throttle: Trigger
+  throttle: Trigger | TriggerNonGeneratorFunction
   ms: number
 }
 export type TriggerConfig4 = {
-  debounce: Trigger
+  debounce: Trigger | TriggerNonGeneratorFunction
   ms: number
 }
 export type TriggerConfig5 = {
-  takeLeading: Trigger
+  takeLeading: Trigger | TriggerNonGeneratorFunction
 }
 export interface TriggerMapInput {
-  [key: string]: TriggerConfig1 | TriggerConfig2 | TriggerConfig3 | TriggerConfig4 | TriggerConfig5
+  [key: string]:
+    | TriggerNonGeneratorFunction
+    | Trigger
+    | TriggerConfig1
+    | TriggerConfig2
+    | TriggerConfig3
+    | TriggerConfig4
+    | TriggerConfig5
 }
 
 export interface EffectMapInput {
-  [key: string]: Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | SagaConfig5
+  [key: string]: SagaNonGeneratorFunction | Saga | SagaConfig1 | SagaConfig2 | SagaConfig3 | SagaConfig4 | SagaConfig5
 }
 
 export interface EffectMap {
   [key: string]:
-    | Saga
     | (SagaConfig1 & { trigger: false })
     | (SagaConfig2 & { trigger: false })
     | (SagaConfig3 & { trigger: false })
@@ -105,6 +116,10 @@ export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
     ? (...payload: Parameters<P[K]['debounce']>) => Action<K, Parameters<P[K]['debounce']>>
     : P[K] extends TriggerConfig5
     ? (...payload: Parameters<P[K]['takeLeading']>) => Action<K, Parameters<P[K]['takeLeading']>>
+    : P[K] extends Trigger
+    ? (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
+    : P[K] extends TriggerNonGeneratorFunction
+    ? (...payload: Parameters<P[K]>) => Action<K, Parameters<P[K]>>
     : never
 }
 

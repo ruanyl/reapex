@@ -124,7 +124,7 @@ export class App {
         const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
 
         if (typeof sagaConfig === 'function') {
-          namedEffects[`${namespaceKey}`] = sagaConfig
+          namedEffects[`${namespaceKey}`] = { takeEvery: sagaConfig, trigger: false }
         } else {
           namedEffects[`${namespaceKey}`] = { ...sagaConfig, trigger: false }
         }
@@ -156,9 +156,11 @@ export class App {
           )
         }
         const triggerConfig = triggerMap[key]
-        namedEffects[`${namespace}/${key}`] = {
-          ...triggerConfig,
-          trigger: true,
+
+        if (typeof triggerConfig === 'function') {
+          namedEffects[`${namespace}/${key}`] = { takeEvery: triggerConfig, trigger: true }
+        } else {
+          namedEffects[`${namespace}/${key}`] = { ...triggerConfig, trigger: true }
         }
       })
 
@@ -253,6 +255,12 @@ export class App {
       return rootReducer
     } else {
       return () => ({})
+    }
+  }
+
+  dispatch(action: AnyAction) {
+    if (this.store) {
+      this.store.dispatch(action)
     }
   }
 

@@ -1,9 +1,9 @@
 import { SagaIterator } from 'redux-saga'
 import { all, apply, call, debounce, spawn, takeEvery, takeLatest, takeLeading, throttle } from 'redux-saga/effects'
 
-import { Action, EffectMap, Saga } from './types'
+import { Action, EffectMap, Trigger, TriggerNonGeneratorFunction } from './types'
 
-const wrapper = (f: Saga) => {
+const wrapper = (f: Trigger | TriggerNonGeneratorFunction) => {
   return function* (action: Action<any, any>) {
     yield apply(null, f, action.payload)
   }
@@ -39,7 +39,7 @@ export const createSaga = (modelSagas: EffectMap) =>
     )
   }
 
-export function safeFork(saga: () => SagaIterator<any>) {
+export function safeFork(saga: () => SagaIterator) {
   return spawn(function* () {
     while (true) {
       try {
