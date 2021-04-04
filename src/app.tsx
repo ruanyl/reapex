@@ -32,6 +32,11 @@ export const mutationsLoaded = (namespace: string) => ({
   payload: [namespace],
 })
 
+export const subscriptionsLoaded = (namespace: string) => ({
+  type: '@@GLOBAL/SUBSCRIPTIONS_LOADED',
+  payload: [namespace],
+})
+
 export const effectsLoaded = (namespace: string) => ({
   type: '@@GLOBAL/EFFECTS_LOADED',
   payload: [namespace],
@@ -79,6 +84,8 @@ export class App {
     const stateClass = createState(namespace, initialState)
     this.states[namespace] = stateClass
     this.selectors[namespace] = stateClass.selectors
+    // reducer map which key is prepend with namespace
+    const namedMutations: Record<string, Reducer<T>> = {}
 
     const mutationFunc = <M extends MutatorInput<T>, N extends SubscriberInput<T>>(
       mutationMap: M,
@@ -88,8 +95,6 @@ export class App {
       const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap, this)
       this.actionCreators[namespace] = actionCreators
 
-      // reducer map which key is prepend with namespace
-      const namedMutations: Record<string, Reducer<T>> = {}
       Object.keys(mutationMap).forEach((key) => {
         namedMutations[`${namespace}/${key}`] = (s: T, a: AnyAction) => {
           let mutator = mutationMap[key]
@@ -114,6 +119,18 @@ export class App {
         this.store.dispatch(mutationsLoaded(namespace))
       }
       return [actionCreators, actionTypes] as const
+    }
+
+    const subscriptionFunc = <N extends SubscriberInput<T>>(subscriptions: N) => {
+      Object.keys(subscriptions).forEach((key) => {
+        namedMutations[key] = (s: T, a: AnyAction) => subscriptions[key](a)(s)
+      })
+
+      this.rootReducers[namespace] = createReducer(initialState, namedMutations)
+      if (this.store) {
+        this.store.replaceReducer(this.getReducer())
+        this.store.dispatch(subscriptionsLoaded(namespace))
+      }
     }
 
     const effectFunc = <M extends EffectMapInput>(effectMap: M) => {
@@ -193,6 +210,7 @@ export class App {
       state: stateClass,
       selectors: stateClass.selectors,
       mutations: mutationFunc,
+      subscriptions: subscriptionFunc,
       effects: effectFunc,
       triggers: triggerFunc,
       useState,
