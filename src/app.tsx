@@ -201,7 +201,7 @@ export class App {
 
     const getState = () => {
       if (!this.store) {
-        throw new Error(`State not initiated: ${namespace}`)
+        throw new Error(`Store has not initiated: ${namespace}`)
       }
       return stateClass.selectors.self(this.store.getState())
     }
@@ -279,6 +279,8 @@ export class App {
   dispatch(action: AnyAction) {
     if (this.store) {
       this.store.dispatch(action)
+    } else {
+      throw new Error('Store has not initiated')
     }
   }
 
@@ -292,13 +294,21 @@ export class App {
     return store
   }
 
-  render(Comp: React.ComponentType, target: HTMLElement | null) {
+  render(Comp: React.ComponentType, target?: HTMLElement | null) {
     const store = this.store ?? this.createStore()
-    render(
-      <Provider store={store}>
-        <Comp />
-      </Provider>,
-      target
-    )
+    if (target) {
+      render(
+        <Provider store={store}>
+          <Comp />
+        </Provider>,
+        target
+      )
+    } else {
+      return () => (
+        <Provider store={store}>
+          <Comp />
+        </Provider>
+      )
+    }
   }
 }
