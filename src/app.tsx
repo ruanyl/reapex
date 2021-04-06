@@ -9,21 +9,11 @@ import { typedActionCreators, typedActionCreatorsForEffects } from './createActi
 import { createState, GlobalState, Selectors, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
-import {
-  AnyActionCreator,
-  EffectMap,
-  EffectMapInput,
-  MutatorInput,
-  Plugin,
-  StateMap,
-  SubscriberInput,
-  TriggerMapInput,
-} from './types'
-import { actionTypeHasNamespace as defaultActionTypeHasNamespace, createReducer } from './utils'
+import { AnyActionCreator, EffectMap, EffectMapInput, MutatorInput, Plugin, StateMap, TriggerMapInput } from './types'
+import { createReducer } from './utils'
 
 export interface AppConfig {
   middlewares: Middleware[]
-  actionTypeHasNamespace: (actionType: string) => boolean
 }
 export type Logic = (app: App, ...args: any[]) => any
 
@@ -61,23 +51,10 @@ export class App {
 
   appConfig: AppConfig = {
     middlewares: [],
-    actionTypeHasNamespace: defaultActionTypeHasNamespace,
   }
 
-  constructor(props: Partial<AppConfig> = {}) {
-    const { actionTypeHasNamespace, ...appConfig } = props
-
-    // 1. update this.appConfig
+  constructor(appConfig: Partial<AppConfig> = {}) {
     this.appConfig = { ...this.appConfig, ...appConfig }
-
-    // 2. if actionTypeHasNamespace exists, combine it with the default one
-    if (actionTypeHasNamespace) {
-      this.appConfig = {
-        ...this.appConfig,
-        actionTypeHasNamespace: (actionType: string) =>
-          actionTypeHasNamespace(actionType) || defaultActionTypeHasNamespace(actionType),
-      }
-    }
   }
 
   model<T extends StateShape, N extends string>(namespace: N, initialState: T) {
@@ -87,10 +64,7 @@ export class App {
     // reducer map which key is prepend with namespace
     const namedMutations: Record<string, Reducer<T>> = {}
 
-    const mutationFunc = <M extends MutatorInput<T>, N extends SubscriberInput<T>>(
-      mutationMap: M,
-      subscriptions?: N
-    ) => {
+    const mutationFunc = <M extends MutatorInput<T>>(mutationMap: M) => {
       // create action creators
       const [actionCreators, actionTypes] = typedActionCreators(namespace, mutationMap, this)
       this.actionCreators[namespace] = actionCreators
@@ -107,12 +81,6 @@ export class App {
         }
       })
 
-      if (subscriptions) {
-        Object.keys(subscriptions).forEach((key) => {
-          namedMutations[key] = (s: T, a: AnyAction) => subscriptions[key](a)(s)
-        })
-      }
-
       this.rootReducers[namespace] = createReducer(initialState, namedMutations)
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
@@ -121,24 +89,11 @@ export class App {
       return [actionCreators, actionTypes] as const
     }
 
-    const subscriptionFunc = <N extends SubscriberInput<T>>(subscriptions: N) => {
-      Object.keys(subscriptions).forEach((key) => {
-        namedMutations[key] = (s: T, a: AnyAction) => subscriptions[key](a)(s)
-      })
-
-      this.rootReducers[namespace] = createReducer(initialState, namedMutations)
-      if (this.store) {
-        this.store.replaceReducer(this.getReducer())
-        this.store.dispatch(subscriptionsLoaded(namespace))
-      }
-    }
-
-    const effectFunc = <M extends EffectMapInput>(effectMap: M) => {
+    const runEffects = (effectMap: EffectMapInput, nsp?: string) => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach((key) => {
         const sagaConfig = effectMap[key]
-        const hasNamespace = this.appConfig.actionTypeHasNamespace(key)
-        const namespaceKey = hasNamespace ? key : `${namespace}/${key}`
+        const namespaceKey = nsp ? `${nsp}/${key}` : key
 
         if (typeof sagaConfig === 'function') {
           namedEffects[`${namespaceKey}`] = { takeEvery: sagaConfig, trigger: false }
@@ -153,10 +108,21 @@ export class App {
           const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
-        this.store.dispatch(effectsLoaded(namespace))
+
+        if (nsp) {
+          this.store.dispatch(effectsLoaded(nsp))
+        }
       } else {
         this.effectsArray.push(namedEffects)
       }
+    }
+
+    const effectFunc = <M extends EffectMapInput>(effectMap: M) => {
+      runEffects(effectMap, namespace)
+    }
+
+    const subscriptionFunc = <M extends EffectMapInput>(effectMap: M) => {
+      runEffects(effectMap)
     }
 
     const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {

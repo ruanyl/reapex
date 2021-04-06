@@ -57,34 +57,13 @@ describe('create actions', () => {
     mutations.decrease()
     expect(model.selectors.total(store.getState())).toEqual(0)
   })
-
-  it('Model can subscribe to action types of other namespace', () => {
-    const model = app.model('test', initialState)
-    model.mutations(
-      {
-        increase: () => (s) => s.set('total', s.total + 1),
-        decrease: () => (s) => s.set('total', s.total - 1),
-      },
-      {
-        'OtherNamespace/actionType': () => (s) => s.set('total', 100),
-      }
-    )
-
-    const store = app.createStore()
-    expect(model.selectors.total(store.getState())).toEqual(0)
-
-    store.dispatch({ type: 'OtherNamespace/actionType' })
-    expect(model.selectors.total(store.getState())).toEqual(100)
-  })
 })
 
 describe('create sagas', () => {
   let app: App
 
   beforeEach(() => {
-    app = new App({
-      actionTypeHasNamespace: (actionType: string) => actionType.includes('.'),
-    })
+    app = new App()
   })
 
   it('should run sagas by default with takeEvery effect', () => {
@@ -102,7 +81,7 @@ describe('create sagas', () => {
     })
 
     model.effects({
-      *setCurrentLanguage(action: ReturnType<typeof mutations.setCurrentLanguage>) {
+      setCurrentLanguage(action: ReturnType<typeof mutations.setCurrentLanguage>) {
         const [language] = action.payload
         mutations.addLanguage(language)
       },
@@ -168,8 +147,8 @@ describe('create sagas', () => {
       addLanguage: (language: string) => (s) => s.set('languages', s.languages.concat(language)),
     })
 
-    model.effects({
-      'ActionType.External.SetCurrentLanguage': function* setCurrentLanguage(action: ValueAction<string>) {
+    model.subscriptions({
+      'ActionType.External.SetCurrentLanguage': function setCurrentLanguage(action: ValueAction<string>) {
         const language = action.value
         mutations.addLanguage(language)
       },
@@ -198,10 +177,8 @@ describe('create sagas', () => {
     })
 
     const [triggers] = model.triggers({
-      setCurrentLanguage: {
-        takeEvery(language: string) {
-          mutations.addLanguage(language)
-        },
+      setCurrentLanguage: (language: string) => {
+        mutations.addLanguage(language)
       },
     })
 
