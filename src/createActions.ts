@@ -21,12 +21,13 @@ export const typedActionCreators = <N extends string, P extends Record<string, M
   return [actionCreatorMap, actionTypes] as const
 }
 
-export const typedActionCreatorsForEffects = <N extends string, P extends TriggerMapInput>(
+export const typedActionCreatorsForTriggers = <N extends string, P extends TriggerMapInput>(
   namespace: N,
   triggerMap: P,
   app: App
 ) => {
-  const actionTypes = typedKeyMirror(triggerMap, namespace)
+  const prefix = `${namespace}/triggers` as const
+  const actionTypes = typedKeyMirror(triggerMap, prefix)
   /* eslint-disable @typescript-eslint/indent */
   const actionCreatorMap: ActionCreatorMapForEffects<P> = {} as ActionCreatorMapForEffects<P>
 

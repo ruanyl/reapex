@@ -5,7 +5,7 @@ import { Provider, useSelector } from 'react-redux'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 
-import { typedActionCreators, typedActionCreatorsForEffects } from './createActions'
+import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
 import { createState, GlobalState, Selectors, StateShape } from './createState'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
@@ -127,23 +127,16 @@ export class App {
 
     const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {
       const namedEffects: EffectMap = {}
-      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForEffects(namespace, triggerMap, this)
+      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForTriggers(namespace, triggerMap, this)
       this.effectActionCreators[namespace] = effectAcrionCreators
 
       Object.keys(triggerMap).forEach((key) => {
-        if (Object.prototype.hasOwnProperty.call(this.actionCreators[namespace], key)) {
-          throw new Error(
-            `${namespace}.effects(), key: ${key} in ${JSON.stringify(triggerMap)} also appears in ${JSON.stringify(
-              this.actionCreators[namespace]
-            )}`
-          )
-        }
         const triggerConfig = triggerMap[key]
 
         if (typeof triggerConfig === 'function') {
-          namedEffects[`${namespace}/${key}`] = { takeEvery: triggerConfig, trigger: true }
+          namedEffects[`${namespace}/triggers/${key}`] = { takeEvery: triggerConfig, trigger: true }
         } else {
-          namedEffects[`${namespace}/${key}`] = { ...triggerConfig, trigger: true }
+          namedEffects[`${namespace}/triggers/${key}`] = { ...triggerConfig, trigger: true }
         }
       })
 
