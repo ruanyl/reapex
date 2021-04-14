@@ -30,7 +30,7 @@ npm i reapex@beta --save
 ```
 #### Peer dependencies
 ```
-npm i react react-dom redux react-redux redux-saga --save
+npm i react react-dom --save
 ```
 
 ### 1. Initialize the application
@@ -63,7 +63,7 @@ import { useSelector } from 'react-redux'
 
 export const Counter = () => {
   // reapex generate selectors for all the fields of the state
-  const total = useSelector(CounterModel.selectors.total)
+  const total = CounterModel.useState(staet => state.total)
 
   return (
     <>
