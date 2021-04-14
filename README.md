@@ -59,11 +59,10 @@ const [mutations] = CounterModel.mutations({
 
 ```typescript
 import React from 'react'
-import { useSelector } from 'react-redux'
 
 export const Counter = () => {
   // reapex generate selectors for all the fields of the state
-  const total = CounterModel.useState(staet => state.total)
+  const total = CounterModel.useState(state => state.total)
 
   return (
     <>
