@@ -3,3 +3,4 @@ lib
 coverage
 dist
 .DS_Store
+example
