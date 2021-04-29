@@ -7,9 +7,19 @@ import { all } from 'redux-saga/effects'
 
 import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
 import { createState, GlobalState, Selectors, StateShape } from './createState'
+import { mutationsLoaded, sagaLoaded, unloadSaga } from './globalActions'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
-import { AnyActionCreator, EffectMap, EffectMapInput, MutatorInput, Plugin, StateMap, TriggerMapInput } from './types'
+import {
+  AnyActionCreator,
+  EffectMap,
+  EffectMapInput,
+  MutatorInput,
+  Plugin,
+  SagaKind,
+  StateMap,
+  TriggerMapInput,
+} from './types'
 import { createReducer } from './utils'
 
 export interface AppConfig {
@@ -17,31 +27,11 @@ export interface AppConfig {
 }
 export type Logic = (app: App, ...args: any[]) => any
 
-export const mutationsLoaded = (namespace: string) => ({
-  type: '@@GLOBAL/MUTATIONS_LOADED',
-  payload: [namespace],
-})
-
-export const subscriptionsLoaded = (namespace: string) => ({
-  type: '@@GLOBAL/SUBSCRIPTIONS_LOADED',
-  payload: [namespace],
-})
-
-export const effectsLoaded = (namespace: string) => ({
-  type: '@@GLOBAL/EFFECTS_LOADED',
-  payload: [namespace],
-})
-
-export const triggersLoaded = (namespace: string) => ({
-  type: '@@GLOBAL/TRIGGERS_LOADED',
-  payload: [namespace],
-})
-
 export class App {
   rootReducers: ReducersMapObject = {}
   sagas: Saga[] = []
+  sagaMap: Record<string, Saga> = {}
   states: StateMap<StateShape> = {}
-  effectsArray: EffectMap[] = []
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   selectors: Record<string, Selectors<StateShape>> = {}
@@ -89,11 +79,11 @@ export class App {
       return [actionCreators, actionTypes] as const
     }
 
-    const runEffects = (effectMap: EffectMapInput, nsp?: string) => {
+    const runEffects = (effectMap: EffectMapInput, kind: SagaKind) => {
       const namedEffects: EffectMap = {}
       Object.keys(effectMap).forEach((key) => {
         const sagaConfig = effectMap[key]
-        const namespaceKey = nsp ? `${nsp}/${key}` : key
+        const namespaceKey = kind === 'EFFECT' ? `${namespace}/${key}` : key
 
         if (typeof sagaConfig === 'function') {
           namedEffects[`${namespaceKey}`] = { takeEvery: sagaConfig, trigger: false }
@@ -103,26 +93,27 @@ export class App {
       })
 
       // dynamically register saga
+      const saga = createSaga(namedEffects, namespace, kind)
       if (this.store) {
+        // unload the existing saga so that the same saga won't run multiple times
+        this.store.dispatch(unloadSaga(namespace, kind))
+
         this.sagaMiddleware.run(function* () {
-          const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
 
-        if (nsp) {
-          this.store.dispatch(effectsLoaded(nsp))
-        }
+        this.store.dispatch(sagaLoaded(namespace, kind))
       } else {
-        this.effectsArray.push(namedEffects)
+        this.sagaMap[`${namespace}/${kind}`] = saga
       }
     }
 
     const effectFunc = <M extends EffectMapInput>(effectMap: M) => {
-      runEffects(effectMap, namespace)
+      runEffects(effectMap, 'EFFECT')
     }
 
     const subscriptionFunc = <M extends EffectMapInput>(effectMap: M) => {
-      runEffects(effectMap)
+      runEffects(effectMap, 'SUBSCRIPTION')
     }
 
     const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {
@@ -141,14 +132,17 @@ export class App {
       })
 
       // dynamically register saga
+      const saga = createSaga(namedEffects, namespace, 'TRIGGER')
       if (this.store) {
+        this.store.dispatch(unloadSaga(namespace, 'TRIGGER'))
+
         this.sagaMiddleware.run(function* () {
-          const saga = createSaga(namedEffects)
           yield safeFork(saga)
         })
-        this.store.dispatch(triggersLoaded(namespace))
+
+        this.store.dispatch(sagaLoaded(namespace, 'TRIGGER'))
       } else {
-        this.effectsArray.push(namedEffects)
+        this.sagaMap[`${namespace}/TRIGGER`] = saga
       }
       return [effectAcrionCreators, actionTypes] as const
     }
@@ -203,7 +197,7 @@ export class App {
   }
 
   createRootSagas() {
-    const sagas = this.effectsArray.map(createSaga).concat(this.sagas).map(safeFork)
+    const sagas = Object.values(this.sagaMap).concat(this.sagas).map(safeFork)
     return function* () {
       yield all(sagas)
     }

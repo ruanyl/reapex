@@ -3,6 +3,8 @@ import { SagaIterator } from 'redux-saga'
 
 import { StateObject, StateShape } from './createState'
 
+export type SagaKind = 'EFFECT' | 'SUBSCRIPTION' | 'TRIGGER'
+
 export type Mutator<T> = (...payload: any[]) => (localstate: T) => T
 
 export interface MutatorInput<T> {

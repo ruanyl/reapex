@@ -1,7 +1,19 @@
-import { SagaIterator } from 'redux-saga'
-import { all, apply, call, debounce, spawn, takeEvery, takeLatest, takeLeading, throttle } from 'redux-saga/effects'
+import { SagaIterator, Task } from 'redux-saga'
+import {
+  apply,
+  call,
+  cancel,
+  debounce,
+  fork,
+  spawn,
+  take,
+  takeEvery,
+  takeLatest,
+  takeLeading,
+  throttle,
+} from 'redux-saga/effects'
 
-import { Action, EffectMap, Trigger, TriggerNonGeneratorFunction } from './types'
+import { Action, EffectMap, SagaKind, Trigger, TriggerNonGeneratorFunction } from './types'
 
 const wrapper = (f: Trigger | TriggerNonGeneratorFunction) => {
   return function* (action: Action<any, any>) {
@@ -9,34 +21,40 @@ const wrapper = (f: Trigger | TriggerNonGeneratorFunction) => {
   }
 }
 
-export const createSaga = (modelSagas: EffectMap) =>
+export const createSaga = (modelSagas: EffectMap, namespace: string, kind: SagaKind) =>
   function* watcher(): SagaIterator {
-    yield all(
-      Object.keys(modelSagas).map((actionType) => {
-        const sagaConfig = modelSagas[actionType]
-        if ('takeEvery' in sagaConfig) {
-          return takeEvery(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeEvery) : sagaConfig.takeEvery)
-        } else if ('takeLatest' in sagaConfig) {
-          return takeLatest(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeLatest) : sagaConfig.takeLatest)
-        } else if ('throttle' in sagaConfig) {
-          return throttle(
-            sagaConfig.ms,
-            actionType,
-            sagaConfig.trigger ? wrapper(sagaConfig.throttle) : sagaConfig.throttle
-          )
-        } else if ('debounce' in sagaConfig) {
-          return debounce(
-            sagaConfig.ms,
-            actionType,
-            sagaConfig.trigger ? wrapper(sagaConfig.debounce) : sagaConfig.debounce
-          )
-        } else if ('takeLeading' in sagaConfig) {
-          return takeLeading(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeLeading) : sagaConfig.takeLeading)
-        } else {
-          return takeEvery(actionType, sagaConfig)
-        }
+    for (const actionType in modelSagas) {
+      const sagaConfig = modelSagas[actionType]
+      let task: Task
+      if ('takeEvery' in sagaConfig) {
+        task = yield takeEvery(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeEvery) : sagaConfig.takeEvery)
+      } else if ('takeLatest' in sagaConfig) {
+        task = yield takeLatest(actionType, sagaConfig.trigger ? wrapper(sagaConfig.takeLatest) : sagaConfig.takeLatest)
+      } else if ('throttle' in sagaConfig) {
+        task = yield throttle(
+          sagaConfig.ms,
+          actionType,
+          sagaConfig.trigger ? wrapper(sagaConfig.throttle) : sagaConfig.throttle
+        )
+      } else if ('debounce' in sagaConfig) {
+        task = yield debounce(
+          sagaConfig.ms,
+          actionType,
+          sagaConfig.trigger ? wrapper(sagaConfig.debounce) : sagaConfig.debounce
+        )
+      } else if ('takeLeading' in sagaConfig) {
+        task = yield takeLeading(
+          actionType,
+          sagaConfig.trigger ? wrapper(sagaConfig.takeLeading) : sagaConfig.takeLeading
+        )
+      } else {
+        task = yield takeEvery(actionType, sagaConfig)
+      }
+      yield fork(function* () {
+        yield take(`@@GLOBAL/UNLOAD/${kind}/${namespace}`)
+        yield cancel(task)
       })
-    )
+    }
   }
 
 export function safeFork(saga: () => SagaIterator) {
