@@ -4,6 +4,7 @@ import { render } from 'react-dom'
 import { Provider, useSelector } from 'react-redux'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
+import { SyncWaterfallHook } from 'tapable'
 
 import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
 import { createState, GlobalState, Selectors, StateShape } from './createState'
@@ -14,6 +15,8 @@ import {
   AnyActionCreator,
   EffectMap,
   EffectMapInput,
+  Hooks,
+  Mutator,
   MutatorInput,
   Plugin,
   SagaKind,
@@ -37,7 +40,9 @@ export class App {
   selectors: Record<string, Selectors<StateShape>> = {}
   store: Store<Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
-  plugins: Plugin[] = []
+  hooks: Hooks = {
+    beforeMutation: new SyncWaterfallHook<Mutator<any>, Mutator<any>>(['mutator']),
+  }
 
   appConfig: AppConfig = {
     middlewares: [],
@@ -62,11 +67,7 @@ export class App {
       Object.keys(mutationMap).forEach((key) => {
         namedMutations[`${namespace}/${key}`] = (s: T, a: AnyAction) => {
           let mutator = mutationMap[key]
-          this.plugins.forEach((plugin) => {
-            if (plugin.beforeMutation) {
-              mutator = plugin.beforeMutation(mutationMap[key])
-            }
-          })
+          mutator = this.hooks.beforeMutation.call(mutator)
           return mutator(...a.payload)(s)
         }
       })
@@ -185,7 +186,7 @@ export class App {
   }
 
   plugin(plug: Plugin) {
-    this.plugins.push(plug)
+    plug(this.hooks)
   }
 
   use<T extends Logic>(logic: T, ...args: any[]): ReturnType<typeof logic> {

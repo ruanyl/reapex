@@ -1,5 +1,6 @@
 import { AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
+import { SyncWaterfallHook } from 'tapable'
 
 import { StateObject, StateShape } from './createState'
 
@@ -117,6 +118,8 @@ export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
     : never
 }
 
-export interface Plugin {
-  beforeMutation?: (m: Mutator<any>) => Mutator<any>
+export interface Hooks {
+  beforeMutation: SyncWaterfallHook<Mutator<any>, Mutator<any>>
 }
+
+export type Plugin = (hooks: Hooks) => void
