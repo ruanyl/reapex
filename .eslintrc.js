@@ -4,7 +4,7 @@ module.exports = {
     browser: true,
   },
   parserOptions: {
-    project: 'tsconfig.json',
+    project: 'tsconfig.eslint.json',
     sourceType: 'module',
   },
   settings: {
