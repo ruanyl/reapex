@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
 import { render } from 'react-dom'
 import { Provider, useSelector } from 'react-redux'
@@ -7,7 +7,7 @@ import { all } from 'redux-saga/effects'
 import { SyncWaterfallHook } from 'tapable'
 
 import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
-import { createState, GlobalState, Selectors, StateShape } from './createState'
+import { createState, Selectors, StateShape } from './createState'
 import { mutationsLoaded, sagaLoaded, unloadSaga } from './globalActions'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
@@ -22,6 +22,7 @@ import {
   SagaKind,
   StateMap,
   TriggerMapInput,
+  UseState,
 } from './types'
 import { createReducer } from './utils'
 
@@ -148,9 +149,17 @@ export class App {
       return [effectAcrionCreators, actionTypes] as const
     }
 
-    const useState = <S extends (state: T) => any>(selector: S): ReturnType<S> => {
-      const value = useSelector((s: GlobalState) => selector(stateClass.selectors.self(s)))
-      return value
+    const useState: UseState<T> = <S extends (state: T) => any>(selector?: S) => {
+      const value = useSelector(stateClass.selectors.self)
+
+      const result = useMemo(() => {
+        if (selector) {
+          return selector(value)
+        }
+        return value
+      }, [selector, value])
+
+      return result
     }
 
     const getState = () => {
