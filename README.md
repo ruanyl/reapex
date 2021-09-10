@@ -49,19 +49,16 @@ const CounterModel = app.model('Counter', { total: 0 })
 ### 3. Defined the mutations: how you want the state to be mutated
 ```typescript
 const [mutations] = CounterModel.mutations({
-  increase: () => s => ({...s, total: s.total + 1}),
-  decrease: () => s => ({...s, total: s.total - 1}),
+  increase: () => s => ({total: s.total + 1}),
+  decrease: () => s => ({total: s.total - 1}),
 })
 ```
 
 ### 4. Connect it with Component
-`react-redux` users should be very familiar with the following codes, it is a typical react-redux container, but with action creators and selectors which provided by `reapex`.
-
 ```typescript
 import React from 'react'
 
 export const Counter = () => {
-  // reapex generate selectors for all the fields of the state
   const total = CounterModel.useState(state => state.total)
 
   return (
