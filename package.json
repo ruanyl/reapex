@@ -1,11 +1,13 @@
 {
   "private": true,
   "version": "1.0.0",
-  "workspaces": ["packages/*"],
+  "workspaces": ["packages/*", "examples/*"],
   "scripts": {
+    "bootstrap": "lerna bootstrap",
     "test": "lerna run --parallel test",
-    "build": "lerna run --parallel build",
-    "lint": "lerna run --parallel lint"
+    "build": "lerna run --no-private --parallel build",
+    "lint": "lerna run --parallel lint",
+    "example:counter": "cd examples/counter && yarn start"
   },
   "repository": "https://github.com/ruanyl/reapex.git",
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
