@@ -1,7 +1,4 @@
-import React, { useMemo } from 'react'
 import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
-import { render } from 'react-dom'
-import { Provider, useSelector } from 'react-redux'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
 import { SyncWaterfallHook } from 'tapable'
@@ -22,7 +19,6 @@ import {
   SagaKind,
   StateMap,
   TriggerMapInput,
-  UseState,
 } from './types'
 import { createReducer } from './utils'
 
@@ -118,7 +114,7 @@ export class App {
       runEffects(effectMap, 'SUBSCRIPTION')
     }
 
-    const triggerFunc = <N extends TriggerMapInput>(triggerMap: N) => {
+    const triggerFunc = <TM extends TriggerMapInput>(triggerMap: TM) => {
       const namedEffects: EffectMap = {}
       const [effectAcrionCreators, actionTypes] = typedActionCreatorsForTriggers(namespace, triggerMap, this)
       this.effectActionCreators[namespace] = effectAcrionCreators
@@ -149,19 +145,6 @@ export class App {
       return [effectAcrionCreators, actionTypes] as const
     }
 
-    const useState: UseState<T> = <S extends (state: T) => any>(selector?: S) => {
-      const value = useSelector(stateClass.selectors.self)
-
-      const result = useMemo(() => {
-        if (selector) {
-          return selector(value)
-        }
-        return value
-      }, [selector, value])
-
-      return result
-    }
-
     const getState = () => {
       if (!this.store) {
         throw new Error(`Store has not initiated: ${namespace}`)
@@ -176,7 +159,6 @@ export class App {
       subscriptions: subscriptionFunc,
       effects: effectFunc,
       triggers: triggerFunc,
-      useState,
       getState,
     }
   }
@@ -255,23 +237,5 @@ export class App {
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
-  }
-
-  render(Comp: React.ComponentType, target?: HTMLElement | null) {
-    const store = this.store ?? this.createStore()
-    if (target) {
-      render(
-        <Provider store={store}>
-          <Comp />
-        </Provider>,
-        target
-      )
-    } else {
-      return () => (
-        <Provider store={store}>
-          <Comp />
-        </Provider>
-      )
-    }
   }
 }

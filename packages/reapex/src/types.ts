@@ -123,8 +123,3 @@ export interface Hooks {
 }
 
 export type Plugin = (hooks: Hooks) => void
-
-export interface UseState<T> {
-  <S extends (state: T) => any>(selector: S): ReturnType<S>
-  (): T
-}

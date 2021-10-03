@@ -1,19 +1,21 @@
 module.exports = {
-  extends: ['eslint-config-react-typescript/lib/react'],
+  root: true,
+  extends: ["eslint-config-react-typescript/lib/react"],
   env: {
     browser: true,
   },
   parserOptions: {
-    project: 'tsconfig.eslint.json',
-    sourceType: 'module',
+    project: ["./packages/*/tsconfig.eslint.json"],
+    sourceType: "module",
+    tsconfigRootDir: __dirname,
   },
   settings: {
     react: {
-      version: 'detect',
+      version: "detect",
     },
   },
   rules: {
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': 'off',
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
   },
-}
+};
