@@ -1,0 +1,64 @@
+{
+  "name": "reapex-vue",
+  "version": "1.0.0-beta.21",
+  "description": "reapex vue binding",
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/cjs/index.d.ts",
+  "scripts": {
+    "build": "yarn run build:esm && npm run build:cjs",
+    "build:esm": "tsc --module es2015 --outDir lib/esm --declaration",
+    "build:cjs": "tsc --module commonjs --outDir lib/cjs --declaration",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "eslint src/**",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.23",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "ajv": "~8.5.0",
+    "eslint": "^7.27.0",
+    "eslint-config-react-typescript": "^1.0.7",
+    "import-sort-cli": "^6.0.0",
+    "import-sort-parser-typescript": "^6.0.0",
+    "import-sort-style-as": "^1.2.3",
+    "jest": "^27.0.1",
+    "prettier": "^2.4.1",
+    "ts-jest": "^27.0.1",
+    "typescript": "^4.3.2",
+    "vue": "^3.2.19"
+  },
+  "dependencies": {
+    "reapex": "^1.0.0-beta.21"
+  },
+  "peerDependencies": {
+    "vue": "3.x"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
+  },
+  "importSort": {
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "as"
+    }
+  },
+  "author": "Yulong Ruan <ruanyu1@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue state management"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruanyl/reapex.git"
+  },
+  "homepage": "https://github.com/ruanyl/reapex",
+  "bugs": "https://github.com/ruanyl/reapex/issues"
+}

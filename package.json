@@ -1,13 +1,17 @@
 {
   "private": true,
   "version": "1.0.0",
-  "workspaces": ["packages/*", "examples/*"],
+  "workspaces": {
+    "packages": ["packages/*", "examples/*"],
+    "nohoist": ["**/@vue/cli-plugin-eslint", "**/@vue/cli-plugin-eslint/**"]
+  },
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "test": "lerna run --parallel test",
     "build": "lerna run --no-private --parallel build",
     "lint": "lerna run --parallel lint",
-    "example:counter": "cd examples/counter && yarn start"
+    "example:counter": "cd examples/counter && SKIP_PREFLIGHT_CHECK=true yarn start",
+    "example:vue-counter": "cd examples/vue-counter && yarn start"
   },
   "repository": "https://github.com/ruanyl/reapex.git",
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
