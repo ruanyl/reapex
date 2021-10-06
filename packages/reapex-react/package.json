@@ -1,6 +1,6 @@
 {
   "name": "reapex-react",
-  "version": "1.0.0-beta.21",
+  "version": "1.0.0-beta.22",
   "description": "reapex react binding",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "react-redux": "^7.2.4",
-    "reapex": "^1.0.0-beta.21"
+    "reapex": "^1.0.0-beta.22"
   },
   "peerDependencies": {
     "react": ">= 16.8",
