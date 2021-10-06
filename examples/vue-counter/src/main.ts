@@ -1,8 +1,9 @@
-import Root from "./Root.vue";
-import { createApp } from "vue";
-import { app as reapexApp } from "./app";
-import reapexPlugin from "reapex-vue";
+import reapexPlugin from 'reapex-vue'
+import { createApp } from 'vue'
 
-const app = createApp(Root);
+import Root from './Root.vue'
+import { app as reapexApp } from './app'
 
-app.use(reapexPlugin, reapexApp).mount("#app");
+const app = createApp(Root)
+
+app.use(reapexPlugin, reapexApp).mount('#app')

@@ -28,6 +28,19 @@
     "eslint-plugin-vue": "^7.0.0",
     "typescript": "^4.3.2"
   },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
+  },
+  "importSort": {
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "as"
+    }
+  },
   "eslintConfig": {
     "root": true,
     "env": {

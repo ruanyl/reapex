@@ -1,3 +1,3 @@
-import { App } from "reapex";
+import { App } from 'reapex'
 
-export const app = new App();
+export const app = new App()
