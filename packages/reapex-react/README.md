@@ -1,5 +1,5 @@
 # reapex-react
-React binding of reapex
+Reapex binding for React
 
 ### How to use:
 
