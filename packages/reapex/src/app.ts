@@ -21,7 +21,7 @@ import {
 import { createReducer } from './utils'
 
 export interface AppConfig {
-  middlewares: Middleware[]
+  middleware: Middleware[]
 }
 export type Logic = (app: App, ...args: any[]) => any
 
@@ -38,7 +38,7 @@ export class App {
   }
 
   appConfig: AppConfig = {
-    middlewares: [],
+    middleware: [],
   }
 
   constructor(appConfig: Partial<AppConfig> = {}) {
@@ -226,7 +226,7 @@ export class App {
     const rootSagas = this.createRootSagas()
     const reducer = this.getReducer()
     this.sagaMiddleware = createSagaMiddleware()
-    const store = configureStore(reducer, [...this.appConfig.middlewares, this.sagaMiddleware], initialState)
+    const store = configureStore(reducer, [...this.appConfig.middleware, this.sagaMiddleware], initialState)
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
