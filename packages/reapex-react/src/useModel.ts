@@ -1,17 +1,17 @@
 import { useMemo } from 'react'
 import { useSelector } from 'react-redux'
-import { StateObject, StateShape } from 'reapex'
+import { GlobalState } from 'reapex'
 
 export interface UseModel {
-  <T extends StateShape, S extends (state: T) => any>(model: { state: StateObject<T> }, selector: S): ReturnType<S>
-  <T extends StateShape>(model: { state: StateObject<T> }): T
+  <T, S extends (state: T) => any>(model: { namespace: string; getState: () => T }, selector: S): ReturnType<S>
+  <T>(model: { namespace: string; getState: () => T }): T
 }
 
-export const useModel: UseModel = <T extends StateShape, S extends (state: T) => any>(
-  model: { state: StateObject<T> },
+export const useModel: UseModel = <T, S extends (state: T) => any>(
+  model: { namespace: string; getState: () => T },
   selector?: S
 ) => {
-  const value = useSelector(model.state.selectors.self)
+  const value = useSelector((state: GlobalState) => state[model.namespace]) as T
 
   const result = useMemo(() => {
     if (selector) {

@@ -7,6 +7,7 @@ module.exports = {
   env: {
     browser: true,
   },
+  ignorePatterns: ["**/examples/vue-counter/*"],
   parserOptions: {
     project: [
       "./packages/*/tsconfig.eslint.json",

@@ -4,7 +4,6 @@ import { all } from 'redux-saga/effects'
 import { SyncWaterfallHook } from 'tapable'
 
 import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
-import { createState, Selectors, StateShape } from './createState'
 import { mutationsLoaded, sagaLoaded, unloadSaga } from './globalActions'
 import { createSaga, safeFork } from './sagaHelpers'
 import { configureStore } from './store'
@@ -17,7 +16,6 @@ import {
   MutatorInput,
   Plugin,
   SagaKind,
-  StateMap,
   TriggerMapInput,
 } from './types'
 import { createReducer } from './utils'
@@ -31,10 +29,8 @@ export class App {
   rootReducers: ReducersMapObject = {}
   sagas: Saga[] = []
   sagaMap: Record<string, Saga> = {}
-  states: StateMap<StateShape> = {}
   actionCreators: Record<string, Record<string, AnyActionCreator>> = {}
   effectActionCreators: Record<string, Record<string, AnyActionCreator>> = {}
-  selectors: Record<string, Selectors<StateShape>> = {}
   store: Store<Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
   hooks: Hooks = {
@@ -49,10 +45,7 @@ export class App {
     this.appConfig = { ...this.appConfig, ...appConfig }
   }
 
-  model<T extends StateShape, N extends string>(namespace: N, initialState: T) {
-    const stateClass = createState(namespace, initialState)
-    this.states[namespace] = stateClass
-    this.selectors[namespace] = stateClass.selectors
+  model<T, N extends string>(namespace: N, initialState: T) {
     // reducer map which key is prepend with namespace
     const namedMutations: Record<string, Reducer<T>> = {}
 
@@ -116,8 +109,8 @@ export class App {
 
     const triggerFunc = <TM extends TriggerMapInput>(triggerMap: TM) => {
       const namedEffects: EffectMap = {}
-      const [effectAcrionCreators, actionTypes] = typedActionCreatorsForTriggers(namespace, triggerMap, this)
-      this.effectActionCreators[namespace] = effectAcrionCreators
+      const [effectActionCreators, actionTypes] = typedActionCreatorsForTriggers(namespace, triggerMap, this)
+      this.effectActionCreators[namespace] = effectActionCreators
 
       Object.keys(triggerMap).forEach((key) => {
         const triggerConfig = triggerMap[key]
@@ -142,19 +135,19 @@ export class App {
       } else {
         this.sagaMap[`${namespace}/TRIGGER`] = saga
       }
-      return [effectAcrionCreators, actionTypes] as const
+      return [effectActionCreators, actionTypes] as const
     }
 
     const getState = () => {
       if (!this.store) {
         throw new Error(`Store has not initiated: ${namespace}`)
       }
-      return stateClass.selectors.self(this.store.getState())
+      const state = this.store.getState()
+      return state[namespace] as T
     }
 
     return {
-      state: stateClass,
-      selectors: stateClass.selectors,
+      namespace,
       mutations: mutationFunc,
       subscriptions: subscriptionFunc,
       effects: effectFunc,
@@ -185,7 +178,7 @@ export class App {
   }
 
   hasModel(name: string) {
-    return Object.prototype.hasOwnProperty.call(this.states, name)
+    return Object.prototype.hasOwnProperty.call(this.rootReducers, name)
   }
 
   createRootSagas() {

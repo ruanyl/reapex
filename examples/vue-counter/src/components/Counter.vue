@@ -1,9 +1,9 @@
 <template>
   <div class="hello">
     <p>
-      <button @click="increment">+</button>
-      {{ counter.count }}
       <button @click="decrement">-</button>
+      {{ counter }}
+      <button @click="increment">+</button>
   </p>
   </div>
 </template>

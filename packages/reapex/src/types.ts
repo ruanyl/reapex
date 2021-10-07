@@ -2,17 +2,16 @@ import { AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
 import { SyncWaterfallHook } from 'tapable'
 
-import { StateObject, StateShape } from './createState'
+export type GlobalState = Record<string, any>
 
 export type SagaKind = 'EFFECT' | 'SUBSCRIPTION' | 'TRIGGER'
 
-export type Mutator<T> = (...payload: any[]) => (localstate: T) => T
+export type Mutator<T> = (...payload: any[]) => (localState: T) => T
 
 export interface MutatorInput<T> {
   [key: string]: Mutator<T>
 }
 
-export type StateMap<T extends StateShape> = Record<string, StateObject<T>>
 export type AnyActionCreator = (...payload: any[]) => Action<any, any[]>
 export interface Action<T, P> {
   type: T

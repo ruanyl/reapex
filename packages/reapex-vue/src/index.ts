@@ -1,5 +1,5 @@
-import { App as ReapexApp, StateObject, StateShape } from 'reapex'
-import { App as VueApp, inject, onUnmounted, ref } from 'vue'
+import { App as ReapexApp } from 'reapex'
+import { App as VueApp, inject, onUnmounted, ref, UnwrapRef } from 'vue'
 
 export default {
   install: (vueApp: VueApp, reapexApp: ReapexApp) => {
@@ -9,14 +9,11 @@ export default {
 }
 
 export interface UseModel {
-  <T extends StateShape, S extends (state: T) => any>(model: { state: StateObject<T> }, selector: S): ReturnType<S>
-  <T extends StateShape>(model: { state: StateObject<T> }): T
+  <T, S extends (state: T) => any>(model: { getState: () => T }, selector: S): ReturnType<S>
+  <T>(model: { getState: () => T }): T
 }
 
-export const useModel: UseModel = <T extends StateShape, S extends (s: T) => any>(
-  model: { state: StateObject<T>; getState: () => T },
-  selector?: S
-) => {
+export const useModel: UseModel = <T, S extends (s: T) => any>(model: { getState: () => T }, selector?: S) => {
   const app: ReapexApp | undefined = inject('@@ReapexApp')
 
   if (!app) {
@@ -33,13 +30,13 @@ export const useModel: UseModel = <T extends StateShape, S extends (s: T) => any
     }
 
     if (selector) {
-      const newValue = selector(newState)
+      const newValue: ReturnType<S> = selector(newState)
       if (newValue !== state.value) {
-        state.value = newState
+        state.value = newValue
       }
+    } else {
+      state.value = newState as UnwrapRef<T>
     }
-
-    state.value = newState
   }
 
   const unsubscribe = app.store.subscribe(storeSubscriber)

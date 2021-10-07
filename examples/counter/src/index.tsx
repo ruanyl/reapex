@@ -4,19 +4,15 @@ import { App } from 'reapex'
 
 export const app = new App()
 
-const CounterModel = app.model('Counter', { total: 50 })
+const CounterModel = app.model('Counter', 50)
 
 const [mutations] = CounterModel.mutations({
-  increase:
-    () =>
-    ({ total }) => ({ total: total + 1 }),
-  decrease:
-    () =>
-    ({ total }) => ({ total: total - 1 }),
+  increase: () => (total) => total + 1,
+  decrease: () => (total) => total - 1,
 })
 
 const CounterComponent = () => {
-  const total = useModel(CounterModel, (counter) => counter.total)
+  const total = useModel(CounterModel)
 
   return (
     <div>
