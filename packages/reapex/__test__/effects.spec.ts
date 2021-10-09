@@ -26,13 +26,13 @@ describe('create effects', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('English')
     mutations.setCurrentLanguage('Chinese')
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
+    expect(model.getState().currentLanguage).toEqual('Chinese')
+    expect(model.getState().languages).toEqual(['English', 'Chinese'])
   })
 
   it('should run effects only ONE time on matter how many time `effects()` function been called', () => {
@@ -59,17 +59,17 @@ describe('create effects', () => {
     })
 
     // The store is initialized after mutations/effects
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('Chinese')
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().currentLanguage).toEqual('Chinese')
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 
   it('should run effects only ONE time when `efects()` been registered dynamically multiple times', () => {
     // Initialize the store at the beginning and register mutations & effects dynamically
-    const store = app.createStore()
+    app.createStore()
     const initialState = { languages: Array<string>(), currentLanguage: '' }
     const model = app.model('User', initialState)
 
@@ -93,9 +93,9 @@ describe('create effects', () => {
     })
 
     mutations.setCurrentLanguage('Chinese')
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
+    expect(model.getState().currentLanguage).toEqual('Chinese')
     // The effects should only been run once
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 
   it('should run effects with takeLeading', async () => {
@@ -117,14 +117,14 @@ describe('create effects', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('English')
     mutations.setCurrentLanguage('Chinese')
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
   })
 
   it('should run effects with debounce', async () => {
@@ -146,18 +146,18 @@ describe('create effects', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('English')
     await delay(100)
     mutations.setCurrentLanguage('Chinese')
 
     // The value is still empty right after the mutation
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 
   it('should run effects with throttle', async () => {
@@ -179,18 +179,18 @@ describe('create effects', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('English')
     await delay(100)
     mutations.setCurrentLanguage('Chinese')
 
     // The first value is set immediately
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
+    expect(model.getState().languages).toEqual(['English', 'Chinese'])
   })
 
   it('should run effects with takeLatest', async () => {
@@ -212,14 +212,14 @@ describe('create effects', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('')
+    app.createStore()
+    expect(model.getState().currentLanguage).toEqual('')
 
     mutations.setCurrentLanguage('English')
     mutations.setCurrentLanguage('Chinese')
-    expect(model.selectors.currentLanguage(store.getState())).toEqual('Chinese')
+    expect(model.getState().currentLanguage).toEqual('Chinese')
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 })

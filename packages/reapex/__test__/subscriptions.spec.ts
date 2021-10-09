@@ -31,19 +31,19 @@ describe('create subscriptions', () => {
     })
 
     const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run subscriptions only ONE time on matter how many time `subscriptions()` function been called', () => {
@@ -69,19 +69,19 @@ describe('create subscriptions', () => {
     })
 
     const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run subscriptions only ONE time when `subscriptions()` been registered dynamically multiple times', () => {
@@ -108,19 +108,19 @@ describe('create subscriptions', () => {
       },
     })
 
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run subscriptions with takeLeading', async () => {
@@ -142,7 +142,7 @@ describe('create subscriptions', () => {
       },
     })
 
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
@@ -154,7 +154,7 @@ describe('create subscriptions', () => {
     })
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
   })
 
   it('should run subscriptions with debounce', async () => {
@@ -189,10 +189,10 @@ describe('create subscriptions', () => {
     })
 
     // The value is still empty right after the mutation
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 
   it('should run subscriptions with throttle', async () => {
@@ -214,7 +214,7 @@ describe('create subscriptions', () => {
     })
 
     const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
@@ -229,10 +229,10 @@ describe('create subscriptions', () => {
     })
 
     // The first value is set immediately
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
+    expect(model.getState().languages).toEqual(['English', 'Chinese'])
   })
 
   it('should run subscriptions with takeLatest', async () => {
@@ -254,7 +254,7 @@ describe('create subscriptions', () => {
     })
 
     const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     store.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
@@ -264,9 +264,9 @@ describe('create subscriptions', () => {
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 })

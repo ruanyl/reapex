@@ -18,8 +18,8 @@ describe('create actions', () => {
       decrease: () => (s) => s.set('total', s.total - 1),
     })
 
-    const store = app.createStore()
-    expect(model.selectors.total(store.getState())).toEqual(0)
+    app.createStore()
+    expect(model.getState().total).toEqual(0)
 
     expect(mutations.increase().type).toEqual('Counter/increase')
     expect(mutations.decrease().type).toEqual('Counter/decrease')
@@ -42,13 +42,13 @@ describe('create actions', () => {
       decrease: () => (s) => s.set('total', s.total - 1),
     })
 
-    const store = app.createStore()
-    expect(model.selectors.total(store.getState())).toEqual(0)
+    app.createStore()
+    expect(model.getState().total).toEqual(0)
 
     mutations.increase()
-    expect(model.selectors.total(store.getState())).toEqual(1)
+    expect(model.getState().total).toEqual(1)
 
     mutations.decrease()
-    expect(model.selectors.total(store.getState())).toEqual(0)
+    expect(model.getState().total).toEqual(0)
   })
 })

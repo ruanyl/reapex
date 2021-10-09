@@ -24,14 +24,14 @@ describe('create triggers', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    app.createStore()
+    expect(model.getState().languages).toEqual([])
 
     triggers.setCurrentLanguage('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     triggers.setCurrentLanguage('English')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run triggers only ONE time on matter how many time `triggers()` function been called', () => {
@@ -54,19 +54,19 @@ describe('create triggers', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    app.createStore()
+    expect(model.getState().languages).toEqual([])
 
     triggers1.setCurrentLanguage('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     triggers2.setCurrentLanguage('English')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run triggers only ONE time when `triggers()` been registered dynamically multiple times', () => {
     // Initialize the store at the beginning and register mutations & triggers dynamically
-    const store = app.createStore()
+    app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -86,17 +86,17 @@ describe('create triggers', () => {
       },
     })
 
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     triggers1.setCurrentLanguage('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
 
     triggers2.setCurrentLanguage('English')
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese', 'English'])
+    expect(model.getState().languages).toEqual(['Chinese', 'English'])
   })
 
   it('should run triggers with takeLeading', async () => {
-    const store = app.createStore()
+    app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -113,17 +113,17 @@ describe('create triggers', () => {
       },
     })
 
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     triggers.setCurrentLanguage('English')
     triggers.setCurrentLanguage('Chinese')
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
   })
 
   it('should run triggers with debounce', async () => {
-    const store = app.createStore()
+    app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -140,17 +140,17 @@ describe('create triggers', () => {
       },
     })
 
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     triggers.setCurrentLanguage('English')
     await delay(100)
     triggers.setCurrentLanguage('Chinese')
 
     // The value is still empty right after the mutation
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 
   it('should run triggers with throttle', async () => {
@@ -170,8 +170,8 @@ describe('create triggers', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    app.createStore()
+    expect(model.getState().languages).toEqual([])
 
     triggers.setCurrentLanguage('English')
 
@@ -180,10 +180,10 @@ describe('create triggers', () => {
     triggers.setCurrentLanguage('Chinese')
 
     // The first value is set immediately
-    expect(model.selectors.languages(store.getState())).toEqual(['English'])
+    expect(model.getState().languages).toEqual(['English'])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['English', 'Chinese'])
+    expect(model.getState().languages).toEqual(['English', 'Chinese'])
   })
 
   it('should run triggers with takeLatest', async () => {
@@ -203,14 +203,14 @@ describe('create triggers', () => {
       },
     })
 
-    const store = app.createStore()
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    app.createStore()
+    expect(model.getState().languages).toEqual([])
 
     triggers.setCurrentLanguage('English')
     triggers.setCurrentLanguage('Chinese')
-    expect(model.selectors.languages(store.getState())).toEqual([])
+    expect(model.getState().languages).toEqual([])
 
     await delay(1000)
-    expect(model.selectors.languages(store.getState())).toEqual(['Chinese'])
+    expect(model.getState().languages).toEqual(['Chinese'])
   })
 })
