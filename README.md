@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/github/license/ruanyl/reapex)](https://github.com/ruanyl/reapex/blob/master/LICENSE.md)
 
 
-State management and data flow orchastration library for React and Vue application.
+State management and data flow orchestration library for React and Vue application.
 
 
 #### [Documentation](https://reapex.gitbook.io/docs/)
@@ -22,8 +22,9 @@ yarn example:vue-counter
 ```
 Or check out live examples:
 
-1. [Counter](https://codesandbox.io/s/reapex-example-counter-oluew): A simple Counter example
-2. [Login Form](https://codesandbox.io/s/reapex-login-form-06eq1): Side effects handling with the demo of API call
+1. [Counter](https://codesandbox.io/s/reapex-example-counter-oluew)
+2. [Todo List](https://codesandbox.io/s/todo-list-examle-reapex-2n4qc?file=/src/index.tsx)
+3. [Login Form](https://codesandbox.io/s/reapex-login-form-06eq1)
 
 ## Getting started with a simple React `Counter` example
 
@@ -39,16 +40,16 @@ const app = new App()
 
 ```
 
-### 2. Create a model(the shape of the state)
+### 2. Create a model(state)
 ```typescript
-const CounterModel = app.model('Counter', { total: 0 })
+const CounterModel = app.model('Counter', 0)
 ```
 
 ### 3. Defined the mutations: how you want the state to be mutated
 ```typescript
 const [mutations] = CounterModel.mutations({
-  increase: () => s => ({total: s.total + 1}),
-  decrease: () => s => ({total: s.total - 1}),
+  increase: () => total => total + 1,
+  decrease: () => total => total - 1,
 })
 ```
 
@@ -58,7 +59,7 @@ import React from 'react'
 import { useModel } from 'reapex-react'
 
 export const Counter = () => {
-  const total = useModel(CounterModel, state => state.total)
+  const total = useModel(CounterModel)
 
   return (
     <>
@@ -72,12 +73,12 @@ export const Counter = () => {
 
 ### 5. Render it!
 ```typescript
-import { render } from 'reapex-react'
-render(Counter, app, document.getElementById('root'))
+import { render } from 'react-dom'
+render(Counter, document.getElementById('root'))
 ```
 
 
-## Integration with immerjs
+## Integrate with immerjs
 ```typescript
 import immerPlugin from 'reapex-plugin-immer'
 
