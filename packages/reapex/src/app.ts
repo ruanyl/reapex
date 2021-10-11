@@ -147,6 +147,8 @@ export class App {
     }
 
     return {
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      __APP__: this as App,
       namespace,
       mutations: mutationFunc,
       subscriptions: subscriptionFunc,

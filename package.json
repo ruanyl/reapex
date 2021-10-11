@@ -10,7 +10,7 @@
     "test": "lerna run --parallel test",
     "build": "lerna run --no-private --parallel build",
     "lint": "lerna run --parallel lint",
-    "example:counter": "cd examples/counter && SKIP_PREFLIGHT_CHECK=true yarn start",
+    "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
     "example:vue-counter": "cd examples/vue-counter && yarn start"
   },
   "repository": "https://github.com/ruanyl/reapex.git",

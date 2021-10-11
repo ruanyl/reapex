@@ -1,6 +1,6 @@
-import { render, useModel } from 'reapex-react'
-
 import { App } from 'reapex'
+import { render } from 'react-dom'
+import { useModel } from 'reapex-react'
 
 export const app = new App()
 
@@ -23,4 +23,4 @@ const CounterComponent = () => {
   )
 }
 
-render(CounterComponent, app, document.getElementById('root'))
+render(<CounterComponent />, document.getElementById('root'))
