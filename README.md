@@ -72,8 +72,8 @@ export const Counter = () => {
 
 ### 5. Render it!
 ```typescript
-import { render } from 'reapex-react'
-render(Counter, app, document.getElementById('root'))
+import { render } from 'react-dom'
+render(<Counter />, document.getElementById('root'))
 ```
 
 

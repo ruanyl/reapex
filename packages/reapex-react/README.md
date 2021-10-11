@@ -4,8 +4,9 @@ Reapex binding for React
 ### How to use:
 
 ```typescript
-import { render, useModel } from 'reapex-react'
+import { useModel } from 'reapex-react'
 import { App } from 'reapex'
+import { render } from 'react-dom'
 
 export const app = new App()
 
@@ -28,5 +29,5 @@ const CounterComponent = () => {
   )
 }
 
-render(CounterComponent, app, document.getElementById('root'))
+render(<CounterComponent />, document.getElementById('root'))
 ```
