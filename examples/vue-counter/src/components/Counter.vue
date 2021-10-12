@@ -1,8 +1,9 @@
 <template>
+  <img alt="Vue logo" src="../assets/logo.png">
   <div class="hello">
     <p>
       <button @click="decrement">-</button>
-      {{ counter }}
+      {{ total }}
       <button @click="increment">+</button>
   </p>
   </div>
@@ -24,8 +25,19 @@ export default defineComponent({
     },
   },
   setup() {
-    const counter = useModel(CounterModel)
-    return {counter}
+    const total = useModel(CounterModel)
+    return {total}
   }
 });
 </script>
+
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
