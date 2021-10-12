@@ -11,7 +11,7 @@
     "build": "lerna run --no-private --parallel build",
     "lint": "lerna run --parallel lint",
     "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
-    "example:vue-counter": "cd examples/vue-counter && yarn start"
+    "example:vue-counter": "lerna run --scope vue-counter start"
   },
   "repository": "https://github.com/ruanyl/reapex.git",
   "author": "Yulong Ruan <ruanyu1@gmail.com>",

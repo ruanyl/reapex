@@ -1,24 +1,20 @@
-import { App as ReapexApp } from 'reapex'
-import { App as VueApp, inject, onUnmounted, ref, UnwrapRef } from 'vue'
+import { App } from 'reapex'
+import { onUnmounted, ref, UnwrapRef } from 'vue'
 
-export default {
-  install: (vueApp: VueApp, reapexApp: ReapexApp) => {
-    reapexApp.createStore()
-    vueApp.provide('@@ReapexApp', reapexApp)
-  },
+interface ModelLike<T> {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  __APP__: App
+  namespace: string
+  getState: () => T
 }
 
 export interface UseModel {
-  <T, S extends (state: T) => any>(model: { getState: () => T }, selector: S): ReturnType<S>
-  <T>(model: { getState: () => T }): T
+  <T, S extends (state: T) => any>(model: ModelLike<T>, selector: S): ReturnType<S>
+  <T>(model: ModelLike<T>): T
 }
 
-export const useModel: UseModel = <T, S extends (s: T) => any>(model: { getState: () => T }, selector?: S) => {
-  const app: ReapexApp | undefined = inject('@@ReapexApp')
-
-  if (!app) {
-    throw 'Reapex not been provided'
-  }
+export const useModel: UseModel = <T, S extends (s: T) => any>(model: ModelLike<T>, selector?: S) => {
+  const store = model.__APP__.store ? model.__APP__.store : model.__APP__.createStore()
 
   const state = selector ? ref<T | ReturnType<S>>(selector(model.getState())) : ref(model.getState())
 
@@ -39,7 +35,7 @@ export const useModel: UseModel = <T, S extends (s: T) => any>(model: { getState
     }
   }
 
-  const unsubscribe = app.store.subscribe(storeSubscriber)
+  const unsubscribe = store.subscribe(storeSubscriber)
 
   onUnmounted(unsubscribe)
 
