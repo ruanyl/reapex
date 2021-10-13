@@ -8,7 +8,8 @@
   "scripts": {
     "bootstrap": "lerna bootstrap",
     "test": "lerna run --parallel test",
-    "build": "lerna run --no-private --parallel build",
+    "build": "yarn build:reapex && lerna run --no-private --parallel build --ignore reapex",
+    "build:reapex": "lerna run --no-private --parallel build --scope reapex",
     "lint": "lerna run --parallel lint",
     "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
     "example:vue-counter": "lerna run --scope vue-counter start"
