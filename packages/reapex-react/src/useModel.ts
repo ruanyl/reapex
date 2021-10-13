@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import { App, GlobalState } from 'reapex'
 import { useSyncExternalStoreExtra } from 'use-sync-external-store/extra'
 
@@ -24,21 +24,25 @@ export const useModel: UseModel = <T, S extends (state: T) => any>(model: ModelL
     [model.namespace]
   )
 
+  const finalSelector = useCallback(
+    (state: GlobalState) => {
+      const modelState = modelSelector(state)
+      if (selector) {
+        return selector(modelState) as ReturnType<S>
+      }
+      return modelState
+    },
+    [modelSelector, selector]
+  )
+
   const store = model.__APP__.store ? model.__APP__.store : model.__APP__.createStore()
-  const value = useSyncExternalStoreExtra<GlobalState, T>(
+  const value = useSyncExternalStoreExtra<GlobalState, T | ReturnType<S>>(
     store.subscribe,
     store.getState,
     store.getState,
-    modelSelector,
+    finalSelector,
     refEquality
   )
 
-  const result = useMemo(() => {
-    if (selector) {
-      return selector(value)
-    }
-    return value
-  }, [selector, value])
-
-  return result
+  return value
 }
