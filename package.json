@@ -12,12 +12,14 @@
     "build:reapex": "lerna run --no-private --parallel build --scope reapex",
     "lint": "lerna run --parallel lint",
     "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
-    "example:vue-counter": "lerna run --scope vue-counter start"
+    "example:vue-counter": "lerna run --scope vue-counter start",
+    "docs": "vitepress dev docs"
   },
   "repository": "https://github.com/ruanyl/reapex.git",
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
   "license": "MIT",
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "lerna": "^4.0.0",
+    "vitepress": "^0.20.0"
   }
 }
