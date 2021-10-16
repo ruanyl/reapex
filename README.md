@@ -25,6 +25,7 @@ Or check out live examples:
 1. [Counter](https://codesandbox.io/s/reapex-example-counter-oluew)
 2. [Todo List](https://codesandbox.io/s/todo-list-examle-reapex-2n4qc?file=/src/index.tsx)
 3. [Login Form](https://codesandbox.io/s/reapex-login-form-06eq1)
+4. [Vue Counter](https://codesandbox.io/s/vue-counter-jgb5u?file=/src/main.ts)
 
 ## Getting started with a simple React `Counter` example
 
