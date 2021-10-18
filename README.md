@@ -6,7 +6,7 @@
 [![license](https://img.shields.io/github/license/ruanyl/reapex)](https://github.com/ruanyl/reapex/blob/master/LICENSE.md)
 
 
-Intuitive state management and data flow orchestration library for React and Vue application.
+Intuitive state management and data flow orchestration library which provides seamless development experience for React and Vue application.
 
 
 #### [Documentation](https://reapex.gitbook.io/docs/)
