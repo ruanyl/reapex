@@ -7,10 +7,10 @@
   },
   "scripts": {
     "bootstrap": "lerna bootstrap",
-    "test": "lerna run --parallel test",
+    "test": "lerna run --no-private --parallel test",
     "build": "yarn build:reapex && lerna run --no-private --parallel build --ignore reapex",
     "build:reapex": "lerna run --no-private --parallel build --scope reapex",
-    "lint": "lerna run --parallel lint",
+    "lint": "lerna run --no-private --parallel lint",
     "release:version":"lerna version --conventional-commits --no-changelog --no-push --yes",
     "release:publish": "lerna publish from-git --dist-tag beta",
     "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",

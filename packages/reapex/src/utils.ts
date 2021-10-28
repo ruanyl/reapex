@@ -2,7 +2,7 @@ import { AnyAction, Reducer } from 'redux'
 
 export const actionTypeHasNamespace = (actionType: string) => actionType.includes('/')
 
-export const createReducer = <S extends any, R extends Record<string, Reducer<S>>>(initialState: S, reducerMap: R) => {
+export const createReducer = <S, R extends Record<string, Reducer<S>>>(initialState: S, reducerMap: R) => {
   return (state: S = initialState, action: AnyAction): S => {
     const actionType = action.type
     const reducer = reducerMap[actionType]
