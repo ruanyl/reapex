@@ -5,3 +5,4 @@ dist
 .DS_Store
 example
 build
+lerna-debug.log
