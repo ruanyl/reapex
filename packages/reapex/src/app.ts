@@ -1,7 +1,7 @@
 import createSagaMiddleware, { Saga, SagaMiddleware } from 'redux-saga'
 import { AnyAction, combineReducers, Middleware, Reducer, ReducersMapObject, Store } from 'redux'
 import { all } from 'redux-saga/effects'
-import { SyncWaterfallHook } from 'tapable'
+import { AsyncSeriesHook, SyncWaterfallHook } from 'tapable'
 
 import { typedActionCreators, typedActionCreatorsForTriggers } from './createActions'
 import { mutationsLoaded, sagaLoaded, unloadSaga } from './globalActions'
@@ -12,6 +12,7 @@ import {
   EffectMap,
   EffectMapInput,
   Hooks,
+  Model,
   Mutator,
   MutatorInput,
   Plugin,
@@ -21,6 +22,7 @@ import {
 import { createReducer } from './utils'
 
 export interface AppConfig {
+  appId: number | string
   middleware: Middleware[]
 }
 export type Logic = (app: App, ...args: any[]) => any
@@ -34,18 +36,21 @@ export class App {
   store: Store<Record<string, any>>
   sagaMiddleware: SagaMiddleware<any>
   hooks: Hooks = {
-    beforeMutation: new SyncWaterfallHook<Mutator<any>, Mutator<any>>(['mutator']),
+    beforeMutation: new SyncWaterfallHook<[Mutator<any>, any, string]>(['mutator', 'state', 'namespace']),
+    afterMutationAsync: new AsyncSeriesHook<[any, string]>(['state', 'namespace']),
+    beforeModelInitialized: new SyncWaterfallHook<[unknown, string]>(['initialState', 'namespace']),
   }
 
   appConfig: AppConfig = {
     middleware: [],
+    appId: Math.random(),
   }
 
   constructor(appConfig: Partial<AppConfig> = {}) {
     this.appConfig = { ...this.appConfig, ...appConfig }
   }
 
-  model<T, N extends string>(namespace: N, initialState: T) {
+  model<T, N extends string>(namespace: N, initialState: T): Model<T, N> {
     // reducer map which key is prepend with namespace
     const namedMutations: Record<string, Reducer<T>> = {}
 
@@ -57,12 +62,22 @@ export class App {
       Object.keys(mutationMap).forEach((key) => {
         namedMutations[`${namespace}/${key}`] = (s: T, a: AnyAction) => {
           let mutator = mutationMap[key]
-          mutator = this.hooks.beforeMutation.call(mutator)
-          return mutator(...a.payload)(s)
+          mutator = this.hooks.beforeMutation.call(mutator, s, namespace)
+          s = mutator(...a.payload)(s)
+
+          this.hooks.afterMutationAsync.callAsync(s, namespace, (e) => {
+            if (e) {
+              throw e
+            }
+          })
+
+          return s
         }
       })
 
+      initialState = this.hooks.beforeModelInitialized.call(initialState, namespace) as T
       this.rootReducers[namespace] = createReducer(initialState, namedMutations)
+
       if (this.store) {
         this.store.replaceReducer(this.getReducer())
         this.store.dispatch(mutationsLoaded(namespace))
@@ -172,7 +187,7 @@ export class App {
   }
 
   plugin(plug: Plugin) {
-    plug(this.hooks)
+    plug(this.hooks, this)
   }
 
   use<T extends Logic>(logic: T, ...args: any[]): ReturnType<typeof logic> {

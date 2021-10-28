@@ -1,6 +1,9 @@
 import { AnyAction } from 'redux'
 import { SagaIterator } from 'redux-saga'
-import { SyncWaterfallHook } from 'tapable'
+import { AsyncSeriesHook, SyncWaterfallHook } from 'tapable'
+
+import { App } from './app'
+import { Mirrored } from './utils'
 
 export type GlobalState = Record<string, any>
 
@@ -118,7 +121,22 @@ export type ActionCreatorMapForEffects<P extends TriggerMapInput> = {
 }
 
 export interface Hooks {
-  beforeMutation: SyncWaterfallHook<Mutator<any>, Mutator<any>>
+  readonly beforeMutation: SyncWaterfallHook<[Mutator<any>, any, string]>
+  readonly afterMutationAsync: AsyncSeriesHook<[any, string]>
+  readonly beforeModelInitialized: SyncWaterfallHook<[unknown, string]>
 }
 
-export type Plugin = (hooks: Hooks) => void
+export type Plugin = (hooks: Hooks, app: App) => void
+
+export interface Model<T, N extends string> {
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  __APP__: App
+  namespace: string
+  mutations: <M extends MutatorInput<T>>(mutationMap: M) => readonly [ActionCreatorMap<M>, Mirrored<M, N>]
+  subscriptions: <M extends EffectMapInput>(effectMap: M) => void
+  effects: <M extends EffectMapInput>(effectMap: M) => void
+  triggers: <TM extends TriggerMapInput>(
+    triggerMap: TM
+  ) => readonly [ActionCreatorMapForEffects<TM>, Mirrored<TM, `${N}/triggers`>]
+  getState: () => T
+}

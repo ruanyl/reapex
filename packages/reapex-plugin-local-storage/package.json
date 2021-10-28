@@ -1,0 +1,54 @@
+{
+  "name": "reapex-plugin-local-storage",
+  "version": "1.0.0-beta.25",
+  "description": "Persist application state to localStorage",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "./node_modules/.bin/tsc --outDir lib --declaration",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ruanyl/reapex.git"
+  },
+  "keywords": [
+    "reapex",
+    "redux",
+    "localStorage"
+  ],
+  "devDependencies": {
+    "@types/jest": "~26.0.23",
+    "@typescript-eslint/eslint-plugin": "^4.25.0",
+    "@typescript-eslint/parser": "^4.25.0",
+    "eslint": "^7.27.0",
+    "eslint-config-react-typescript": "^1.0.7",
+    "import-sort-cli": "6.0.0",
+    "import-sort-parser-typescript": "6.0.0",
+    "import-sort-style-as": "1.2.3",
+    "jest": "^27.0.6",
+    "reapex": "^1.0.0-beta.25",
+    "ts-jest": "^27.0.3",
+    "typescript": "^4.3"
+  },
+  "peerDependencies": {
+    "reapex": ">= 1.0.0-beta.21"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true
+  },
+  "importSort": {
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "as"
+    }
+  },
+  "author": "Yulong Ruan <ruanyu1@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ruanyl/reapex/issues"
+  },
+  "homepage": "https://github.com/ruanyl/reapex/blob/master/packages/reapex-plugin-local-storage/README.md"
+}
