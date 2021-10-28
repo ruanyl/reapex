@@ -11,6 +11,8 @@
     "build": "yarn build:reapex && lerna run --no-private --parallel build --ignore reapex",
     "build:reapex": "lerna run --no-private --parallel build --scope reapex",
     "lint": "lerna run --parallel lint",
+    "release:version":"lerna version --conventional-commits --no-changelog --no-push --yes",
+    "release:publish": "lerna publish from-git --dist-tag beta",
     "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
     "example:local-storage": "SKIP_PREFLIGHT_CHECK=true lerna run --scope local-storage start",
     "example:vue-counter": "lerna run --scope vue-counter start"
