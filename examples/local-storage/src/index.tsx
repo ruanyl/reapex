@@ -5,10 +5,11 @@ import { useModel } from 'reapex-react'
 
 const { plugin, persist } = createLocalStoragePlugin()
 
-export const app = new App({ appId: 'example-local-storage' })
+export const app = new App()
 app.plugin(plugin)
 
-const UserModel = persist(app.model('User', { name: '', age: 0 }))
+const UserModel = app.model('User', { name: '', age: 0 })
+persist(UserModel)
 
 const [userMutations] = UserModel.mutations({
   setName: (name: string) => (s) => ({ ...s, name }),

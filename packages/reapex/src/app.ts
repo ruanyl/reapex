@@ -22,7 +22,7 @@ import {
 import { createReducer } from './utils'
 
 export interface AppConfig {
-  appId: number | string
+  name: string
   middleware: Middleware[]
 }
 export type Logic = (app: App, ...args: any[]) => any
@@ -43,7 +43,7 @@ export class App {
 
   appConfig: AppConfig = {
     middleware: [],
-    appId: Math.random(),
+    name: 'default',
   }
 
   constructor(appConfig: Partial<AppConfig> = {}) {

@@ -6,7 +6,7 @@ export const createLocalStoragePlugin = () => {
   const plugin: Plugin = (hooks, app) => {
     hooks.afterMutationAsync.tap('LocalStoragePlugin', (state, namespace) => {
       if (models[namespace]) {
-        const key = `${app.appConfig.appId}/${namespace}`
+        const key = `${app.appConfig.name}/${namespace}`
 
         if (state === undefined) {
           localStorage.removeItem(key)
@@ -20,7 +20,7 @@ export const createLocalStoragePlugin = () => {
       'LocalStoragePlugin',
       (initialState, namespace) => {
         if (models[namespace]) {
-          const key = `${app.appConfig.appId}/${namespace}`
+          const key = `${app.appConfig.name}/${namespace}`
           const item = localStorage.getItem(key)
           if (item !== null) {
             const { state } = JSON.parse(item)

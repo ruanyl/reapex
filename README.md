@@ -98,3 +98,23 @@ const [mutations] = counter.mutations({
 })
 ```
 Checkout [reapex-plugin-immer](https://github.com/ReapexJS/reapex-plugin-immer)
+
+## Work with Local Storage
+
+```typescript
+import { App } from 'reapex'
+import createLocalStoragePlugin from 'reapex-plugin-local-storage'
+
+// 1. Initialize the plugin
+const { plugin, persist } = createLocalStoragePlugin()
+const app = new App()
+
+// 2. register the plugin
+app.plugin(plugin)
+
+// 3. Simply wrap a `model` with `persist`
+const UserModel = app.model('User', { name: '', age: 0 })
+persist(UserModel)
+```
+
+Checkout [reapex-plugin-local-storage](https://github.com/ruanyl/reapex/blob/master/packages/reapex-plugin-local-storage/README.md)
