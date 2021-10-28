@@ -1,6 +1,6 @@
 {
   "name": "reapex-react",
-  "version": "1.0.0-beta.24",
+  "version": "1.0.0-beta.26",
   "description": "reapex react binding",
   "main": "./lib/cjs/index.js",
   "module": "./lib/esm/index.js",
@@ -35,7 +35,7 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "reapex": "^1.0.0-beta.23",
+    "reapex": "^1.0.0-beta.26",
     "use-sync-external-store": "0.0.0-experimental-7d38e4fd8-20210930"
   },
   "peerDependencies": {

@@ -1,6 +1,6 @@
 {
   "name": "vue-counter",
-  "version": "1.0.0-beta.23",
+  "version": "1.0.0-beta.26",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve",
@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "reapex": "^1.0.0-beta.23",
-    "reapex-vue": "^1.0.0-beta.23",
+    "reapex": "^1.0.0-beta.26",
+    "reapex-vue": "^1.0.0-beta.26",
     "vue": "^3.0.0"
   },
   "devDependencies": {
