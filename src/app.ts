@@ -1,5 +1,5 @@
 import createSagaMiddleware, { SagaMiddleware } from 'redux-saga'
-import { Map } from 'immutable'
+import { Map, Record as ImmutableRecord } from 'immutable'
 import {
   createState,
   Selectors,
@@ -109,6 +109,11 @@ export class App {
         namedMutations[`${namespace}/${key}`] = (s: State<T>, a: AnyAction) =>
           mutationMap[key](...a.payload)(s)
       })
+
+      namedMutations['@@GLOBAL/RESET_STORE'] = (s: State<T>, a: AnyAction) => {
+        const StateShape = ImmutableRecord(initialState)
+        return new StateShape()
+      }
 
       if (subscriptions) {
         Object.keys(subscriptions).forEach((key) => {
@@ -257,5 +262,11 @@ export class App {
     this.sagaMiddleware.run(rootSagas)
     this.store = store
     return store
+  }
+
+  resetStore() {
+    if (this.store) {
+      this.store.dispatch({ type: '@@GLOBAL/RESET_STORE' })
+    }
   }
 }
