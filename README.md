@@ -33,32 +33,25 @@ Or check out live examples:
 npm i reapex@beta reapex-react@beta --save
 ```
 
-### 1. Initialize the application
+### Example
 ```typescript
+import React from 'react'
+import { render } from 'react-dom'
 import { App } from 'reapex'
+import { useModel } from 'reapex-react'
 
 const app = new App()
 
-```
-
-### 2. Create a model(state)
-```typescript
+// Create a model(state)
 const CounterModel = app.model('Counter', 0)
-```
 
-### 3. Defined the mutations: how you want the state to be mutated
-```typescript
+// Define the mutations: how you want the state to be mutated
 const [mutations] = CounterModel.mutations({
   increase: () => total => total + 1,
   decrease: () => total => total - 1,
 })
-```
 
-### 4. Connect it with Component
-```typescript
-import React from 'react'
-import { useModel } from 'reapex-react'
-
+// useModel in the component
 export const Counter = () => {
   const total = useModel(CounterModel)
 
@@ -70,12 +63,9 @@ export const Counter = () => {
     </>
   )
 }
-```
 
-### 5. Render it!
-```typescript
-import { render } from 'react-dom'
-render(Counter, document.getElementById('root'))
+// Render it!
+render(<Counter />, document.getElementById('root'))
 ```
 
 
