@@ -1,6 +1,6 @@
 {
   "name": "vue-counter",
-  "version": "1.0.0-beta.27",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "vue-cli-service serve --open --skip-plugins @vue/cli-plugin-eslint",
@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.19.0",
-    "reapex": "^1.0.0-beta.27",
-    "reapex-vue": "^1.0.0-beta.27",
+    "reapex": "^1.0.0",
+    "reapex-vue": "^1.0.0",
     "vue": "^3.0.0"
   },
   "devDependencies": {
