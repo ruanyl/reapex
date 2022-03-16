@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { App, GlobalState } from 'reapex'
-import { useSyncExternalStoreExtra } from 'use-sync-external-store/extra'
+import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector'
 
 const refEquality = (a: any, b: any) => a === b
 
@@ -36,7 +36,7 @@ export const useModel: UseModel = <T, S extends (state: T) => any>(model: ModelL
   )
 
   const store = model.__APP__.store ? model.__APP__.store : model.__APP__.createStore()
-  const value = useSyncExternalStoreExtra<GlobalState, T | ReturnType<S>>(
+  const value = useSyncExternalStoreWithSelector<GlobalState, T | ReturnType<S>>(
     store.subscribe,
     store.getState,
     store.getState,
