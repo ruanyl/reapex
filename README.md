@@ -30,7 +30,7 @@ Or check out live examples:
 ## Getting started with a simple React `Counter` example
 
 ```
-npm i reapex@beta reapex-react@beta --save
+npm i reapex reapex-react --save
 ```
 
 ### Example
