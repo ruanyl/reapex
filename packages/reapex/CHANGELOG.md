@@ -1,3 +1,9 @@
+# release 1.1.0
+
+### Bug Fix
+
+1. Now when calling `store.getState` or `store.dispatch` internally, the store will be created if no store was initialized
+
 # release 1.0.0-beta.2
 
 ### New features
