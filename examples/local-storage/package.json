@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "local-storage",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "",
   "keywords": [],
   "main": "src/index.tsx",
@@ -9,9 +9,9 @@
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "^4.0.3",
-    "reapex": "^1.1.0",
-    "reapex-plugin-local-storage": "^1.1.0",
-    "reapex-react": "^1.1.0"
+    "reapex": "^1.1.1",
+    "reapex-plugin-local-storage": "^1.1.1",
+    "reapex-react": "^1.1.1"
   },
   "devDependencies": {
     "@types/react": "^17.0.33",
