@@ -15,7 +15,6 @@ describe('create actions', () => {
       decrease: () => (s) => ({ ...s, total: s.total - 1 }),
     })
 
-    app.createStore()
     expect(model.getState().total).toEqual(0)
 
     expect(mutations.increase().type).toEqual('Counter/increase')
@@ -39,7 +38,6 @@ describe('create actions', () => {
       decrease: () => (s) => ({ ...s, total: s.total - 1 }),
     })
 
-    app.createStore()
     expect(model.getState().total).toEqual(0)
 
     mutations.increase()

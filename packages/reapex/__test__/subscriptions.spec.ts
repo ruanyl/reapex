@@ -30,16 +30,15 @@ describe('create subscriptions', () => {
       },
     })
 
-    const store = app.createStore()
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
     expect(model.getState().languages).toEqual(['Chinese'])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
@@ -68,16 +67,15 @@ describe('create subscriptions', () => {
       },
     })
 
-    const store = app.createStore()
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
     expect(model.getState().languages).toEqual(['Chinese'])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
@@ -86,7 +84,6 @@ describe('create subscriptions', () => {
 
   it('should run subscriptions only ONE time when `subscriptions()` been registered dynamically multiple times', () => {
     // Initialize the store at the beginning and register mutations & subscriptions dynamically
-    const store = app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -110,13 +107,13 @@ describe('create subscriptions', () => {
 
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
     expect(model.getState().languages).toEqual(['Chinese'])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
@@ -124,7 +121,6 @@ describe('create subscriptions', () => {
   })
 
   it('should run subscriptions with takeLeading', async () => {
-    const store = app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -144,11 +140,11 @@ describe('create subscriptions', () => {
 
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
@@ -158,7 +154,6 @@ describe('create subscriptions', () => {
   })
 
   it('should run subscriptions with debounce', async () => {
-    const store = app.createStore()
     const initialState = { languages: [] as string[] }
     const model = app.model('User', initialState)
 
@@ -176,14 +171,14 @@ describe('create subscriptions', () => {
       },
     })
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
 
     await delay(100)
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
@@ -213,17 +208,16 @@ describe('create subscriptions', () => {
       },
     })
 
-    const store = app.createStore()
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
 
     await delay(100)
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })
@@ -253,14 +247,13 @@ describe('create subscriptions', () => {
       },
     })
 
-    const store = app.createStore()
     expect(model.getState().languages).toEqual([])
 
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'English',
     })
-    store.dispatch({
+    app.dispatch({
       type: 'ActionType.External.SetCurrentLanguage',
       value: 'Chinese',
     })

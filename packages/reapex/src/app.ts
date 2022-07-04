@@ -155,7 +155,7 @@ export class App {
 
     const getState = () => {
       if (!this.store) {
-        throw new Error(`Store has not initiated: ${namespace}`)
+        this.store = this.createStore()
       }
       const state = this.store.getState()
       return state[namespace] as T
@@ -232,11 +232,11 @@ export class App {
   }
 
   dispatch(action: AnyAction) {
-    if (this.store) {
-      this.store.dispatch(action)
-    } else {
-      throw new Error('Store has not initiated')
+    if (!this.store) {
+      this.store = this.createStore()
     }
+
+    return this.store.dispatch(action)
   }
 
   createStore(initialState?: Record<string, any>) {
