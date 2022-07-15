@@ -1,21 +1,24 @@
 {
   "private": true,
-  "name": "local-storage",
+  "name": "local-storage-example",
   "version": "1.1.1",
   "description": "",
   "keywords": [],
   "main": "src/index.tsx",
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-scripts": "^4.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
     "reapex": "^1.1.1",
     "reapex-plugin-local-storage": "^1.1.1",
     "reapex-react": "^1.1.1"
   },
   "devDependencies": {
-    "@types/react": "^17.0.33",
-    "@types/react-dom": "^17.0.10",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@babel/core": "^7.4.5",
+    "@babel/plugin-syntax-flow": "^7.14.5",
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
     "jest": "27.3.1",
     "typescript": "^4.4.4"
   },
@@ -23,13 +26,6 @@
     "start": "NODE_ENV=development react-scripts start",
     "build": "react-scripts build",
     "eject": "react-scripts eject"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "semi": false,
-    "singleQuote": true,
-    "printWidth": 120
   },
   "browserslist": [
     ">0.2%",

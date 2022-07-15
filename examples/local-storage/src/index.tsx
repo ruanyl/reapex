@@ -1,6 +1,6 @@
 import { App } from 'reapex'
 import createLocalStoragePlugin from 'reapex-plugin-local-storage'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { useModel } from 'reapex-react'
 
 const { plugin, persist } = createLocalStoragePlugin()
@@ -31,9 +31,13 @@ const UserComponent = () => {
   )
 }
 
-render(
-  <div>
-    <UserComponent />
-  </div>,
-  document.getElementById('root')
-)
+const container = document.getElementById('root')
+
+if (container) {
+  const root = createRoot(container)
+  root.render(
+    <div>
+      <UserComponent />
+    </div>
+  )
+}

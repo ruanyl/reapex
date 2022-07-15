@@ -1,26 +1,32 @@
 {
   "private": true,
   "version": "1.0.0",
-  "workspaces": {
-    "packages": ["packages/*", "examples/*"],
-    "nohoist": ["**/@vue/cli-plugin-eslint", "**/@vue/cli-plugin-eslint/**"]
-  },
   "scripts": {
-    "bootstrap": "lerna bootstrap",
-    "test": "lerna run --no-private --parallel test",
-    "build": "yarn build:reapex && lerna run --no-private --parallel build --ignore reapex",
-    "build:reapex": "lerna run --no-private --parallel build --scope reapex",
-    "lint": "lerna run --no-private --parallel lint",
+    "test": "turbo run test --filter=./packages/*",
+    "build": "turbo run build --filter=./packages/*",
+    "lint": "turbo run lint",
     "release:version":"lerna version --conventional-commits --no-changelog --no-push --yes",
     "release:publish": "lerna publish from-package",
-    "example:counter": "SKIP_PREFLIGHT_CHECK=true lerna run --scope counter start",
-    "example:local-storage": "SKIP_PREFLIGHT_CHECK=true lerna run --scope local-storage start",
-    "example:vue-counter": "lerna run --scope vue-counter start"
+    "example:counter": "SKIP_PREFLIGHT_CHECK=true turbo run start --filter counter-example",
+    "example:local-storage": "SKIP_PREFLIGHT_CHECK=true turbo run start --filter local-storage-example",
+    "example:vue-counter": "turbo run start --filter vue-counter-example"
   },
   "repository": "https://github.com/ruanyl/reapex.git",
   "author": "Yulong Ruan <ruanyu1@gmail.com>",
   "license": "MIT",
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 120
+  },
   "devDependencies": {
-    "lerna": "^4.0.0"
+    "prettier": "^2.7.1",
+    "import-sort-cli": "6.0.0",
+    "import-sort-parser-typescript": "6.0.0",
+    "import-sort-style-as": "1.3.1",
+    "lerna": "^5.0.0",
+    "turbo": "latest"
   }
 }

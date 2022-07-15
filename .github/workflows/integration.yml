@@ -20,11 +20,14 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v3
       with:
-        node-version: "14"
-    - run: yarn bootstrap
-    - run: yarn build
-    - run: yarn test
-    - run: yarn lint
+        node-version: "16"
+    - uses: pnpm/action-setup@v2
+      with:
+        version: latest
+    - run: pnpm install
+    - run: pnpm run build
+    - run: pnpm run test
+    - run: pnpm run lint

@@ -20,6 +20,6 @@ export type Mirrored<T extends Record<string, unknown>, N extends string> = {
 
 export const typedKeyMirror = <T extends Record<string, unknown>, N extends string>(keyMap: T, namespace: N) => {
   const keyMirrored: Mirrored<T, N> = {} as Mirrored<T, N>
-  Object.keys(keyMap).forEach((k: keyof T) => (keyMirrored[k] = `${namespace}/${k}` as const))
+  Object.keys(keyMap).forEach((k: keyof T) => (keyMirrored[k] = `${namespace}/${k.toString()}`))
   return keyMirrored
 }

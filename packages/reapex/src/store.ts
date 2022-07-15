@@ -1,4 +1,4 @@
-import { AnyAction, applyMiddleware, createStore, Middleware, Reducer, Store } from 'redux'
+import { AnyAction, applyMiddleware, legacy_createStore as createStore, Middleware, Reducer, Store } from 'redux'
 
 let composeWithDevTools: any
 

@@ -1,5 +1,5 @@
 import { App } from 'reapex'
-import { render } from 'react-dom'
+import { createRoot } from 'react-dom/client'
 import { useModel } from 'reapex-react'
 
 export const app = new App()
@@ -24,4 +24,9 @@ const CounterComponent = () => {
   )
 }
 
-render(<CounterComponent />, document.getElementById('root'))
+const container = document.getElementById('root')
+
+if (container) {
+  const root = createRoot(container)
+  root.render(<CounterComponent />)
+}

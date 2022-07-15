@@ -6,7 +6,7 @@
   "module": "./lib/esm/index.js",
   "types": "./lib/cjs/index.d.ts",
   "scripts": {
-    "build": "yarn run build:esm && npm run build:cjs",
+    "build": "pnpm run build:esm && pnpm run build:cjs",
     "build:esm": "tsc --module es2015 --outDir lib/esm --declaration",
     "build:cjs": "tsc --module commonjs --outDir lib/cjs --declaration",
     "test": "jest --coverage",
@@ -24,27 +24,20 @@
     "localStorage"
   ],
   "devDependencies": {
-    "@types/jest": "~27.0.2",
-    "@typescript-eslint/eslint-plugin": "^5.2.0",
-    "@typescript-eslint/parser": "^5.2.0",
-    "eslint": "^8.1.0",
-    "eslint-config-react-typescript": "^1.0.7",
-    "import-sort-cli": "6.0.0",
-    "import-sort-parser-typescript": "6.0.0",
-    "import-sort-style-as": "1.3.1",
-    "jest": "^27.0.6",
-    "reapex": "^1.1.1",
-    "ts-jest": "^27.0.3",
-    "typescript": "^4.3"
+    "@jest/types": "^28.0.0",
+    "@types/jest": "~28.1.5",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "eslint": "^8.19.0",
+    "eslint-config-react-typescript": "^1.0.10",
+    "jest": "^28.1.3",
+    "jest-environment-jsdom": "^28.1.3",
+    "reapex": "workspace:^1.1.1",
+    "ts-jest": "^28.0.6",
+    "typescript": "^4.7.4"
   },
   "peerDependencies": {
     "reapex": ">= 1.0.0-beta.21"
-  },
-  "prettier": {
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "semi": false,
-    "singleQuote": true
   },
   "importSort": {
     ".ts, .tsx": {

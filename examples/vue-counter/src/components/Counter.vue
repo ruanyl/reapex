@@ -15,7 +15,7 @@ import {useModel} from 'reapex-vue'
 import {CounterModel, mutations} from "./Counter.model";
 
 export default defineComponent({
-  name: 'Counter',
+  name: 'counter-component',
   methods: {
     increment() {
       mutations.increment()
