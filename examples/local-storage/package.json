@@ -9,9 +9,9 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
-    "reapex": "^1.1.1",
-    "reapex-plugin-local-storage": "^1.1.1",
-    "reapex-react": "^1.1.1"
+    "reapex": "workspace:*",
+    "reapex-plugin-local-storage": "workspace:*",
+    "reapex-react": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^18.0.15",

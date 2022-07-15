@@ -32,12 +32,12 @@
     "eslint-config-react-typescript": "^1.0.10",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
-    "reapex": "workspace:^1.1.1",
+    "reapex": "workspace:*",
     "ts-jest": "^28.0.6",
     "typescript": "^4.7.4"
   },
   "peerDependencies": {
-    "reapex": ">= 1.0.0-beta.21"
+    "reapex": ">= 1.1.1"
   },
   "importSort": {
     ".ts, .tsx": {

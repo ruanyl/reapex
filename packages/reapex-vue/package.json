@@ -24,14 +24,13 @@
     "eslint-config-react-typescript": "^1.0.10",
     "jest": "^28.1.3",
     "jest-environment-jsdom": "^28.1.3",
+    "reapex": "workspace:*",
     "ts-jest": "^28.0.6",
     "typescript": "^4.7.4",
     "vue": "^3.2.37"
   },
-  "dependencies": {
-    "reapex": "workspace:^1.1.1"
-  },
   "peerDependencies": {
+    "reapex": ">= 1.1.1",
     "vue": "3.x"
   },
   "importSort": {

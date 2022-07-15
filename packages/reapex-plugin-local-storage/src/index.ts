@@ -1,4 +1,4 @@
-import { Model, Plugin } from 'reapex'
+import type { Model, Plugin } from 'reapex'
 
 export const createLocalStoragePlugin = () => {
   const models: Record<string, Model<any, string>> = {}
@@ -16,20 +16,17 @@ export const createLocalStoragePlugin = () => {
       }
     })
 
-    hooks.beforeModelInitialized.tap(
-      'LocalStoragePlugin',
-      (initialState, namespace) => {
-        if (models[namespace]) {
-          const key = `${app.appConfig.name}/${namespace}`
-          const item = localStorage.getItem(key)
-          if (item !== null) {
-            const { state } = JSON.parse(item)
-            return state
-          }
+    hooks.beforeModelInitialized.tap('LocalStoragePlugin', (initialState, namespace) => {
+      if (models[namespace]) {
+        const key = `${app.appConfig.name}/${namespace}`
+        const item = localStorage.getItem(key)
+        if (item !== null) {
+          const { state } = JSON.parse(item)
+          return state
         }
-        return initialState
       }
-    )
+      return initialState
+    })
   }
 
   const persist = <T, N extends string>(model: Model<T, N>) => {

@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { App, GlobalState } from 'reapex'
+import type { App, GlobalState } from 'reapex'
 import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/shim/with-selector'
 
 const refEquality = (a: any, b: any) => a === b

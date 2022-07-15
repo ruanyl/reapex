@@ -29,8 +29,8 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-scripts: ^5.0.1
-      reapex: ^1.1.1
-      reapex-react: ^1.1.1
+      reapex: workspace:*
+      reapex-react: workspace:*
       typescript: ^4.4.4
     dependencies:
       react: 18.2.0
@@ -58,9 +58,9 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-scripts: ^5.0.1
-      reapex: ^1.1.1
-      reapex-plugin-local-storage: ^1.1.1
-      reapex-react: ^1.1.1
+      reapex: workspace:*
+      reapex-plugin-local-storage: workspace:*
+      reapex-react: workspace:*
       typescript: ^4.4.4
     dependencies:
       react: 18.2.0
@@ -92,8 +92,8 @@ importers:
       core-js: ^3.23.4
       eslint: ^8.19.0
       eslint-plugin-vue: ^9.2.0
-      reapex: workspace:^1.1.1
-      reapex-vue: workspace:^1.1.1
+      reapex: workspace:*
+      reapex-vue: workspace:*
       typescript: ^4.7.4
       vue: ^3.2.37
     dependencies:
@@ -166,7 +166,7 @@ importers:
       eslint-config-react-typescript: ^1.0.10
       jest: ^28.1.3
       jest-environment-jsdom: ^28.1.3
-      reapex: workspace:^1.1.1
+      reapex: workspace:*
       ts-jest: ^28.0.6
       typescript: ^4.7.4
     devDependencies:
@@ -198,12 +198,11 @@ importers:
       jest-environment-jsdom: ^28.1.3
       react: ^18.2.0
       react-dom: ^18.2.0
-      reapex: workspace:^1.1.1
+      reapex: workspace:*
       ts-jest: ^28.0.6
       typescript: ^4.7.4
       use-sync-external-store: ^1.2.0
     dependencies:
-      reapex: link:../reapex
       use-sync-external-store: 1.2.0_react@18.2.0
     devDependencies:
       '@jest/types': 28.1.3
@@ -220,6 +219,7 @@ importers:
       jest-environment-jsdom: 28.1.3
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+      reapex: link:../reapex
       ts-jest: 28.0.6_lhw3xkmzugq5tscs3x2ndm4sby
       typescript: 4.7.4
 
@@ -234,12 +234,10 @@ importers:
       eslint-config-react-typescript: ^1.0.10
       jest: ^28.1.3
       jest-environment-jsdom: ^28.1.3
-      reapex: workspace:^1.1.1
+      reapex: workspace:*
       ts-jest: ^28.0.6
       typescript: ^4.7.4
       vue: ^3.2.37
-    dependencies:
-      reapex: link:../reapex
     devDependencies:
       '@jest/types': 28.1.3
       '@types/jest': 28.1.5
@@ -250,6 +248,7 @@ importers:
       eslint-config-react-typescript: 1.0.10_fkhxoq6cnoqtqyxhht22jt34c4
       jest: 28.1.3
       jest-environment-jsdom: 28.1.3
+      reapex: link:../reapex
       ts-jest: 28.0.6_lhw3xkmzugq5tscs3x2ndm4sby
       typescript: 4.7.4
       vue: 3.2.37
@@ -7934,16 +7933,6 @@ packages:
   /flatted/3.2.6:
     resolution: {integrity: sha512-0sQoMh9s0BYsm+12Huy/rkKxVu4R1+r96YX5cG44rHV0pQ6iC3Q+mkoMFaGWObMFYQxCVT+ssG1ksneA2MI9KQ==}
 
-  /follow-redirects/1.15.1:
-    resolution: {integrity: sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    dev: false
-
   /follow-redirects/1.15.1_debug@4.3.4:
     resolution: {integrity: sha512-yLAMQs+k0b2m7cVxpS1VKJVvoz7SS9Td1zss3XRwXj+ZDH00RJgnuLx7E44wx02kQLrdM3aOOy+FpzS7+8OizA==}
     engines: {node: '>=4.0'}
@@ -7954,7 +7943,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-    dev: true
 
   /for-in/1.0.2:
     resolution: {integrity: sha512-7EwmXrOjyL+ChxMhmG5lnW9MPt1aIeZEwKhQzoBUdTV0N3zuwWDZYVJatDvZ2OyzPUvdIAZDsCetk3coyMfcnQ==}
@@ -8620,7 +8608,7 @@ packages:
     engines: {node: '>=8.0.0'}
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.1
+      follow-redirects: 1.15.1_debug@4.3.4
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug

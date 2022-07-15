@@ -9,8 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.23.4",
-    "reapex": "workspace:^1.1.1",
-    "reapex-vue": "workspace:^1.1.1",
+    "reapex": "workspace:*",
+    "reapex-vue": "workspace:*",
     "vue": "^3.2.37"
   },
   "devDependencies": {

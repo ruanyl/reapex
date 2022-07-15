@@ -1,4 +1,4 @@
-import { App } from 'reapex'
+import type { App } from 'reapex'
 import { onUnmounted, ref, UnwrapRef } from 'vue'
 
 interface ModelLike<T> {
